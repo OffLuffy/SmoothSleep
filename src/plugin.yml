@@ -1,0 +1,15 @@
+name: CarbonSleep
+author: OffLuffy
+description: Sleep speed plugin for Team-Carbon
+version: 0.0.1
+main: net.teamcarbon.carbonsleep.CarbonSleep
+depend: [CarbonLib]
+commands:
+  carbonsleep:
+    description: Reloads config values
+    usage: /cwreload
+    aliases: [csleep, sleep]
+permission:
+  carbonsleep.something:
+    description: Allows something
+    default: op

@@ -1,0 +1,10 @@
+enable-debug-messages: true
+disabled-worlds:
+- "vanilla-sleep-world"
+worlds:
+  world:
+    min-night-duration-seconds: 15
+    enable-morning-greeting: true
+    morning-greeting: "&bDawn of a new day has arrived!"
+    only-greet-sleepers: false
+    enable-sleeper-updates: true
