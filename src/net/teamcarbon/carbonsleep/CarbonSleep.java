@@ -21,8 +21,11 @@ public class CarbonSleep extends CarbonPlugin {
 			SLEEP_TICKS_END = 23458L,
 			SLEEP_TICKS_DURA = SLEEP_TICKS_END - SLEEP_TICKS_START;
 	private static HashMap<World, Integer> nightTimes = new HashMap<>();
+	private static CarbonSleep inst;
 
 	public void enablePlugin() {
+
+		inst = (CarbonSleep) getPlugin();
 
 		pm().registerEvents(new PlayerEventsListener(), this);
 		pm().registerEvents(new MorningEventListener(), this);
@@ -72,6 +75,8 @@ public class CarbonSleep extends CarbonPlugin {
 			}
 		}, 0L, 1L);
 	}
+
+	public static CarbonSleep inst() { return inst; }
 
 	public static boolean worldEnabled(World w) { return nightTimes.containsKey(w); }
 

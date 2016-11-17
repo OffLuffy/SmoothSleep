@@ -33,15 +33,15 @@ public class MorningEvent extends Event {
 	}
 
 	public boolean isGreetingEnabled() {
-		return CarbonSleep.getConf().getBoolean("worlds." + w.getName() + ".morning-greeting-enabled", true);
+		return CarbonSleep.inst().getConf().getBoolean("worlds." + w.getName() + ".morning-greeting-enabled", true);
 	}
 	public boolean onlyGreetSleepers() {
-		return CarbonSleep.getConf().getBoolean("worlds." + w.getName() + ".only-greet-sleepers", false);
+		return CarbonSleep.inst().getConf().getBoolean("worlds." + w.getName() + ".only-greet-sleepers", false);
 	}
 	public String getGreeting() {
-		String g = CarbonSleep.getConf().getString("worlds." + w.getName() + ".morning-greeting", "&bDawn of a new day has arrived!");
+		String g = CarbonSleep.inst().getConf().getString("worlds." + w.getName() + ".morning-greeting", "&bDawn of a new day has arrived!");
 		g = Messages.Clr.trans(g);
-		if (g == null || g.isEmpty()) return null;
+		if (g.isEmpty()) return null;
 		return g;
 	}
 

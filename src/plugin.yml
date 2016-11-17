@@ -7,7 +7,7 @@ depend: [CarbonLib, ProtocolLib]
 commands:
   carbonsleep:
     description: Reloads config values
-    usage: /cwreload
+    usage: /csreload
     aliases: [csleep, sleep]
 permission:
   carbonsleep.something:

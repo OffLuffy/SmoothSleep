@@ -14,7 +14,7 @@ public class PlayerEventsListener implements Listener {
 	public void enterBed(PlayerBedEnterEvent e) {
 		World w = e.getBed().getWorld();
 		if (CarbonSleep.worldEnabled(w)) {
-			if (CarbonSleep.getConf().getBoolean("worlds." + w.getName() + ".enable-sleeper-updates", true)) {
+			if (CarbonSleep.inst().getConf().getBoolean("worlds." + w.getName() + ".enable-sleeper-updates", true)) {
 				int sleepers = CarbonSleep.getSleeperCount(w) + 1;
 				int wakers = CarbonSleep.getWakerCount(w) - (e.getPlayer().isSleeping() ? 0 : 1);
 				for (Player p : w.getPlayers()) {
