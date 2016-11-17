@@ -3,7 +3,7 @@ author: OffLuffy
 description: Sleep speed plugin for Team-Carbon
 version: 0.0.1
 main: net.teamcarbon.carbonsleep.CarbonSleep
-depend: [CarbonLib]
+depend: [CarbonLib, ProtocolLib]
 commands:
   carbonsleep:
     description: Reloads config values
