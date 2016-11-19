@@ -1,7 +1,5 @@
 package net.teamcarbon.carbonsleep.events;
 
-import net.teamcarbon.carbonlib.Misc.Messages;
-import net.teamcarbon.carbonsleep.CarbonSleep;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -30,19 +28,6 @@ public class MorningEvent extends Event {
 	public MorningEvent(World world, List<Player> sleepers) {
 		w = world;
 		s = new ArrayList<>(sleepers);
-	}
-
-	public boolean isGreetingEnabled() {
-		return CarbonSleep.inst().getConf().getBoolean("worlds." + w.getName() + ".morning-greeting-enabled", true);
-	}
-	public boolean onlyGreetSleepers() {
-		return CarbonSleep.inst().getConf().getBoolean("worlds." + w.getName() + ".only-greet-sleepers", false);
-	}
-	public String getGreeting() {
-		String g = CarbonSleep.inst().getConf().getString("worlds." + w.getName() + ".morning-greeting", "&bDawn of a new day has arrived!");
-		g = Messages.Clr.trans(g);
-		if (g.isEmpty()) return null;
-		return g;
 	}
 
 	public World getWorld() { return w; }
