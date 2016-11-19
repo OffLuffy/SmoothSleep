@@ -79,6 +79,8 @@ public class CarbonSleep extends JavaPlugin {
 				}
 			}
 		}, 0L, 0L);
+
+		// Thanks to IAlIstannen at the Spigot forums for this idea of NMS sleepTick modification
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			public void run() {
 				if (!sleepers.isEmpty()) {
@@ -98,11 +100,11 @@ public class CarbonSleep extends JavaPlugin {
 	public static void reload() {
 		inst().reloadConfig();
 		nightTimes.clear();
-		List<String> disabledWorlds = inst().getConfig().getStringList("disabled-worlds");
 		for (World w : Bukkit.getWorlds()) {
-			if (w.getEnvironment() == Environment.NORMAL && !MiscUtils.eq(w.getName(), disabledWorlds)) {
-				String confPath = "worlds." + w.getName() + ".";
-				nightTimes.put(w, inst().getConfig().getInt(confPath + "min-night-duration-seconds", 15));
+			if (w.getEnvironment() == Environment.NORMAL) {
+				if (inst().getConfig().contains("worlds." + w.getName())) {
+					nightTimes.put(w, inst().getConfig().getInt("worlds." + w.getName() + ".min-night-duration-seconds", 10));
+				}
 			}
 		}
 	}
