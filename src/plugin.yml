@@ -8,8 +8,8 @@ commands:
   carbonsleepreload:
     description: Reloads config values
     usage: /csreload
-    aliases: [csleepreload, sleepreload]
+    aliases: [csreload, csleepreload, sleepreload]
 permission:
-  carbonsleep.something:
-    description: Allows something
+  carbonsleep.reload:
+    description: Allows reloading CarbonSleep config
     default: op

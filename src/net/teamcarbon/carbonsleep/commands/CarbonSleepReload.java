@@ -13,6 +13,7 @@ public class CarbonSleepReload implements CommandExecutor {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to do this!");
 		} else {
 			CarbonSleep.reload();
+			sender.sendMessage(ChatColor.GREEN + "Reloaded CarbonSleep");
 		}
 		return true;
 	}

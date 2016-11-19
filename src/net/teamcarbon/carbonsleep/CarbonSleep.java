@@ -1,6 +1,7 @@
 package net.teamcarbon.carbonsleep;
 
 import net.milkbowl.vault.permission.Permission;
+import net.teamcarbon.carbonsleep.commands.CarbonSleepReload;
 import net.teamcarbon.carbonsleep.events.MorningEvent;
 import net.teamcarbon.carbonsleep.lib.FormatUtils.FormattedMessage;
 import net.teamcarbon.carbonsleep.lib.MiscUtils;
@@ -20,11 +21,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 
 @SuppressWarnings("unused")
 public class CarbonSleep extends JavaPlugin {
-
 	private static final long SLEEP_TICKS_START = 12541L,
 			SLEEP_TICKS_END = 23458L,
 			SLEEP_TICKS_DURA = SLEEP_TICKS_END - SLEEP_TICKS_START;
@@ -32,35 +31,18 @@ public class CarbonSleep extends JavaPlugin {
 	private static List<Player> sleepers = new ArrayList<>();
 	private static CarbonSleep inst;
 	private Permission perm;
-
-	// ========================================================================
-	// ==                            ABSTRACT                                ==
-	// ========================================================================
-
 	public void onEnable() {
-
 		if (!setupPerm()) {
-			getLogger().log(Level.SEVERE, "Cannot find Vault! Disabling plugin...");
+			log(ChatColor.RED + "Cannot find Vault! Disabling plugin...");
 			pm().disablePlugin(this);
 		}
-
 		inst = this;
-
-		// Register some events
 		pm().registerEvents(new PlayerEventsListener(), this);
+		getServer().getPluginCommand("carbonsleepreload").setExecutor(new CarbonSleepReload());
 
 		saveDefaultConfig();
+		reload();
 
-		// First cache which worlds are enabled
-		List<String> disabledWorlds = getConfig().getStringList("disabled-worlds");
-		for (World w : Bukkit.getWorlds()) {
-			if (w.getEnvironment() == Environment.NORMAL && !MiscUtils.eq(w.getName(), disabledWorlds)) {
-				String confPath = "worlds." + w.getName() + ".";
-				nightTimes.put(w, getConfig().getInt(confPath + "min-night-duration-seconds", 15));
-			}
-		}
-
-		// Schedule a task to run only overnight, adjusting the time as needed
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			public void run() {
 				if (nightTimes.isEmpty()) return;
@@ -75,7 +57,7 @@ public class CarbonSleep extends JavaPlugin {
 					// Calculate some math for time and stuff
 					long duraTicks = nightTimes.get(w) * 20; // Number of ticks for night to last with 100% speed
 					long ticksPerTick = SLEEP_TICKS_DURA / duraTicks - 1; // Ticks to pass per tick at 100% speed
-					double newtt = remapValue(true, 0, (sc+wc), 0, ticksPerTick, sc);
+					double newtt = MiscUtils.remapValue(true, 0, (sc+wc), 0, ticksPerTick, sc);
 					long newTime = w.getTime() + Math.round(newtt);
 					if (newTime > SLEEP_TICKS_END) newTime = SLEEP_TICKS_END;
 					w.setTime(newTime);
@@ -85,6 +67,8 @@ public class CarbonSleep extends JavaPlugin {
 						pm().callEvent(new MorningEvent(w, sleepers));
 						title = new FormattedMessage(MiscUtils.ticksToTime(w.getTime())).color(ChatColor.YELLOW);
 						subtitle = new FormattedMessage("Good morning!").color(ChatColor.GREEN);
+						w.setThundering(false);
+						w.setStorm(false);
 					} else {
 						title = new FormattedMessage(MiscUtils.ticksToTime(w.getTime())).color(ChatColor.AQUA);
 						subtitle = new FormattedMessage(sc + "/" + (sc+wc) + " Sleepers").color(ChatColor.GREEN);
@@ -95,14 +79,14 @@ public class CarbonSleep extends JavaPlugin {
 				}
 			}
 		}, 0L, 0L);
-
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			public void run() {
 				if (!sleepers.isEmpty()) {
 					for (Player p : sleepers) {
+						long wt = p.getWorld().getTime();
 						try {
 							Object nmsPlr = ReflectionUtils.invokeMethod(p, "getHandle", new Class[0]);
-							ReflectionUtils.setValue(nmsPlr, false, "sleepTicks", 0);
+							ReflectionUtils.setValue(nmsPlr, false, "sleepTicks", wt > SLEEP_TICKS_END ? 100 : 0);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -111,69 +95,40 @@ public class CarbonSleep extends JavaPlugin {
 			}
 		}, 0L, 10L);
 	}
-
-	// ========================================================================
-	// ==                             PUBLIC                                 ==
-	// ========================================================================
-
-	public static void reload() { inst().reloadConfig(); }
-
-	public static boolean perm(CommandSender sender, String perm) {
-		return inst.perm.has(sender, perm);
+	public static void reload() {
+		inst().reloadConfig();
+		nightTimes.clear();
+		List<String> disabledWorlds = inst().getConfig().getStringList("disabled-worlds");
+		for (World w : Bukkit.getWorlds()) {
+			if (w.getEnvironment() == Environment.NORMAL && !MiscUtils.eq(w.getName(), disabledWorlds)) {
+				String confPath = "worlds." + w.getName() + ".";
+				nightTimes.put(w, inst().getConfig().getInt(confPath + "min-night-duration-seconds", 15));
+			}
+		}
 	}
-
+	public static boolean perm(CommandSender sender, String perm) { return inst.perm.has(sender, perm); }
 	public static PluginManager pm() { return Bukkit.getPluginManager(); }
 	public static CarbonSleep inst() { return inst; }
-
+	public static void log(String msg) { inst().getServer().getConsoleSender().sendMessage(msg); }
 	public static boolean worldEnabled(World w) { return nightTimes.containsKey(w); }
-
 	public static void addSleeper(Player p) { if (!sleepers.contains(p)) sleepers.add(p); }
 	public static void removeSleeper(Player p) { if (sleepers.contains(p)) sleepers.remove(p); }
-
 	public static boolean isSleeping(Player p) { return p != null && sleepers.contains(p); }
-
-	/**
-	 * Counts sleepers in the specified World. Only counts Players in enabled Worlds
-	 * if CarbonSleep is managing the sleep mechanics. Will nout count vanilla sleepers.
-	 * @param w The World to count sleeping Players in
-	 * @return Returns the number (int) of Players sleeping in the specified World
-	 */
 	public static int getSleeperCount(World w) {
 		if (!worldEnabled(w)) return 0;
 		int s = 0;
 		for (Player p : sleepers) { if (p.getWorld().equals(w)) { s++; } }
 		return s;
 	}
-
-	/**
-	 * Counts non-sleeping Players in the specified World whom are not sleep-ignored.
-	 * Only counts Players in enabled Worlds.
-	 * @param w The World to count awake Players in
-	 * @return Returns the number (int) of Players not sleeping and not sleep-ignored in the specified World
-	 */
 	public static int getWakerCount(World w) {
 		if (!worldEnabled(w)) return 0;
 		int a = 0;
 		for (Player p : w.getPlayers()) { if (!isSleeping(p) && !p.isSleepingIgnored()) a++; }
 		return a;
 	}
-
-	// ========================================================================
-	// ==                             PRIVATE                                ==
-	// ========================================================================
-
-	private double remapValue(boolean clamp, double oldMin, double oldMax, double newMin, double newMax, double value) {
-		if (clamp) {
-			if (value >= oldMax) return newMax;
-			if (value <= oldMin) return newMin;
-		}
-		return (((newMax - newMin) * (value - oldMin)) / (oldMax - oldMin)) + newMin;
-	}
-
 	private boolean setupPerm() {
 		RegisteredServiceProvider<Permission> pp = Bukkit.getServicesManager().getRegistration(Permission.class);
 		if (pp != null) perm = pp.getProvider();
 		return perm != null;
 	}
-
 }
