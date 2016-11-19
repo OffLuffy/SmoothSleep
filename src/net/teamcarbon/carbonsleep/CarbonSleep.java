@@ -68,9 +68,7 @@ public class CarbonSleep extends JavaPlugin {
 					}
 
 					for (Player p : sleepers) {
-						if (subtitle != null) {
-							subtitle.setText(subtitle.getText().replace("{PLAYER}", p.getName()));
-						}
+						subtitle.setText(subtitle.getText().replace("{PLAYER}", p.getName()));
 						p.sendTitle(title.toLegacyText(), subtitle.toLegacyText());
 					}
 
@@ -85,7 +83,7 @@ public class CarbonSleep extends JavaPlugin {
 					for (Player p : sleepers) {
 						long wt = p.getWorld().getTime();
 						try {
-							Object nmsPlr = ReflectionUtils.invokeMethod(p, "getHandle", new Class[0]);
+							Object nmsPlr = ReflectionUtils.invokeMethod(p, "getHandle");
 							ReflectionUtils.setValue(nmsPlr, false, "sleepTicks", wt > SLEEP_TICKS_END ? 100 : 0);
 						} catch (Exception e) {
 							e.printStackTrace();
