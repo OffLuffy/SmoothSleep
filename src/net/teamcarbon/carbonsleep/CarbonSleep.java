@@ -98,15 +98,14 @@ public class CarbonSleep extends JavaPlugin {
 	public void reload() {
 		reloadConfig();
 		nightTimes.clear();
-		boolean saveConf = false;
 		for (World w : Bukkit.getWorlds()) {
 			if (w.getEnvironment() == Environment.NORMAL) {
 				if (getConfig().contains("worlds." + w.getName())) {
 
 					// Will add config changes here if they'll need to be added from and older config.
-					if (!getConfig().contains("worlds." + w.getName() + ".morning-subtitle")) {
+					if (!getConfig().contains("worlds." + w.getName() + ".morning-subtitle", true)) {
 						getConfig().set("worlds." + w.getName() + ".morning-subtitle", "Rise and shine, {PLAYER}!");
-						saveConf = true;
+						saveConfig();
 					}
 
 					// Cache min. durations (just easier to iterate over later I suppose)
@@ -114,7 +113,6 @@ public class CarbonSleep extends JavaPlugin {
 				}
 			}
 		}
-		if (saveConf) saveConfig();
 	}
 
 	private PluginManager pm() { return Bukkit.getPluginManager(); }
