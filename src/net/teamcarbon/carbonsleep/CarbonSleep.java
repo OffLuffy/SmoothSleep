@@ -23,6 +23,8 @@ public class CarbonSleep extends CarbonPlugin {
 	private static HashMap<World, Integer> nightTimes = new HashMap<>();
 	private static CarbonSleep inst;
 
+	public String getDebugPath() { return "enable-debug-messages"; }
+
 	public void enablePlugin() {
 
 		inst = (CarbonSleep) getPlugin();
@@ -75,6 +77,8 @@ public class CarbonSleep extends CarbonPlugin {
 			}
 		}, 0L, 1L);
 	}
+
+	public void disablePlugin() { }
 
 	public static CarbonSleep inst() { return inst; }
 
