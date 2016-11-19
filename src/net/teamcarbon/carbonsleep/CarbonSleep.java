@@ -1,15 +1,23 @@
 package net.teamcarbon.carbonsleep;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.wrappers.BlockPosition;
 import net.teamcarbon.carbonlib.CarbonPlugin;
+import net.teamcarbon.carbonlib.Misc.CarbonException;
 import net.teamcarbon.carbonlib.Misc.MiscUtils;
 import net.teamcarbon.carbonlib.Misc.NumUtils;
 import net.teamcarbon.carbonsleep.events.MorningEvent;
 import net.teamcarbon.carbonsleep.listeners.*;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,13 +29,16 @@ public class CarbonSleep extends CarbonPlugin {
 			SLEEP_TICKS_END = 23458L,
 			SLEEP_TICKS_DURA = SLEEP_TICKS_END - SLEEP_TICKS_START;
 	private static HashMap<World, Integer> nightTimes = new HashMap<>();
+	private static List<Player> sleepers = new ArrayList<>();
 	private static CarbonSleep inst;
+	private static Plugin protoLib; // ProtocolLib
 
 	public String getDebugPath() { return "enable-debug-messages"; }
 
 	public void enablePlugin() {
 
 		inst = (CarbonSleep) getPlugin();
+		protoLib = MiscUtils.checkPlugin("ProtocolLib", true) ? pm().getPlugin("ProtocolManager") : null;
 
 		pm().registerEvents(new PlayerEventsListener(), this);
 		pm().registerEvents(new MorningEventListener(), this);
@@ -80,20 +91,47 @@ public class CarbonSleep extends CarbonPlugin {
 
 	public void disablePlugin() { }
 
+	public static ProtocolManager protoMgr() { return ((com.comphenix.protocol.ProtocolLibrary) protoLib).getProtocolManager(); }
+
 	public static CarbonSleep inst() { return inst; }
 
 	public static boolean worldEnabled(World w) { return nightTimes.containsKey(w); }
 
-	public static int getSleeperCount(World w) {
-		int s = 0;
-		for (Player p : w.getPlayers()) { if (p.isSleeping()) s++; }
-		return s;
-	}
+	public static int getSleeperCount(World w) { return sleepers.size(); }
+
+	public static boolean isSleeping(Player p) { return p != null && sleepers.contains(p); }
 
 	public static int getWakerCount(World w) {
 		int a = 0;
 		for (Player p : w.getPlayers()) { if (p.isSleepingIgnored() || !p.isSleeping()) a++; }
 		return a;
+	}
+
+	public static void playSleepAnim(Player sleeper, Location bedLoc) {
+		if (!sleepers.contains(sleeper)) sleepers.add(sleeper);
+		if (bedLoc == null) bedLoc = sleeper.getLocation();
+		final PacketContainer bedPacket = CarbonSleep.protoMgr().createPacket(PacketType.Play.Server.BED, false);
+		bedPacket.getEntityModifier(sleeper.getWorld()).write(0, sleeper);
+		bedPacket.getBlockPositionModifier().write(0, new BlockPosition(bedLoc.getBlockX(), bedLoc.getBlockY(), bedLoc.getBlockZ()));
+		broadcastNearby(sleeper, bedPacket);
+	}
+
+	public static void stopSleepAnim(Player sleeper) {
+		if (sleepers.contains(sleeper)) sleepers.remove(sleeper);
+		final PacketContainer animation = CarbonSleep.protoMgr().createPacket(PacketType.Play.Server.ANIMATION, false);
+		animation.getEntityModifier(sleeper.getWorld()).write(0, sleeper);
+		animation.getIntegers().write(1, 2);
+		broadcastNearby(sleeper, animation);
+	}
+
+	private static void broadcastNearby(Player asleep, PacketContainer bedPacket) {
+		for (Player observer : CarbonSleep.protoMgr().getEntityTrackers(asleep)) {
+			try {
+				CarbonSleep.protoMgr().sendServerPacket(observer, bedPacket);
+			} catch (InvocationTargetException e) {
+				throw new CarbonException(inst, new RuntimeException("Cannot send packet.", e));
+			}
+		}
 	}
 
 }
