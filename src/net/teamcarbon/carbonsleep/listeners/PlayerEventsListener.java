@@ -11,12 +11,15 @@ import org.bukkit.event.player.PlayerBedLeaveEvent;
 
 public class PlayerEventsListener implements Listener {
 
+	CarbonSleep plugin;
+	public PlayerEventsListener(CarbonSleep p) { plugin = p; }
+
 	@EventHandler(ignoreCancelled = true)
 	public void enterBed(PlayerBedEnterEvent e) {
 		Player p = e.getPlayer();
 		World w = e.getBed().getWorld();
 		Location l = e.getBed().getLocation();
-		if (CarbonSleep.worldEnabled(w)) { CarbonSleep.addSleeper(e.getPlayer()); }
+		if (plugin.worldEnabled(w)) { plugin.addSleeper(e.getPlayer()); }
 	}
 
 	@EventHandler(ignoreCancelled = true)
@@ -24,7 +27,7 @@ public class PlayerEventsListener implements Listener {
 		Player p = e.getPlayer();
 		World w = e.getBed().getWorld();
 		Location l = e.getBed().getLocation();
-		if (CarbonSleep.worldEnabled(w)) { CarbonSleep.removeSleeper(e.getPlayer()); }
+		if (plugin.worldEnabled(w)) { plugin.removeSleeper(e.getPlayer()); }
 	}
 
 }

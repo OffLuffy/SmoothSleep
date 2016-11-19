@@ -1,12 +1,12 @@
 name: CarbonSleep
 author: OffLuffy
-description: Sleep speed plugin for Team-Carbon
-version: 1.0.0
-depend: [Vault]
+description: A smoother, multiplayer friendly sleep plugin
+version: 1.0.1
 main: net.teamcarbon.carbonsleep.CarbonSleep
 commands:
   carbonsleepreload:
-    description: Reloads config values
+    description: Reloads CarbonSleep's config values
+    permission: "carbonsleep.reload"
     usage: /csreload
     aliases: [csreload, csleepreload, sleepreload]
 permission:

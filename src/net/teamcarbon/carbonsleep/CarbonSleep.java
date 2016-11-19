@@ -1,21 +1,16 @@
 package net.teamcarbon.carbonsleep;
 
-import net.milkbowl.vault.permission.Permission;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.teamcarbon.carbonsleep.commands.CarbonSleepReload;
-import net.teamcarbon.carbonsleep.events.MorningEvent;
-import net.teamcarbon.carbonsleep.lib.FormatUtils.FormattedMessage;
 import net.teamcarbon.carbonsleep.lib.MiscUtils;
 import net.teamcarbon.carbonsleep.lib.ReflectionUtils;
-import net.teamcarbon.carbonsleep.lib.TitleUtils.TitleHelper;
 import net.teamcarbon.carbonsleep.listeners.*;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -24,26 +19,20 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 public class CarbonSleep extends JavaPlugin {
-	private static final long SLEEP_TICKS_START = 12541L,
+	private final long SLEEP_TICKS_START = 12541L,
 			SLEEP_TICKS_END = 23458L,
 			SLEEP_TICKS_DURA = SLEEP_TICKS_END - SLEEP_TICKS_START;
-	private static HashMap<World, Integer> nightTimes = new HashMap<>();
-	private static List<Player> sleepers = new ArrayList<>();
-	private static CarbonSleep inst;
-	private Permission perm;
+	private HashMap<World, Integer> nightTimes = new HashMap<>();
+	private List<Player> sleepers = new ArrayList<>();
 	public void onEnable() {
-		if (!setupPerm()) {
-			log(ChatColor.RED + "Cannot find Vault! Disabling plugin...");
-			pm().disablePlugin(this);
-		}
-		inst = this;
-		pm().registerEvents(new PlayerEventsListener(), this);
-		getServer().getPluginCommand("carbonsleepreload").setExecutor(new CarbonSleepReload());
+		pm().registerEvents(new PlayerEventsListener(this), this);
+		getServer().getPluginCommand("carbonsleepreload").setExecutor(new CarbonSleepReload(this));
 
 		saveDefaultConfig();
 		reload();
 
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			@SuppressWarnings("deprecation")
 			public void run() {
 				if (nightTimes.isEmpty()) return;
 				for (World w : nightTimes.keySet()) {
@@ -62,19 +51,28 @@ public class CarbonSleep extends JavaPlugin {
 					if (newTime > SLEEP_TICKS_END) newTime = SLEEP_TICKS_END;
 					w.setTime(newTime);
 
-					FormattedMessage title, subtitle;
+					//FormattedMessage title, subtitle;
+					TextComponent title, subtitle;
 					if (newTime >= SLEEP_TICKS_END) {
-						pm().callEvent(new MorningEvent(w, sleepers));
-						title = new FormattedMessage(MiscUtils.ticksToTime(w.getTime())).color(ChatColor.YELLOW);
-						subtitle = new FormattedMessage("Good morning!").color(ChatColor.GREEN);
+						title = new TextComponent(MiscUtils.ticksToTime(w.getTime()));
+						title.setColor(ChatColor.YELLOW);
+						subtitle = new TextComponent(getConfig().getString("worlds." + w.getName() + ".morning-subtitle", "Rise and shine, {PLAYER}!"));
+						subtitle.setColor(ChatColor.GREEN);
 						w.setThundering(false);
 						w.setStorm(false);
 					} else {
-						title = new FormattedMessage(MiscUtils.ticksToTime(w.getTime())).color(ChatColor.AQUA);
-						subtitle = new FormattedMessage(sc + "/" + (sc+wc) + " Sleepers").color(ChatColor.GREEN);
+						title = new TextComponent(MiscUtils.ticksToTime(w.getTime()));
+						title.setColor(ChatColor.AQUA);
+						subtitle = new TextComponent(sc + "/" + (sc+wc) + " Sleepers");
+						subtitle.setColor(ChatColor.GREEN);
 					}
 
-					for (Player p : sleepers) { TitleHelper.sendTitle(p, new int[] {0, 40, 10}, title, subtitle); }
+					for (Player p : sleepers) {
+						if (subtitle != null) {
+							subtitle.setText(subtitle.getText().replace("{PLAYER}", p.getName()));
+						}
+						p.sendTitle(title.toLegacyText(), subtitle.toLegacyText());
+					}
 
 				}
 			}
@@ -97,40 +95,44 @@ public class CarbonSleep extends JavaPlugin {
 			}
 		}, 0L, 10L);
 	}
-	public static void reload() {
-		inst().reloadConfig();
+	public void reload() {
+		reloadConfig();
 		nightTimes.clear();
+		boolean saveConf = false;
 		for (World w : Bukkit.getWorlds()) {
 			if (w.getEnvironment() == Environment.NORMAL) {
-				if (inst().getConfig().contains("worlds." + w.getName())) {
-					nightTimes.put(w, inst().getConfig().getInt("worlds." + w.getName() + ".min-night-duration-seconds", 10));
+				if (getConfig().contains("worlds." + w.getName())) {
+
+					// Will add config changes here if they'll need to be added from and older config.
+					if (!getConfig().contains("worlds." + w.getName() + ".morning-subtitle")) {
+						getConfig().set("worlds." + w.getName() + ".morning-subtitle", "Rise and shine, {PLAYER}!");
+						saveConf = true;
+					}
+
+					// Cache min. durations (just easier to iterate over later I suppose)
+					nightTimes.put(w, getConfig().getInt("worlds." + w.getName() + ".min-night-duration-seconds", 10));
 				}
 			}
 		}
+		if (saveConf) saveConfig();
 	}
-	public static boolean perm(CommandSender sender, String perm) { return inst.perm.has(sender, perm); }
-	public static PluginManager pm() { return Bukkit.getPluginManager(); }
-	public static CarbonSleep inst() { return inst; }
-	public static void log(String msg) { inst().getServer().getConsoleSender().sendMessage(msg); }
-	public static boolean worldEnabled(World w) { return nightTimes.containsKey(w); }
-	public static void addSleeper(Player p) { if (!sleepers.contains(p)) sleepers.add(p); }
-	public static void removeSleeper(Player p) { if (sleepers.contains(p)) sleepers.remove(p); }
-	public static boolean isSleeping(Player p) { return p != null && sleepers.contains(p); }
-	public static int getSleeperCount(World w) {
+
+	private PluginManager pm() { return Bukkit.getPluginManager(); }
+
+	public boolean worldEnabled(World w) { return nightTimes.containsKey(w); }
+	public void addSleeper(Player p) { if (!sleepers.contains(p)) sleepers.add(p); }
+	public void removeSleeper(Player p) { if (sleepers.contains(p)) sleepers.remove(p); }
+	private boolean isSleeping(Player p) { return p != null && sleepers.contains(p); }
+	public int getSleeperCount(World w) {
 		if (!worldEnabled(w)) return 0;
 		int s = 0;
 		for (Player p : sleepers) { if (p.getWorld().equals(w)) { s++; } }
 		return s;
 	}
-	public static int getWakerCount(World w) {
+	public int getWakerCount(World w) {
 		if (!worldEnabled(w)) return 0;
 		int a = 0;
 		for (Player p : w.getPlayers()) { if (!isSleeping(p) && !p.isSleepingIgnored()) a++; }
 		return a;
-	}
-	private boolean setupPerm() {
-		RegisteredServiceProvider<Permission> pp = Bukkit.getServicesManager().getRegistration(Permission.class);
-		if (pp != null) perm = pp.getProvider();
-		return perm != null;
 	}
 }

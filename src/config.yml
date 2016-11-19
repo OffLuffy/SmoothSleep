@@ -1,3 +1,4 @@
 worlds:
   world:
     min-night-duration-seconds: 10
+    morning-subtitle: "Rise and shine, {PLAYER}!"
