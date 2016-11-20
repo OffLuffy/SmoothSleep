@@ -1,7 +1,7 @@
 name: CarbonSleep
 author: OffLuffy
 description: A smoother, multiplayer friendly sleep plugin
-version: 1.0.1
+version: 1.0.2
 main: net.teamcarbon.carbonsleep.CarbonSleep
 commands:
   carbonsleepreload:
