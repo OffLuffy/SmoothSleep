@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 
 public class CarbonSleepReload implements CommandExecutor {
 
-	CarbonSleep plugin;
+	private CarbonSleep plugin;
 	public CarbonSleepReload(CarbonSleep p) { plugin = p; }
 
 	@Override

@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerBedLeaveEvent;
 
 public class PlayerEventsListener implements Listener {
 
-	CarbonSleep plugin;
+	private CarbonSleep plugin;
 	public PlayerEventsListener(CarbonSleep p) { plugin = p; }
 
 	@EventHandler(ignoreCancelled = true)

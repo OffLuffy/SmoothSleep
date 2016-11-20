@@ -1,12 +1,11 @@
 package net.teamcarbon.carbonsleep;
 
-import net.md_5.bungee.api.chat.TextComponent;
 import net.teamcarbon.carbonsleep.commands.CarbonSleepReload;
 import net.teamcarbon.carbonsleep.lib.MiscUtils;
 import net.teamcarbon.carbonsleep.lib.ReflectionUtils;
 import net.teamcarbon.carbonsleep.listeners.*;
 import org.bukkit.Bukkit;
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
@@ -52,24 +51,20 @@ public class CarbonSleep extends JavaPlugin {
 					w.setTime(newTime);
 
 					//FormattedMessage title, subtitle;
-					TextComponent title, subtitle;
+					String title, subtitle;
 					if (newTime >= SLEEP_TICKS_END) {
-						title = new TextComponent(MiscUtils.ticksToTime(w.getTime()));
-						title.setColor(ChatColor.YELLOW);
-						subtitle = new TextComponent(getConfig().getString("worlds." + w.getName() + ".morning-subtitle", "Rise and shine, {PLAYER}!"));
-						subtitle.setColor(ChatColor.GREEN);
+						title = ChatColor.YELLOW + MiscUtils.ticksToTime(w.getTime());
+						subtitle = trans(getConfig().getString("worlds." + w.getName() + ".morning-subtitle", "Rise and shine, {PLAYER}!"));
 						w.setThundering(false);
 						w.setStorm(false);
 					} else {
-						title = new TextComponent(MiscUtils.ticksToTime(w.getTime()));
-						title.setColor(ChatColor.AQUA);
-						subtitle = new TextComponent(sc + "/" + (sc+wc) + " Sleepers");
-						subtitle.setColor(ChatColor.GREEN);
+						title = ChatColor.AQUA + MiscUtils.ticksToTime(w.getTime());
+						subtitle = ChatColor.GREEN + (sc + "/" + (sc+wc) + " Sleepers");
 					}
 
 					for (Player p : sleepers) {
-						subtitle.setText(subtitle.getText().replace("{PLAYER}", p.getName()));
-						p.sendTitle(title.toLegacyText(), subtitle.toLegacyText());
+						subtitle = subtitle.replace("{PLAYER}", p.getName());
+						p.sendTitle(title, subtitle);
 					}
 
 				}
@@ -114,6 +109,7 @@ public class CarbonSleep extends JavaPlugin {
 	}
 
 	private PluginManager pm() { return Bukkit.getPluginManager(); }
+	private String trans(String s) { return ChatColor.translateAlternateColorCodes('&', s); }
 
 	public boolean worldEnabled(World w) { return nightTimes.containsKey(w); }
 	public void addSleeper(Player p) { if (!sleepers.contains(p)) sleepers.add(p); }
