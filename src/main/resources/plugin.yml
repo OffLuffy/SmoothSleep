@@ -1,0 +1,15 @@
+name: ${artifactId}
+author: OffLuffy
+description: A smoother, multiplayer friendly sleep plugin
+version: ${version}
+main: net.teamcarbon.carbonsleep.CarbonSleep
+commands:
+  carbonsleepreload:
+    description: Reloads CarbonSleep's config values
+    permission: "carbonsleep.reload"
+    usage: /csreload
+    aliases: [csreload, csleepreload, sleepreload]
+permission:
+  carbonsleep.reload:
+    description: Allows reloading CarbonSleep config
+    default: op
