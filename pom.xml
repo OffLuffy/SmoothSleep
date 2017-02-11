@@ -26,6 +26,13 @@
             <version>1.11-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>TitleAPI</groupId>
+            <artifactId>TitleAPI</artifactId>
+            <version>1.7.4</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/TitleAPI.jar</systemPath>
+        </dependency>
     </dependencies>
     <build>
         <finalName>${project.name}-${project.version}</finalName>

@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -18,12 +19,17 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 public class CarbonSleep extends JavaPlugin {
+	public static Plugin titleApi = null;
 	private final long SLEEP_TICKS_START = 12541L,
 			SLEEP_TICKS_END = 23458L,
 			SLEEP_TICKS_DURA = SLEEP_TICKS_END - SLEEP_TICKS_START;
 	private HashMap<World, Integer> nightTimes = new HashMap<>();
 	private List<Player> sleepers = new ArrayList<>();
 	public void onEnable() {
+		if (pm().isPluginEnabled("TitleAPI")) {
+			titleApi = pm().getPlugin("TitleAPI");
+		}
+
 		pm().registerEvents(new PlayerEventsListener(this), this);
 		getServer().getPluginCommand("carbonsleepreload").setExecutor(new CarbonSleepReload(this));
 
@@ -68,7 +74,12 @@ public class CarbonSleep extends JavaPlugin {
 
 					for (Player p : tempSleepers) {
 						String ps = subtitle.replace("{PLAYER}", p.getName());
-						p.sendTitle(title, ps);
+						if (titleApi == null) {
+							p.sendTitle(title, ps);
+						} else {
+							com.connorlinfoot.titleapi.TitleAPI tapi = (com.connorlinfoot.titleapi.TitleAPI) titleApi;
+							tapi.sendTitle(p, 0, 20, 20, title, ps);
+						}
 					}
 
 				}
