@@ -3,6 +3,7 @@ author: OffLuffy
 description: A smoother, multiplayer friendly sleep plugin
 version: ${version}
 main: net.teamcarbon.carbonsleep.CarbonSleep
+softdepend: [TitleAPI]
 commands:
   carbonsleepreload:
     description: Reloads CarbonSleep's config values
