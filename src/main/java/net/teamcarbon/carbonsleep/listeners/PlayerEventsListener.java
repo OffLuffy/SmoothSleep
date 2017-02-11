@@ -22,7 +22,7 @@ public class PlayerEventsListener implements Listener {
 		Location l = e.getBed().getLocation();
 		if (plugin.worldEnabled(w)) {
 			plugin.addSleeper(e.getPlayer());
-			if (plugin.titleApi == null) {
+			if (CarbonSleep.titleApi == null) {
 				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "title " + p.getName() + " times 0 20 20");
 			}
 		}
