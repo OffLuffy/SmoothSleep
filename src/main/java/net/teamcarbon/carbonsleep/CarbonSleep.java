@@ -9,7 +9,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -19,16 +18,14 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 public class CarbonSleep extends JavaPlugin {
-	public static Plugin titleApi = null;
+	public static boolean titleApi = false;
 	private final long SLEEP_TICKS_START = 12541L,
 			SLEEP_TICKS_END = 23458L,
 			SLEEP_TICKS_DURA = SLEEP_TICKS_END - SLEEP_TICKS_START;
 	private HashMap<World, Integer> nightTimes = new HashMap<>();
 	private List<Player> sleepers = new ArrayList<>();
 	public void onEnable() {
-		if (pm().isPluginEnabled("TitleAPI")) {
-			titleApi = pm().getPlugin("TitleAPI");
-		}
+		titleApi = pm().isPluginEnabled("TitleAPI");
 
 		pm().registerEvents(new PlayerEventsListener(this), this);
 		getServer().getPluginCommand("carbonsleepreload").setExecutor(new CarbonSleepReload(this));
@@ -41,6 +38,7 @@ public class CarbonSleep extends JavaPlugin {
 			public void run() {
 				if (nightTimes.isEmpty()) return;
 				for (World w : nightTimes.keySet()) {
+					String cp = "worlds." + w.getName() + ".";
 					if (w.getEnvironment() != Environment.NORMAL) { nightTimes.remove(w); continue; }
 					if (w.getTime() < SLEEP_TICKS_START || w.getTime() > SLEEP_TICKS_END) { continue; }
 
@@ -58,30 +56,32 @@ public class CarbonSleep extends JavaPlugin {
 					if (newTime > SLEEP_TICKS_END) newTime = SLEEP_TICKS_END;
 					w.setTime(newTime);
 
+					boolean useTitles = getConfig().getBoolean(cp + "use-titles", true);
+
 					//FormattedMessage title, subtitle;
-					String title, subtitle;
+					String title = "", subtitle = "";
 					List<Player> tempSleepers = new ArrayList<>(sleepers);
 					if (newTime >= SLEEP_TICKS_END) {
-						title = ChatColor.YELLOW + MiscUtils.ticksToTime(w.getTime());
-						subtitle = trans(getConfig().getString("worlds." + w.getName() + ".morning-subtitle", "Rise and shine, {PLAYER}!"));
+						if (useTitles) {
+							title = ChatColor.YELLOW + MiscUtils.ticksToTime(w.getTime());
+							subtitle = trans(getConfig().getString(cp + "morning-subtitle", "Rise and shine, {PLAYER}!"));
+						}
 						w.setThundering(false);
 						w.setStorm(false);
 						sleepers.clear();
-					} else {
+					} else if (useTitles) {
 						title = ChatColor.AQUA + MiscUtils.ticksToTime(w.getTime());
 						subtitle = ChatColor.GREEN + (sc + "/" + (sc+wc) + " Sleepers");
 					}
 
-					for (Player p : tempSleepers) {
-						String ps = subtitle.replace("{PLAYER}", p.getName());
-						if (titleApi == null) {
-							p.sendTitle(title, ps);
-						} else {
-							com.connorlinfoot.titleapi.TitleAPI tapi = (com.connorlinfoot.titleapi.TitleAPI) titleApi;
-							tapi.sendTitle(p, 0, 20, 20, title, ps);
+					if (useTitles) {
+						for (Player p : tempSleepers) {
+							String ps = subtitle.replace("{PLAYER}", p.getName());
+							if (titleApi) {
+								com.connorlinfoot.titleapi.TitleAPI.sendTitle(p, 0, 20, 20, title, ps);
+							} else { p.sendTitle(title, ps); }
 						}
 					}
-
 				}
 			}
 		}, 0L, 0L);
@@ -101,7 +101,7 @@ public class CarbonSleep extends JavaPlugin {
 					}
 				}
 			}
-		}, 0L, 10L);
+		}, 0L, 30L);
 	}
 	public void reload() {
 		reloadConfig();
