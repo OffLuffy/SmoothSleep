@@ -107,12 +107,17 @@ public class CarbonSleep extends JavaPlugin {
 		reloadConfig();
 		nightTimes.clear();
 		for (World w : Bukkit.getWorlds()) {
+			String cp = "worlds." + w.getName() + ".";
 			if (w.getEnvironment() == Environment.NORMAL) {
 				if (getConfig().contains("worlds." + w.getName())) {
 
 					// Will add config changes here if they'll need to be added from and older config.
-					if (!getConfig().contains("worlds." + w.getName() + ".morning-subtitle", true)) {
-						getConfig().set("worlds." + w.getName() + ".morning-subtitle", "Rise and shine, {PLAYER}!");
+					if (!getConfig().contains(cp + "morning-subtitle", true)) {
+						getConfig().set(cp + "morning-subtitle", "Rise and shine, {PLAYER}!");
+						saveConfig();
+					}
+					if (!getConfig().contains(cp + "use-titles", true)) {
+						getConfig().set(cp + "use-titles", true);
 						saveConfig();
 					}
 
