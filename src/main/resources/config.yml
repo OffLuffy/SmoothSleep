@@ -1,5 +1,46 @@
+# =============================
+#
+# SmoothSleep is intended to make sleeping a more fluid compromise between vanilla sleep mechanics and the
+# jarring instant-daylight effect of majority-rules sleeping plugins. Rather than any number of players being
+# required to set the time to day, SmoothSleep will scale the speed of night according to the number of
+# players currently sleeping. It will keep players in bed while showing an on screen clock, how
+# many players are sleeping, and the current speed at which night is passing.
+#
+# Additionally, sleep-ignored players are checked, so if another plugin sets a player as sleep
+# ignored, SmoothSleep won't count them if they're awake. They WILL be counted if they're sleeping
+# though (allowing them to participate and also fast-forward night if they're the only ones online)
+#
+# =============================
+#
+# CONFIG OPTIONS
+#
+# min-night-speed-mult: The lowest possible night speed multiplier (if the tiniest fraction of players are sleeping)
+# -- This value must be a whole number greater than 0
+# -- Keep in mind that this is NOT the speed of night if a single player is sleeping. If 1 of 2 people are sleeping,
+#    then the speed multiple will be halfway between the min and max multiples. SmoothSleep will scale the multiple
+#    based on the ratio of people sleeping
+# -- Vanilla time scale is used if there are no sleepers, not the min mult speed.
+#
+# max-night-speed-mult: The highest possible night speed multiplier (if everyone is sleeping)
+# -- This value must be a whole number greater than 0
+# -- For reference, a speed mult of 50 will make a full night take roughly 10 seconds
+#
+# morning-subtitle: The message shown under the clock upon waking up if 'use-titles' is enabled.
+# -- Any short message with ampersand {&} color codes. Good idea to wrap this value in 'quotes' or it may break
+# -- If you want to keep the clock, but not the subtitle, then just leave this blank (empty quotes '')
+#
+# morning-sound: If this is a valid sound, then it will play for a player when they wake up.
+# -- For a list of valid sounds, refer to https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
+# -- To disable this, just leave blank (empty quotes '')
+#
+# use-titles: If true, displays a large clock and sleeper stats when sleeping, and 'morning-subtitle' in the morning
+#
+# =============================
 worlds:
   world:
-    min-night-duration-seconds: 10
+    min-night-speed-mult: 10
+    max-night-speed-mult: 50
     morning-subtitle: '&aRise and shine, {PLAYER}!'
+    morning-sound: 'ENTITY_PLAYER_LEVELUP'
+    clear-weather-when-morning: true
     use-titles: true

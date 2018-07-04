@@ -9,7 +9,15 @@ commands:
     permission: "smoothsleep.reload"
     usage: /ssreload
     aliases: [ssreload, ssleepreload, sleepreload]
+  smoothsleeptoggle:
+    description: Disables or enables the plugin. It will enable itself after a relaod/restart.
+    permission: "smoothsleep.toggle"
+    usage: /sstoggle
+    aliases: [sstoggle, ssleeptoggle, sleeptoggle]
 permission:
   smoothsleep.reload:
     description: Allows reloading SmoothSleep config
+    default: op
+  smoothsleep.toggle:
+    description: Allows toggling SmoothSleep on/off
     default: op

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>SmoothSleep</name>
-    <description></description>
+    <description>Smooth sleeping experience for multiplayer Bukkit servers</description>
     <groupId>me.offluffy</groupId>
     <artifactId>${project.name}</artifactId>
     <version>1.0.6</version>
@@ -29,16 +29,15 @@
         </dependency>
     </dependencies>
     <build>
+        <directory>${project.basedir}/target/${project.version}</directory>
+        <outputDirectory>${project.basedir}/target/${project.version}/classes</outputDirectory>
         <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
         <testSourceDirectory>${project.basedir}/test/main/java</testSourceDirectory>
         <finalName>${project.name}-${project.version}</finalName>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>${project.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
-                <includes>
-                    <include>plugin.yml</include>
-                </includes>
             </resource>
         </resources>
     </build>

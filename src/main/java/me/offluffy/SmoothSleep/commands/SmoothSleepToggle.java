@@ -6,20 +6,20 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class SmoothSleepReload implements CommandExecutor {
+public class SmoothSleepToggle implements CommandExecutor {
 
 	private SmoothSleep plugin;
-	public SmoothSleepReload(SmoothSleep p) { plugin = p; }
+	public SmoothSleepToggle(SmoothSleep p) { plugin = p; }
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (!sender.hasPermission("smoothsleep.reload")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to do this!");
 		} else {
-			plugin.reload();
-			sender.sendMessage(ChatColor.GREEN + "Reloaded SmoothSleep");
+			plugin.enabled = !plugin.enabled;
+			sender.sendMessage(plugin.enabled ? (ChatColor.GREEN + "Enabled SmoothSleep") : (ChatColor.GOLD + "Temporarily Disabled SmoothSleep"));
 			if (!plugin.enabled) {
-				sender.sendMessage(ChatColor.GOLD + "SmoothSleep is disabled. To enable, use " + ChatColor.YELLOW + "/sstoggle");
+				sender.sendMessage(ChatColor.GOLD + "This isn't persistent, SmoothSleep will re-enable when the server restarts or reloads");
 			}
 		}
 		return true;

@@ -15,6 +15,7 @@ public class PlayerEventsListener implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void enterBed(PlayerBedEnterEvent e) {
+		if (!plugin.enabled) return;
 		Player p = e.getPlayer();
 		World w = e.getBed().getWorld();
 //		Location l = e.getBed().getLocation();
@@ -23,6 +24,7 @@ public class PlayerEventsListener implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void leaveBed(PlayerBedLeaveEvent e) {
+		if (!plugin.enabled) return;
 		Player p = e.getPlayer();
 		World w = e.getBed().getWorld();
 //		Location l = e.getBed().getLocation();
