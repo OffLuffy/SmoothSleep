@@ -1,8 +1,6 @@
-package net.teamcarbon.carbonsleep.listeners;
+package me.offluffy.SmoothSleep.listeners;
 
-import net.teamcarbon.carbonsleep.CarbonSleep;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import me.offluffy.SmoothSleep.SmoothSleep;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,29 +10,24 @@ import org.bukkit.event.player.PlayerBedLeaveEvent;
 
 public class PlayerEventsListener implements Listener {
 
-	private CarbonSleep plugin;
-	public PlayerEventsListener(CarbonSleep p) { plugin = p; }
+	private SmoothSleep plugin;
+	public PlayerEventsListener(SmoothSleep p) { plugin = p; }
 
 	@EventHandler(ignoreCancelled = true)
 	public void enterBed(PlayerBedEnterEvent e) {
 		Player p = e.getPlayer();
 		World w = e.getBed().getWorld();
-		Location l = e.getBed().getLocation();
-		if (plugin.worldEnabled(w)) {
-			plugin.addSleeper(e.getPlayer());
-			if (!CarbonSleep.titleApi) {
-				Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "title " + p.getName() + " times 0 20 20");
-			}
-		}
+//		Location l = e.getBed().getLocation();
+		if (plugin.worldEnabled(w)) { plugin.addSleeper(p); }
 	}
 
 	@EventHandler(ignoreCancelled = true)
 	public void leaveBed(PlayerBedLeaveEvent e) {
 		Player p = e.getPlayer();
 		World w = e.getBed().getWorld();
-		Location l = e.getBed().getLocation();
+//		Location l = e.getBed().getLocation();
 		if (plugin.worldEnabled(w)) {
-			plugin.removeSleeper(e.getPlayer());
+			plugin.removeSleeper(p);
 		}
 	}
 }

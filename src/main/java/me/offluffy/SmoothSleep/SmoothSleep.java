@@ -1,15 +1,14 @@
-package net.teamcarbon.carbonsleep;
+package me.offluffy.SmoothSleep;
 
-import net.teamcarbon.carbonsleep.commands.CarbonSleepReload;
-import net.teamcarbon.carbonsleep.lib.MiscUtils;
-import net.teamcarbon.carbonsleep.lib.ReflectionUtils;
-import net.teamcarbon.carbonsleep.listeners.*;
+import me.offluffy.SmoothSleep.commands.SmoothSleepReload;
+import me.offluffy.SmoothSleep.lib.MiscUtils;
+import me.offluffy.SmoothSleep.lib.ReflectionUtils;
+import me.offluffy.SmoothSleep.listeners.PlayerEventsListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -17,24 +16,21 @@ import java.util.HashMap;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class CarbonSleep extends JavaPlugin {
-	public static boolean titleApi = false;
+public class SmoothSleep extends JavaPlugin {
 	private final long SLEEP_TICKS_START = 12541L,
 			SLEEP_TICKS_END = 23458L,
 			SLEEP_TICKS_DURA = SLEEP_TICKS_END - SLEEP_TICKS_START;
-	private HashMap<World, Integer> nightTimes = new HashMap<>();
-	private List<Player> sleepers = new ArrayList<>();
+	private HashMap<World, Integer> nightTimes = new HashMap<World, Integer>();
+	private List<Player> sleepers = new ArrayList<Player>();
 	public void onEnable() {
-		titleApi = pm().isPluginEnabled("TitleAPI");
 
-		pm().registerEvents(new PlayerEventsListener(this), this);
-		getServer().getPluginCommand("carbonsleepreload").setExecutor(new CarbonSleepReload(this));
+		Bukkit.getPluginManager().registerEvents(new PlayerEventsListener(this), this);
+		getServer().getPluginCommand("smoothsleepreload").setExecutor(new SmoothSleepReload(this));
 
 		saveDefaultConfig();
 		reload();
 
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-			@SuppressWarnings("deprecation")
 			public void run() {
 				if (nightTimes.isEmpty()) return;
 				for (World w : nightTimes.keySet()) {
@@ -60,7 +56,7 @@ public class CarbonSleep extends JavaPlugin {
 
 					//FormattedMessage title, subtitle;
 					String title = "", subtitle = "";
-					List<Player> tempSleepers = new ArrayList<>(sleepers);
+					List<Player> tempSleepers = new ArrayList<Player>(sleepers);
 					if (newTime >= SLEEP_TICKS_END) {
 						if (useTitles) {
 							title = ChatColor.YELLOW + MiscUtils.ticksToTime(w.getTime());
@@ -77,9 +73,7 @@ public class CarbonSleep extends JavaPlugin {
 					if (useTitles) {
 						for (Player p : tempSleepers) {
 							String ps = subtitle.replace("{PLAYER}", p.getName());
-							if (titleApi) {
-								com.connorlinfoot.titleapi.TitleAPI.sendTitle(p, 0, 20, 20, title, ps);
-							} else { p.sendTitle(title, ps); }
+							p.sendTitle(title, ps, 0, 20, 20);
 						}
 					}
 				}
@@ -128,12 +122,11 @@ public class CarbonSleep extends JavaPlugin {
 		}
 	}
 
-	private PluginManager pm() { return Bukkit.getPluginManager(); }
 	private String trans(String s) { return ChatColor.translateAlternateColorCodes('&', s); }
 
 	public boolean worldEnabled(World w) { return nightTimes.containsKey(w); }
 	public void addSleeper(Player p) { if (!sleepers.contains(p)) sleepers.add(p); }
-	public void removeSleeper(Player p) { if (sleepers.contains(p)) sleepers.remove(p); }
+	public void removeSleeper(Player p) { sleepers.remove(p); }
 	private boolean isSleeping(Player p) { return p != null && sleepers.contains(p); }
 	public int getSleeperCount(World w) {
 		if (!worldEnabled(w)) return 0;

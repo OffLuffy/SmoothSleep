@@ -1,4 +1,4 @@
-package net.teamcarbon.carbonsleep.lib;
+package me.offluffy.SmoothSleep.lib;
 
 public class MiscUtils {
 

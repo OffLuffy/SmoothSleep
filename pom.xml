@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.teamcarbon</groupId>
-    <artifactId>CarbonSleep</artifactId>
-    <version>1.0.5</version>
+    <name>SmoothSleep</name>
+    <description></description>
+    <groupId>me.offluffy</groupId>
+    <artifactId>${project.name}</artifactId>
+    <version>1.0.6</version>
+
+    <properties>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
+    </properties>
 
     <repositories>
         <repository>
-            <id>project.local</id>
-            <name>Project Repository</name>
-            <url>file:${project.basedir}/lib</url>
-        </repository>
-        <repository>
             <id>spigot-repo</id>
+            <name>Spigot Repository</name>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
     </repositories>
@@ -23,42 +24,23 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.11-R0.1-SNAPSHOT</version>
+            <version>1.12.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>TitleAPI</groupId>
-            <artifactId>TitleAPI</artifactId>
-            <version>1.7.4</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/TitleAPI.jar</systemPath>
         </dependency>
     </dependencies>
     <build>
+        <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/test/main/java</testSourceDirectory>
         <finalName>${project.name}-${project.version}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+                <includes>
+                    <include>plugin.yml</include>
+                </includes>
             </resource>
         </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <outputDirectory>${project.basedir}/target</outputDirectory>
-                </configuration>
-            </plugin>
-        </plugins>
     </build>
     
 </project>

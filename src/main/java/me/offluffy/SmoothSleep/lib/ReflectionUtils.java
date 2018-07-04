@@ -1,4 +1,4 @@
-package net.teamcarbon.carbonsleep.lib;
+package me.offluffy.SmoothSleep.lib;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -173,7 +173,7 @@ public class ReflectionUtils {
 		DOUBLE(double.class, Double.class),
 		BOOLEAN(boolean.class, Boolean.class);
 
-		private static final Map<Class<?>, DataType> CLASS_MAP = new HashMap<>();
+		private static final Map<Class<?>, DataType> CLASS_MAP = new HashMap<Class<?>, DataType>();
 		private final Class<?> primitive;
 		private final Class<?> reference;
 
