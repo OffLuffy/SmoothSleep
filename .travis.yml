@@ -1,6 +1,6 @@
 language: java
 before_deploy:
-  - export VER=$(cat target/classes/version)
+  - export VER=$(cat target/*/classes/version)
   - git tag "${VER}"
 deploy:
   provider: releases
