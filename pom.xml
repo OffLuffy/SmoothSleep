@@ -7,11 +7,7 @@
     <groupId>me.offluffy</groupId>
     <artifactId>${project.name}</artifactId>
     <version>1.0.6</version>
-
-    <properties>
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
-    </properties>
+    <packaging>jar</packaging>
 
     <repositories>
         <repository>
@@ -28,18 +24,51 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
     <build>
+        <finalName>${project.name}-${project.version}</finalName>
         <directory>${project.basedir}/target/${project.version}</directory>
         <outputDirectory>${project.basedir}/target/${project.version}/classes</outputDirectory>
         <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
         <testSourceDirectory>${project.basedir}/test/main/java</testSourceDirectory>
-        <finalName>${project.name}-${project.version}</finalName>
         <resources>
             <resource>
                 <directory>${project.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals><goal>shade</goal></goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
     
 </project>
