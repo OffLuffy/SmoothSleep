@@ -1,12 +1,13 @@
 language: java
 before_deploy:
-  - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
+  - export VER=$(cat version)
+  - git tag "${VER}"
 deploy:
   provider: releases
   api_key:
     secure: JQU68NXUPIv7D8wv39xy0lHu+7KXU99TLWunGBOo0A+mkQtgzBmrsqgjY2ZVB9UQ728OY9LHKFj5h/TcDYVF7HinjqkALHEJAftOKmllcJUpl/2dpoxJZPedjSFEYwfkOaY5NkLKqArJVPxgTXdNJmPaIG9qav0VP2op0wPFWvuH1R1xAK7JrSbc3jeGSxLDPjVhxcPjFezQluq8r+Nuy551cTWLoarPd3yWGxPsIVQFF8fmhHYZt6YruwfOdFiIundLlcgMn3+CGmkOwdhXnhFNe7qycjApp8EKl136frka0MRCHTQKgo+K/z9h3rO+zlTqUDM86qStKfECQOCG+EJX6vCh5jW2fgXNbKsT0AJgQ8Cqarsu86d5IQ+Lmlwsr5ipBrhIMfODCIum6Gi+ZTSOAFIi7v0MTyhTkmXgbQjB0OPvNf5zNziJOtyBK7W0x4hTNSQN+6Ftq6m0JV/ABbai3/ebz8ZLWt9mrniOhbVOA7/szGrPrFMPzNvAqN6xWOEHRpeyY6OkIwF5MB2vfzqeUZxxlvjXI+sYQA9/AtOQLabBw3wwXxfuwUSI9GYgebdA5WpKvw/x5NgtJ7ZeYvlxyLKZuQ8ER9Q+tzZzSB1dZ3jy1yC748uxsVnE26y8sKg8vGwyJ2vUyGR1mSnZIMyZaJyWKJ0pPhpFpZiRI3w=
   file_glob: true
-  file: "target/*/SmoothSleep-*.jar"
+  file: "target/${VER}/SmoothSleep-${VER}.jar"
   skip_cleanup: true
   on:
     tags: false

@@ -36,6 +36,13 @@
                 <directory>${project.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
+            <resource>
+                <directory>${project.basedir}</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>version</include>
+                </includes>
+            </resource>
         </resources>
         <plugins>
             <plugin>
@@ -61,6 +68,7 @@
                                     <artifact>*:*</artifact>
                                     <excludes>
                                         <exclude>META-INF/**</exclude>
+                                        <exclude>version</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
