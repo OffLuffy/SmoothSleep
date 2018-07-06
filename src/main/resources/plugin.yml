@@ -1,7 +1,7 @@
-name: ${artifactId}
+name: ${project.artifactId}
 author: OffLuffy
 description: ${project.description}
-version: ${version}
+version: ${project.version}
 main: ${project.groupId}.${project.name}.${project.name}
 commands:
   smoothsleepreload:

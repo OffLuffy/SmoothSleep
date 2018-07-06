@@ -6,7 +6,7 @@
     <description>Smooth sleeping experience for multiplayer Bukkit servers</description>
     <groupId>me.offluffy</groupId>
     <artifactId>${project.name}</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <packaging>jar</packaging>
 
     <repositories>
