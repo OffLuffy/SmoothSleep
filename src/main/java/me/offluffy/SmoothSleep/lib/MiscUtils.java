@@ -10,11 +10,20 @@ public class MiscUtils {
 		return (((newMax - newMin) * (value - oldMin)) / (oldMax - oldMin)) + newMin;
 	}
 
-	public static String ticksToTime(long ticks) {
-		ticks += 6000; // Offset 0 ticks to = 6AM
-		int hours = (int)(ticks / 1000), minutes = (int)((ticks % 1000) / 16.66);
-		return (hours > 12 ? hours > 24 ? hours - 24 : hours-12 : hours) + ":"
-				+ (minutes < 10 ? "0" : "") + minutes + (hours >= 12 && hours < 24 ? " PM" : " AM");
+	public static int ticksTo24Hours(long ticks) {
+		ticks += 6000;
+		int hours = (int) ticks / 1000;
+		return (hours >= 24 ? hours - 24 : hours);
+	}
+	public static int ticksTo12Hours(long ticks) {
+		int hours = ticksTo24Hours(ticks);
+		return hours > 12 ? hours - 12: hours;
+	}
+	public static int ticksToMinutes(long ticks) {
+		return (int) ((ticks % 1000) / 16.66);
+	}
+	public static boolean ticksIsAM(long ticks) {
+		return ticksTo24Hours(ticks) < 12;
 	}
 
 }

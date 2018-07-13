@@ -19,7 +19,7 @@ public class PlayerEventsListener implements Listener {
 		Player p = e.getPlayer();
 		World w = e.getBed().getWorld();
 //		Location l = e.getBed().getLocation();
-		if (plugin.worldEnabled(w)) { plugin.addSleeper(p); }
+		if (plugin.worldEnabled(w)) { plugin.addSleeper(p, w.getTime()); }
 	}
 
 	@EventHandler(ignoreCancelled = true)

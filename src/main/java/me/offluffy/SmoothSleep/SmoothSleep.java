@@ -5,25 +5,29 @@ import me.offluffy.SmoothSleep.commands.SmoothSleepToggle;
 import me.offluffy.SmoothSleep.lib.MiscUtils;
 import me.offluffy.SmoothSleep.lib.ReflectionUtils;
 import me.offluffy.SmoothSleep.listeners.PlayerEventsListener;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
+
+import static org.bukkit.ChatColor.*;
 
 @SuppressWarnings("unused")
 public class SmoothSleep extends JavaPlugin {
 	private final long SLEEP_TICKS_START = 12541L,
 			SLEEP_TICKS_END = 23458L,
 			SLEEP_TICKS_DURA = SLEEP_TICKS_END - SLEEP_TICKS_START;
+	private final long TICKS_PER_DAY = 1728000,
+			TICKS_PER_HOUR = 72000,
+			TICKS_PER_MIN = 1200;
 	private HashMap<World, MultPair> nightMults = new HashMap<World, MultPair>();
-	private List<Player> sleepers = new ArrayList<Player>();
+	private Map<Player, Long> sleepers = new HashMap<Player, Long>();
 	public boolean enabled = true;
 	public void onEnable() {
 
@@ -46,22 +50,33 @@ public class SmoothSleep extends JavaPlugin {
 					int sc = getSleeperCount(w), wc = getWakerCount(w);
 
 					if (sc == 0) { continue; } // Do nothing if no one is sleeping
-
 					boolean useTitles = getConfig().getBoolean(cp + "use-titles", true);
-					int minMult = nightMults.get(w).min, maxMult = nightMults.get(w).max;
-					int timescale = Math.round((float) MiscUtils.remapValue(true, 0, sc+wc, minMult, maxMult, sc));
-					long newTime = w.getTime() + timescale - 1;
-					if (newTime > SLEEP_TICKS_END) newTime = SLEEP_TICKS_END;
+					long newTime;
+					int timescale;
+					if (wc == 0 && getConfig().getBoolean(cp + "instant-day-if-all-sleeping", false)) {
+						newTime = SLEEP_TICKS_END;
+						timescale = (int) SLEEP_TICKS_DURA;
+					} else {
+						int minMult = nightMults.get(w).min, maxMult = nightMults.get(w).max;
+						timescale = Math.round((float) MiscUtils.remapValue(true, 0, sc + wc, minMult, maxMult, sc));
+						newTime = w.getTime() + timescale - 1;
+						if (newTime > SLEEP_TICKS_END) newTime = SLEEP_TICKS_END;
+					}
+					for (Player p : sleepers.keySet()) {
+						long sleepTime = sleepers.get(p);
+						sleepTime += timescale;
+						sleepers.put(p, sleepTime);
+					}
 
 					w.setTime(newTime);
 
 					String title = "", subtitle = "";
 					Sound snd = null;
-					List<Player> tempSleepers = new ArrayList<Player>(sleepers);
+					Map<Player, Long> tempSleepers = new HashMap<Player, Long>(sleepers);
 					if (w.getTime() >= SLEEP_TICKS_END) {
 						if (useTitles) {
-							title = ChatColor.YELLOW + MiscUtils.ticksToTime(w.getTime());
-							subtitle = trans(getConfig().getString(cp + "morning-subtitle", "Rise and shine, {PLAYER}!"));
+							title = trans(getConfig().getString(cp + "morning-title", "&e{12H}:{MIN} {MER_UPPER}"));
+							subtitle = trans(getConfig().getString(cp + "morning-subtitle", "&aRise and shine, {PLAYER}!"));
 						}
 						String sndName = getConfig().getString(cp + "morning-sound", "ENTITY_PLAYER_LEVELUP");
 						if (!sndName.isEmpty()) {
@@ -78,39 +93,49 @@ public class SmoothSleep extends JavaPlugin {
 						}
 						sleepers.clear();
 					} else if (useTitles) {
-						title = ChatColor.AQUA + MiscUtils.ticksToTime(w.getTime());
-						subtitle = ChatColor.GREEN + (sc + "/" + (sc+wc) + " Sleepers")
-								+ ChatColor.DARK_AQUA + " (" + timescale + "x speed)";
+						title = trans(getConfig().getString(cp + "sleeping-title", "&b{12H}:{MIN} {MER_UPPER}"));
+						subtitle = trans(getConfig().getString(cp + "sleeping-subtitle", "&a({SLEEPERS}/{PLAYERS} Sleeping &3({TIMESCALE}x speed)"));
 					}
 
-					for (Player p : tempSleepers) {
+					for (Player p : tempSleepers.keySet()) {
 						if (useTitles) {
-							long ticksPerDay = 1728000,
-									ticksPerHour = 72000,
-									ticksPerMin = 1200;
 							long worldTime = w.getTime();
 							long timeLived = p.getTicksLived();
-							long daysLived = timeLived / ticksPerDay;
-							long hrsLived = (timeLived - (daysLived * ticksPerDay)) / ticksPerHour;
-							long minLived = (timeLived - (daysLived * ticksPerDay) - (hrsLived * ticksPerHour)) / ticksPerMin;
-							String ps = subtitle
-									.replace("{USERNAME}",			p.getName())
-									.replace("{DISPLAYNAME}",		p.getDisplayName())
-									.replace("{LEVEL}",				p.getLevel()+"")
-									.replace("{DAYS_LIVED}",		daysLived+"")
-									.replace("{REM_HOURS_LIVED}",	hrsLived+"")
-									.replace("{REM_MINS_LIVED}",	minLived+"")
-									.replace("{TOTAL_HOURS_LIVED}",	(p.getTicksLived()/ticksPerHour)+"")
-									.replace("{TOTAL_MINS_LIVED}",	(p.getTicksLived()/ticksPerMin)+"")
-									.replace("{TIME_LIVED}",		daysLived + "d, " + hrsLived + "h, " + minLived + "m")
-									.replace("{WORLD}",				w.getName())
-									.replace("{SERVER_IP}",			Bukkit.getIp())
-									.replace("{SERVER_MOTD}",		Bukkit.getMotd())
-									.replace("{SERVER_NAME}",		Bukkit.getServerName())
-									.replace("{SERVER_MOTD_STRIP}",	ChatColor.stripColor(Bukkit.getMotd()))
-									.replace("{SERVER_NAME_STRIP}",	ChatColor.stripColor(Bukkit.getServerName()))
-									;
-							p.sendTitle(title, ps, 0, 20, 20);
+							long daysLived = timeLived / TICKS_PER_DAY;
+							long hrsLived = (timeLived  % TICKS_PER_DAY) / TICKS_PER_HOUR;
+							long minLived = (timeLived % TICKS_PER_DAY % TICKS_PER_HOUR) / TICKS_PER_MIN;
+							Map<String, String> values = new HashMap<String, String>();
+
+							values.put("12H",				MiscUtils.ticksTo12Hours(worldTime) + "");
+							values.put("24H",				MiscUtils.ticksTo24Hours(worldTime) + "");
+							values.put("MIN",				String.format("%02d", MiscUtils.ticksToMinutes(worldTime)));
+							values.put("MER_UPPER",			MiscUtils.ticksIsAM(worldTime) ? "AM" : "PM");
+							values.put("MER_LOWER",			MiscUtils.ticksIsAM(worldTime) ? "am" : "pm");
+							values.put("SLEEPERS",			sc + "");
+							values.put("WAKERS",			wc + "");
+							values.put("TOTAL",				(sc+wc) + "");
+							values.put("TIMESCALE",			timescale + "");
+							values.put("USERNAME",			p.getName());
+							values.put("DISPLAYNAME",		p.getDisplayName());
+							values.put("DISPLAYNAME_STRIP",	stripColor(p.getDisplayName()));
+							values.put("HOURS_SLEPT",		(tempSleepers.get(p) / 1000L) + "");
+							values.put("LEVEL",				p.getLevel() + "");
+							values.put("TIME_LIVED",		"{DAYS_LIVED}d, {REM_HOURS_LIVED}h, {REM_MINS_LIVED}m");
+							values.put("DAYS_LIVED",		(timeLived / TICKS_PER_DAY) + "");
+							values.put("REM_HOURS_LIVED",	((timeLived  % TICKS_PER_DAY) / TICKS_PER_HOUR) + "");
+							values.put("REM_MINS_LIVED",	((timeLived % TICKS_PER_DAY % TICKS_PER_HOUR) / TICKS_PER_MIN) + "");
+							values.put("TOTAL_HOURS_LIVED",	(p.getTicksLived() / TICKS_PER_HOUR) + "");
+							values.put("TOTAL_MINS_LIVED",	(p.getTicksLived() / TICKS_PER_MIN) + "");
+							values.put("WORLD",				w.getName());
+							values.put("SERVER_IP",			Bukkit.getIp());
+							values.put("SERVER_MOTD",		Bukkit.getMotd());
+							values.put("SERVER_NAME",		Bukkit.getServerName());
+							values.put("SERVER_MOTD_STRIP",	stripColor(Bukkit.getMotd()));
+							values.put("SERVER_NAME_STRIP",	stripColor(Bukkit.getServerName()));
+							StrSubstitutor sub = new StrSubstitutor(values, "{", "}");
+							String ps = sub.replace(subtitle);
+							String pt = sub.replace(title);
+							p.sendTitle(pt, ps, 0, 20, 20);
 						}
 						if (snd != null) {
 							p.playSound(p.getLocation(), snd, 0.5f, 1.0f);
@@ -124,7 +149,7 @@ public class SmoothSleep extends JavaPlugin {
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			public void run() {
 				if (!sleepers.isEmpty()) {
-					for (Player p : sleepers) {
+					for (Player p : sleepers.keySet()) {
 						long wt = p.getWorld().getTime();
 						try {
 							Object nmsPlr = ReflectionUtils.invokeMethod(p, "getHandle");
@@ -149,16 +174,27 @@ public class SmoothSleep extends JavaPlugin {
 					boolean changed = false;
 
 					// Will add config changes here if they'll need to be added from and older config.
-					if (!getConfig().contains(cp + "morning-subtitle", true)) {
-						getConfig().set(cp + "morning-subtitle", "Rise and shine, {USERNAME}!");
+					if (!getConfig().contains(cp + "instant-day-if-all-sleeping", true)) {
+						getConfig().set(cp + "instant-day-if-all-sleeping", false);
+						changed = true;
+					}
+					if (!getConfig().contains(cp + "morning-title", true)) {
+						getConfig().set(cp + "morning-title", "&e{12H}:{MIN} {MER_UPPER}");
 						changed = true;
 					}
 
-					String mornSub = getConfig().getString(cp + "morning-subtitle", "Rise and shine, {USERNAME}!");
-					if (mornSub.contains("{PLAYER}")) {
-						getLogger().warning(cp + "morning-subtitle: " + mornSub);
-						getLogger().warning("The {PLAYER} placeholder is no longer used! I'll replace it with {USERNAME}.");
-						getConfig().set(cp + "morning-subtitle", mornSub.replace("{PLAYER}", "{USERNAME}"));
+					if (!getConfig().contains(cp + "sleeping-title", true)) {
+						getConfig().set(cp + "sleeping-title", "&b{12H}:{MIN} {MER_UPPER}");
+						changed = true;
+					}
+
+					if (!getConfig().contains(cp + "morning-subtitle", true)) {
+						getConfig().set(cp + "morning-subtitle", "&aRise and shine, {USERNAME}!");
+						changed = true;
+					}
+
+					if (!getConfig().contains(cp + "sleeping-subtitle", true)) {
+						getConfig().set(cp + "sleeping-subtitle", "&a({SLEEPERS}/{TOTAL} Sleeping &3({TIMESCALE}x speed)");
 						changed = true;
 					}
 
@@ -184,6 +220,14 @@ public class SmoothSleep extends JavaPlugin {
 
 					if (!getConfig().contains(cp + "clear-weather-when-morning", true)) {
 						getConfig().set(cp + "clear-weather-when-morning", true);
+						changed = true;
+					}
+
+					String mornSub = getConfig().getString(cp + "morning-subtitle", "&aRise and shine, {USERNAME}!");
+					if (mornSub.contains("{PLAYER}")) {
+						getLogger().warning(cp + "morning-subtitle: " + mornSub);
+						getLogger().warning("The {PLAYER} placeholder is no longer used! I'll replace it with {USERNAME}.");
+						getConfig().set(cp + "morning-subtitle", mornSub.replace("{PLAYER}", "{USERNAME}"));
 						changed = true;
 					}
 
@@ -226,16 +270,16 @@ public class SmoothSleep extends JavaPlugin {
 		}
 	}
 
-	private String trans(String s) { return ChatColor.translateAlternateColorCodes('&', s); }
+	private String trans(String s) { return translateAlternateColorCodes('&', s); }
 
 	public boolean worldEnabled(World w) { return nightMults.containsKey(w); }
-	public void addSleeper(Player p) { if (!sleepers.contains(p)) sleepers.add(p); }
+	public void addSleeper(Player p, long time) { if (!sleepers.containsKey(p)) sleepers.put(p, 0L); }
 	public void removeSleeper(Player p) { sleepers.remove(p); }
-	private boolean isSleeping(Player p) { return p != null && sleepers.contains(p); }
+	private boolean isSleeping(Player p) { return p != null && sleepers.containsKey(p); }
 	public int getSleeperCount(World w) {
 		if (!worldEnabled(w)) return 0;
 		int s = 0;
-		for (Player p : sleepers) { if (p.getWorld().equals(w)) { s++; } }
+		for (Player p : sleepers.keySet()) { if (p.getWorld().equals(w)) { s++; } }
 		return s;
 	}
 	public int getWakerCount(World w) {
