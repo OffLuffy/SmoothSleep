@@ -6,7 +6,7 @@
     <description>Smooth sleeping experience for multiplayer Bukkit servers</description>
     <groupId>me.offluffy</groupId>
     <artifactId>${project.name}</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -15,12 +15,23 @@
             <name>Spigot Repository</name>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+        <repository>
+            <id>essentials-repo</id>
+            <name>EssentialsX Repository</name>
+            <url>https://ci.ender.zone/plugin/repository/everything/</url>
+        </repository>
     </repositories>
     <dependencies>
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
             <version>1.12.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.ess3</groupId>
+            <artifactId>EssentialsX</artifactId>
+            <version>2.15.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

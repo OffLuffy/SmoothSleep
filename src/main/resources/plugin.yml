@@ -3,6 +3,7 @@ author: OffLuffy
 description: ${project.description}
 version: ${project.version}
 main: ${project.groupId}.${project.name}.${project.name}
+softdepend: [Essentials]
 commands:
   smoothsleepreload:
     description: Reloads SmoothSleep's config values

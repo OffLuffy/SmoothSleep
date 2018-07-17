@@ -16,7 +16,7 @@ public class SmoothSleepReload implements CommandExecutor {
 		if (!sender.hasPermission("smoothsleep.reload")) {
 			sender.sendMessage(ChatColor.RED + "You don't have permission to do this!");
 		} else {
-			plugin.reload();
+			plugin.conf.reload();
 			sender.sendMessage(ChatColor.GREEN + "Reloaded SmoothSleep");
 			if (!plugin.enabled) {
 				sender.sendMessage(ChatColor.GOLD + "SmoothSleep is disabled. To enable, use " + ChatColor.YELLOW + "/sstoggle");

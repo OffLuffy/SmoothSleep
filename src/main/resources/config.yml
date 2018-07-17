@@ -54,6 +54,8 @@
 # -- -- {SERVER_NAME} - 'server-name' specified in server.properties (including colors)
 # -- -- {SERVER_MOTD_STRIP} - 'motd' specified in server.properties (stripped of colors)
 # -- -- {SERVER_NAME_STRIP} - 'server-name' specified in server.properties (stripped of colors)
+# -- -- {NICKNAME} - Essentials nickname without the group prefix. Same as DISPLAYNAME if essentials isn't installed.
+# -- -- {NICKNAME_STRIP} - NICKNAME without colors or formats.
 #
 # morning-sound: If this is a valid sound, then it will play for a player when they wake up.
 # -- For a list of valid sounds, refer to https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
@@ -63,16 +65,44 @@
 #
 # instant-day-if-all-sleeping: If true, this will instantly skip night if all non-sleep-ignored players are sleeping.
 #
+# essentials-settings:
+# -- ignore-afk: If essentials is installed, setting this to true will exempt AFK player from needing to sleep
+# -- ignore-vanished: Same as ignore-afk, but exempts vanished players from needing to sleep
+#
+# replenish-settings:
+# -- heal-negative-statuses: If true, heals negative status effects if the player has slept the required hours
+# -- hours-to-heal-negative: The hours of sleep required to heal negative statuses
+# -- heal-positive-statuses: If true, heals positive status effects if the player has slept the required hours
+# -- hours-to-heal-positive: The hours of sleep required to heal positive statuses
+# -- ticks-per-health: Ticks to sleep (including timescaled ticks) to heal the amount specified
+# -- health-amount: The amount healed per interval specified. Can be negative. 1 = half a heart
+# -- ticks-per-food: Ticks to sleep (including timescaled ticks) to feed the amount specified
+# -- food-amount: The amount to feed per interval specified. Can be negative. 1 = half a food
+#
 # =============================
 worlds:
   world:
     min-night-speed-mult: 10
     max-night-speed-mult: 50
+    use-titles: true
     sleeping-title: '&b{12H}:{MIN} {MER_UPPER}'
     morning-title: '&e{12H}:{MIN} {MER_UPPER}'
     sleeping-subtitle: '&a{SLEEPERS}/{TOTAL} Sleeping &3({TIMESCALE}x speed)'
     morning-subtitle: '&aRise and shine, {USERNAME}!'
     morning-sound: 'ENTITY_PLAYER_LEVELUP'
+    title-stay-ticks: 20
+    title-fade-ticks: 40
     clear-weather-when-morning: true
-    use-titles: true
     instant-day-if-all-sleeping: false
+    essentials-settings:
+      ignore-afk: true
+      ignore-vanished: true
+    replenish-settings:
+      heal-negative-statuses: true
+      hours-to-heal-negative: 3
+      heal-positive-statuses: false
+      hours-to-heal-positive: 3
+      ticks-per-health: 3000
+      health-amount: 1
+      ticks-per-food: 3000
+      food-amount: 0
