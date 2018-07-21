@@ -18,7 +18,6 @@ public class PlayerEventsListener implements Listener {
 		if (!plugin.enabled) return;
 		Player p = e.getPlayer();
 		World w = e.getBed().getWorld();
-//		Location l = e.getBed().getLocation();
 		if (plugin.worldEnabled(w)) { plugin.addSleeper(p, w.getTime()); }
 	}
 
@@ -27,7 +26,6 @@ public class PlayerEventsListener implements Listener {
 		if (!plugin.enabled) return;
 		Player p = e.getPlayer();
 		World w = e.getBed().getWorld();
-//		Location l = e.getBed().getLocation();
 		if (plugin.worldEnabled(w)) {
 			plugin.removeSleeper(p);
 		}
