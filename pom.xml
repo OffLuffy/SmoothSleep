@@ -18,7 +18,7 @@
         <repository>
             <id>essentials-repo</id>
             <name>EssentialsX Repository</name>
-            <url>https://ci.ender.zone/plugin/repository/everything/</url>
+            <url>http://repo.ess3.net/content/groups/public/</url>
         </repository>
     </repositories>
     <dependencies>
