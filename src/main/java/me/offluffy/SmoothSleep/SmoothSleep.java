@@ -143,8 +143,8 @@ public class SmoothSleep extends JavaPlugin {
 						if (ws.getBoolean(CLEAR_WEATHER)) {
 							w.setThunderDuration(0);
 							w.setWeatherDuration(0);
-//							w.setThundering(false);
-//							w.setStorm(false);
+							w.setThundering(false);
+							w.setStorm(false);
 						}
 
 
