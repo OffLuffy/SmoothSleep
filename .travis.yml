@@ -12,3 +12,6 @@ deploy:
   on:
     tags: false
     repo: OffLuffy/SmoothSleep
+branches:
+  only:
+  - master

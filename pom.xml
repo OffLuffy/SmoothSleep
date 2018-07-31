@@ -5,8 +5,8 @@
     <name>SmoothSleep</name>
     <description>Smooth sleeping experience for multiplayer Bukkit servers</description>
     <groupId>me.offluffy</groupId>
-    <artifactId>${project.name}</artifactId>
-    <version>2.0.0</version>
+    <artifactId>SmoothSleep</artifactId>
+    <version>2.1.0</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -20,12 +20,16 @@
             <name>EssentialsX Repository</name>
             <url>http://repo.ess3.net/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>bstats-repo</id>
+            <url>http://repo.bstats.org/content/repositories/releases/</url>
+        </repository>
     </repositories>
     <dependencies>
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.13-pre7-R0.1-SNAPSHOT</version>
+            <version>1.13-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -33,6 +37,12 @@
             <artifactId>EssentialsX</artifactId>
             <version>2.15.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>1.2</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -68,7 +78,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>3.1.0</version>
+                <configuration>
+                    <relocations>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>me.offluffy.SmoothSleep.stats</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
                 <executions>
                     <execution>
                         <phase>package</phase>

@@ -16,10 +16,21 @@ commands:
     permission: "smoothsleep.toggle"
     usage: /sstoggle
     aliases: [sstoggle, ssleeptoggle, sleeptoggle]
+  smoothsleepmetrics:
+    description: Toggles metrics for SmoothSleep
+    permission: "smoothsleep.metrics"
+    usage: /ssmetrics
+    aliases: [ssmetrics, ssleepmetrics, sleepmetrics]
 permission:
   smoothsleep.reload:
     description: Allows reloading SmoothSleep config
     default: op
   smoothsleep.toggle:
     description: Allows toggling SmoothSleep on/off
+    default: op
+  smoothsleep.ignore:
+    description: Allows not needing to sleep
+    default: op
+  smoothsleep.metrics:
+    description: Allows toggline metrics for SmoothSleep on/off
     default: op

@@ -1,11 +1,11 @@
 package me.offluffy.SmoothSleep;
 
-import me.offluffy.SmoothSleep.commands.SmoothSleepReload;
-import me.offluffy.SmoothSleep.commands.SmoothSleepToggle;
+import me.offluffy.SmoothSleep.commands.*;
 import me.offluffy.SmoothSleep.lib.*;
 import me.offluffy.SmoothSleep.lib.ConfigHelper.*;
 import me.offluffy.SmoothSleep.listeners.PlayerEventsListener;
 import org.apache.commons.lang.text.StrSubstitutor;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
@@ -14,12 +14,19 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.*;
+import java.util.Map.Entry;
 
-import static me.offluffy.SmoothSleep.lib.ConfigHelper.SettingKey.*;
+import static me.offluffy.SmoothSleep.lib.ConfigHelper.WorldSettingKey.*;
 import static org.bukkit.ChatColor.*;
+
+// TODO Implement sleep ignore permission
+// TODO -- Only check for perm when counting non-sleepers
+// TODO -- That way the plugin doesn't need to be reloaded if permissions change.
+// TODO -- Set sleep ignored in case other plugins use it?
 
 @SuppressWarnings("unused")
 public class SmoothSleep extends JavaPlugin {
+	private final String PERM_IGNORE = "smoothsleep.ignore";
 	private final long SLEEP_TICKS_START = 12541L,
 			SLEEP_TICKS_END = 23458L,
 			SLEEP_TICKS_DURA = SLEEP_TICKS_END - SLEEP_TICKS_START;
@@ -32,6 +39,9 @@ public class SmoothSleep extends JavaPlugin {
 	public ConfigHelper conf;
 	public boolean enabled = true, essEnabled = false;
 	public UserHelper userHelper;
+
+	public static Metrics metrics;
+
 	public void onEnable() {
 
 		Bukkit.getPluginManager().registerEvents(new PlayerEventsListener(this), this);
@@ -39,8 +49,9 @@ public class SmoothSleep extends JavaPlugin {
 		if (ess != null && ess.isEnabled()) { essEnabled = true; }
 		if (essEnabled) { userHelper = new EssUserHelper(this); } else { userHelper = new StockUserHelper(); }
 
-		getServer().getPluginCommand("smoothsleepreload").setExecutor(new SmoothSleepReload(this));
-		getServer().getPluginCommand("smoothsleeptoggle").setExecutor(new SmoothSleepToggle(this));
+		getServer().getPluginCommand("smoothsleepreload").setExecutor(new Reload(this));
+		getServer().getPluginCommand("smoothsleeptoggle").setExecutor(new ToggleEnabled(this));
+		getServer().getPluginCommand("smoothsleepmetrics").setExecutor(new ToggleMetrics(this));
 
 		conf = new ConfigHelper(this);
 
@@ -48,29 +59,29 @@ public class SmoothSleep extends JavaPlugin {
 			public void run() {
 				if (!enabled) { return; }
 				if (conf.worlds.isEmpty()) { return; }
-				for (World w : conf.worlds.keySet()) {
-					WorldSettings ws = conf.worlds.get(w);
-
-					// Process particle effects
+				for (Entry<World, WorldSettings> pair : conf.worlds.entrySet()) {
+					World w = pair.getKey();
+					WorldSettings ws = pair.getValue();// Process particle effects
 
 					Particle particle = ws.getParticle(PARTICLE);
 					if (particle != null) {
-							double radius = ws.getDouble(PARTICLE_RADIUS);
-							for (Player p : timers.keySet()) {
-								try {
-									if (timers.get(p).get(PARTICLE_TIMER) > 0) {
-										Location l = p.getLocation();
-										l.setX(l.getX() + ((Math.random() * radius * 2) - radius));
-										l.setZ(l.getZ() + ((Math.random() * radius * 2) - radius));
-										l.setY(l.getY() + (Math.random() * radius));
-										w.spawnParticle(particle, l, 1);
-										timers.get(p).set(PARTICLE_TIMER, timers.get(p).get(PARTICLE_TIMER) - 1);
-									}
-								} catch (Exception e) {
-									getLogger().warning("Failed to produce particle: " + e.getMessage());
-									timers.get(p).set(PARTICLE_TIMER, 0L);
+						double radius = ws.getDouble(PARTICLE_RADIUS);
+						for (Entry<Player, List<Long>> timingsPair : timers.entrySet()) {
+							Player p = timingsPair.getKey();
+							try {
+								if (timers.get(p).get(PARTICLE_TIMER) > 0) {
+									Location l = p.getLocation();
+									l.setX(l.getX() + ((Math.random() * radius * 2) - radius));
+									l.setZ(l.getZ() + ((Math.random() * radius * 2) - radius));
+									l.setY(l.getY() + (Math.random() * radius));
+									w.spawnParticle(particle, l, 1);
+									timers.get(p).set(PARTICLE_TIMER, timers.get(p).get(PARTICLE_TIMER) - 1);
 								}
+							} catch (Exception e) {
+								getLogger().warning("Failed to produce particle: " + e.getMessage());
+								timers.get(p).set(PARTICLE_TIMER, 0L);
 							}
+						}
 					}
 
 					// Now process world
@@ -94,14 +105,18 @@ public class SmoothSleep extends JavaPlugin {
 						newTime = w.getTime() + timescale - 1;
 						if (newTime > SLEEP_TICKS_END) newTime = SLEEP_TICKS_END;
 					}
-					for (Player p : sleepers.keySet()) {
-						sleepers.put(p, sleepers.get(p) + timescale);
+					for (Entry<Player, Long> sleepersPair : sleepers.entrySet()) {
+						sleepers.put(sleepersPair.getKey(), sleepers.get(sleepersPair.getKey()) + timescale);
 					}
+					/*for (Player p : sleepers.keySet()) {
+						sleepers.put(p, sleepers.get(p) + timescale);
+					}*/
 					int ticksPerHealth = ws.getInt(HEALTH_TICKS);
 					int ticksPerFood = ws.getInt(FOOD_TICKS);
 					int healthAmount = ws.getInt(HEALTH_RESTORE);
 					int foodAmount = ws.getInt(FOOD_RESTORE);
-					for (Player p : timers.keySet()) {
+					for (Entry<Player, List<Long>> timingsPair : timers.entrySet()) {
+						Player p = timingsPair.getKey();
 						long healthTimer = timers.get(p).get(HEAL_TIMER);
 						long foodTimer = timers.get(p).get(FOOD_TIMER);
 						if (healthTimer + timescale > ticksPerHealth) {
@@ -148,8 +163,8 @@ public class SmoothSleep extends JavaPlugin {
 						}
 
 
-						for (Player p : sleepers.keySet()) {
-
+						for (Entry<Player, Long> sleepersPair : sleepers.entrySet()) {
+							Player p = sleepersPair.getKey();
 							for (PotionEffect pe : p.getActivePotionEffects()) {
 								// Heal the player of negative status effects
 								if (ConfigHelper.negativeEffects.contains(pe.getType()) && ws.getBoolean(HEAL_NEG_STATUS)) {
@@ -164,21 +179,8 @@ public class SmoothSleep extends JavaPlugin {
 							// Spawn particles
 							if (ws.getInt(PARTICLE_AMOUNT) > 0) {
 								timers.get(p).set(PARTICLE_TIMER, (long) ws.getInt(PARTICLE_AMOUNT));
-//								Particle particle = ws.getParticle(PARTICLE);
-//								if (particle != null) {
-//									double radius = ws.getDouble(PARTICLE_RADIUS);
-//									int amount = ws.getInt(PARTICLE_AMOUNT);
-//									for (int i = 0; i < amount; i++) {
-//										Location l = p.getLocation();
-//										l.setX(l.getX() + ((Math.random() * radius) - (radius / 2)));
-//										l.setZ(l.getZ() + ((Math.random() * radius) - (radius / 2)));
-//										l.setY(l.getY() + (Math.random() * radius));
-//										w.spawnParticle(particle, l, 1);
-//									}
-//								}
 							}
 						}
-
 
 						sleepers.clear();
 					} else if (useTitles) {
@@ -186,7 +188,8 @@ public class SmoothSleep extends JavaPlugin {
 						subtitle = trans(ws.getString(SLEEP_SUBTITLE));
 					}
 
-					for (Player p : tempSleepers.keySet()) {
+					for (Entry<Player, Long> tempSleepersPair : tempSleepers.entrySet()) {
+						Player p = tempSleepersPair.getKey();
 						if (useTitles) {
 							long worldTime = w.getTime();
 							long timeLived = p.getTicksLived();
@@ -240,7 +243,8 @@ public class SmoothSleep extends JavaPlugin {
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			public void run() {
 				if (!sleepers.isEmpty()) {
-					for (Player p : sleepers.keySet()) {
+					for (Entry<Player, Long> sleepersPair : sleepers.entrySet()) {
+						Player p = sleepersPair.getKey();
 						long wt = p.getWorld().getTime();
 						try {
 							Object nmsPlr = ReflectionUtils.invokeMethod(p, "getHandle");
@@ -249,6 +253,15 @@ public class SmoothSleep extends JavaPlugin {
 							e.printStackTrace();
 						}
 					}
+					/*for (Player p : sleepers.keySet()) {
+						long wt = p.getWorld().getTime();
+						try {
+							Object nmsPlr = ReflectionUtils.invokeMethod(p, "getHandle");
+							ReflectionUtils.setValue(nmsPlr, false, "sleepTicks", wt > SLEEP_TICKS_END ? 100 : 0);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}*/
 				}
 			}
 		}, 0L, 30L);
@@ -269,14 +282,15 @@ public class SmoothSleep extends JavaPlugin {
 	public int getSleeperCount(World w) {
 		if (!worldEnabled(w)) return 0;
 		int s = 0;
-		for (Player p : sleepers.keySet()) { if (p.getWorld().equals(w)) { s++; } }
+		for (Entry<Player, Long> sleepersPair : sleepers.entrySet()) { if (sleepersPair.getKey().getWorld().equals(w)) { s++; } }
+		//for (Player p : sleepers.keySet()) { if (p.getWorld().equals(w)) { s++; } }
 		return s;
 	}
 	public int getWakerCount(World w) {
 		if (!worldEnabled(w)) return 0;
 		int a = 0;
 		for (Player p : w.getPlayers()) {
-			if ((!isSleeping(p) && !p.isSleepingIgnored())
+			if ((!isSleeping(p) && !p.isSleepingIgnored() && !p.hasPermission(PERM_IGNORE))
 					&& (!userHelper.isAfk(p) || !conf.worlds.get(w).getBoolean(IGNORE_AFK))
 					&& (!userHelper.isVanished(p) || !conf.worlds.get(w).getBoolean(IGNORE_VANISH)))
 						a++;

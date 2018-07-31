@@ -74,6 +74,7 @@
 # -- food-amount: Ticks to sleep (including timescaled ticks) to feed the amount specified
 #
 # =============================
+enable-stats: true
 worlds:
   world:
     min-night-speed-mult: 10
