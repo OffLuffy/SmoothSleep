@@ -18,7 +18,7 @@ public class PlayerEventsListener implements Listener {
 		if (!plugin.enabled) return;
 		Player p = e.getPlayer();
 		World w = e.getBed().getWorld();
-		if (plugin.worldEnabled(w)) { plugin.addSleeper(p, w.getTime()); }
+		if (plugin.worldEnabled(w) && plugin.isNight(w)) { plugin.addSleeper(p, w.getTime()); }
 	}
 
 	@EventHandler(ignoreCancelled = true)
@@ -26,8 +26,6 @@ public class PlayerEventsListener implements Listener {
 		if (!plugin.enabled) return;
 		Player p = e.getPlayer();
 		World w = e.getBed().getWorld();
-		if (plugin.worldEnabled(w)) {
-			plugin.removeSleeper(p);
-		}
+		if (plugin.worldEnabled(w) && plugin.isNight(w)) { plugin.removeSleeper(p); }
 	}
 }

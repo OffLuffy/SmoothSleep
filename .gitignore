@@ -126,3 +126,5 @@ pip-log.txt
 test/
 lib/
 target/
+
+dependency-reduced-pom\.xml

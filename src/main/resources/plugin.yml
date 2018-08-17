@@ -21,6 +21,16 @@ commands:
     permission: "smoothsleep.metrics"
     usage: /ssmetrics
     aliases: [ssmetrics, ssleepmetrics, sleepmetrics]
+  smoothsleepaddworld:
+    description: Adds a new world to the config
+    permission: "smoothsleep.addworld"
+    usage: /ssaddworld <world>
+    aliases: [ssaddworld, ssleepaddworld, sleepaddworld]
+  smoothsleepconfigureworld:
+    description: Configure a world's SmoothSleep settings
+    permission: "smoothsleep.configure"
+    usage: /ssconf <world> <setting> <value>
+    aliases: [ssconfigure, ssconf, ssleepconfigure, ssleepconf, sleepconfigure, sleepconf]
 permission:
   smoothsleep.reload:
     description: Allows reloading SmoothSleep config
@@ -33,4 +43,10 @@ permission:
     default: op
   smoothsleep.metrics:
     description: Allows toggline metrics for SmoothSleep on/off
+    default: op
+  smoothsleep.addworld:
+    description: Allows you to add new Worlds to the config with the /ssaddworld command
+    default: op
+  smoothsleep.configure:
+    description: Allows you to modify a World's config settings with the /ssconf command
     default: op

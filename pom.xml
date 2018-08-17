@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <name>SmoothSleep</name>
     <description>Smooth sleeping experience for multiplayer Bukkit servers</description>
     <groupId>me.offluffy</groupId>
     <artifactId>SmoothSleep</artifactId>
-    <version>2.1.0</version>
+    <name>${project.artifactId}</name>
+    <version>2.1.2</version>
     <packaging>jar</packaging>
 
     <repositories>
@@ -51,7 +51,6 @@
         <directory>${project.basedir}/target/${project.version}</directory>
         <outputDirectory>${project.basedir}/target/${project.version}/classes</outputDirectory>
         <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
-        <testSourceDirectory>${project.basedir}/test/main/java</testSourceDirectory>
         <resources>
             <resource>
                 <directory>${project.basedir}/src/main/resources</directory>
@@ -71,8 +70,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
