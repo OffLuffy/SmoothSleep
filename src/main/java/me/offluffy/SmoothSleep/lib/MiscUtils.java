@@ -20,7 +20,7 @@ public class MiscUtils {
 	}
 	public static int ticksTo12Hours(long ticks) {
 		int hours = ticksTo24Hours(ticks);
-		return hours > 12 ? hours - 12: hours;
+		return hours > 12 ? hours - 12 : hours == 0 ? 12 : hours;
 	}
 	public static int ticksToMinutes(long ticks) { return (int) ((ticks % 1000) / 16.66); }
 	public static boolean ticksIsAM(long ticks) { return ticksTo24Hours(ticks) < 12; }

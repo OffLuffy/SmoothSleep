@@ -10,7 +10,6 @@ import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.*;
@@ -19,13 +18,8 @@ import java.util.Map.Entry;
 import static me.offluffy.SmoothSleep.lib.ConfigHelper.WorldSettingKey.*;
 import static org.bukkit.ChatColor.*;
 
-// TODO Implement sleep ignore permission
-// TODO -- Only check for perm when counting non-sleepers
-// TODO -- That way the plugin doesn't need to be reloaded if permissions change.
-// TODO -- Set sleep ignored in case other plugins use it?
-
 @SuppressWarnings("unused")
-public class SmoothSleep extends JavaPlugin {
+public class SmoothSleep extends LoggablePlugin {
 	private final String PERM_IGNORE = "smoothsleep.ignore";
 	private final long SLEEP_TICKS_START = 12541L,
 			SLEEP_TICKS_END = 23460L,
@@ -58,7 +52,9 @@ public class SmoothSleep extends JavaPlugin {
 		conf = new ConfigHelper(this);
 
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
+
 			if (!enabled) { return; }
+
 			if (conf.worlds.isEmpty()) { return; }
 			for (Entry<World, WorldSettings> pair : conf.worlds.entrySet()) {
 				World w = pair.getKey();
@@ -79,7 +75,7 @@ public class SmoothSleep extends JavaPlugin {
 								timers.get(p).set(PARTICLE_TIMER, timers.get(p).get(PARTICLE_TIMER) - 1);
 							}
 						} catch (Exception e) {
-							getLogger().warning("Failed to produce particle: " + e.getMessage());
+							logWarning("Failed to produce particle: " + e.getMessage());
 							timers.get(p).set(PARTICLE_TIMER, 0L);
 						}
 					}
@@ -257,6 +253,9 @@ public class SmoothSleep extends JavaPlugin {
 				for (Player p : remove) { sleepers.remove(p); }
 			}
 		}, 0L, 30L);
+
+		resourceId = "32043";
+		checkUpdate();
 	}
 
 	private String trans(String s) { return s == null ? null : translateAlternateColorCodes('&', s); }

@@ -75,6 +75,10 @@
 #
 # =============================
 enable-stats: true
+logging-settings:
+  log-debug: false
+  log-warning: true
+  log-info: true
 worlds:
   world:
     min-night-speed-mult: 10
