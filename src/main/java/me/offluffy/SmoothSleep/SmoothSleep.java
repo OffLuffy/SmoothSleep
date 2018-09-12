@@ -60,23 +60,25 @@ public class SmoothSleep extends LoggablePlugin {
 				World w = pair.getKey();
 				WorldSettings ws = pair.getValue();// Process particle effects
 
-				Particle particle = ws.getParticle(PARTICLE);
-				if (particle != null) {
-					double radius = ws.getDouble(PARTICLE_RADIUS);
-					for (Entry<Player, List<Long>> timingsPair : timers.entrySet()) {
-						Player p = timingsPair.getKey();
-						try {
-							if (timers.get(p).get(PARTICLE_TIMER) > 0) {
-								Location l = p.getLocation();
-								l.setX(l.getX() + ((Math.random() * radius * 2) - radius));
-								l.setZ(l.getZ() + ((Math.random() * radius * 2) - radius));
-								l.setY(l.getY() + (Math.random() * radius));
-								w.spawnParticle(particle, l, 1);
-								timers.get(p).set(PARTICLE_TIMER, timers.get(p).get(PARTICLE_TIMER) - 1);
+				if (!timers.isEmpty()) {
+					Particle particle = ws.getParticle(PARTICLE);
+					if (particle != null) {
+						double radius = ws.getDouble(PARTICLE_RADIUS);
+						for (Entry<Player, List<Long>> timingsPair : timers.entrySet()) {
+							Player p = timingsPair.getKey();
+							try {
+								if (timers.get(p).get(PARTICLE_TIMER) > 0) {
+									Location l = p.getLocation();
+									l.setX(l.getX() + ((Math.random() * radius * 2) - radius));
+									l.setZ(l.getZ() + ((Math.random() * radius * 2) - radius));
+									l.setY(l.getY() + (Math.random() * radius));
+									w.spawnParticle(particle, l, 1);
+									timers.get(p).set(PARTICLE_TIMER, timers.get(p).get(PARTICLE_TIMER) - 1);
+								}
+							} catch (Exception e) {
+								logWarning("Failed to produce particle: " + e.getMessage());
+								timers.get(p).set(PARTICLE_TIMER, 0L);
 							}
-						} catch (Exception e) {
-							logWarning("Failed to produce particle: " + e.getMessage());
-							timers.get(p).set(PARTICLE_TIMER, 0L);
 						}
 					}
 				}
@@ -98,7 +100,9 @@ public class SmoothSleep extends LoggablePlugin {
 					timescale = (int) SLEEP_TICKS_DURA;
 				} else {
 					int minMult = ws.getInt(MIN_NIGHT_MULT), maxMult = ws.getInt(MAX_NIGHT_MULT);
-					timescale = Math.round((float) MiscUtils.remapValue(true, 0, sc + wc, minMult, maxMult, sc));
+					double curve = ws.getDouble(SPEED_CURVE);
+					double speedMult = calcSpeed(curve, ((double)sc / (double)(sc + wc)));
+					timescale = Math.round((float) MiscUtils.remapValue(true, 0, 1, minMult, maxMult, speedMult));
 					newTime = w.getTime() + timescale - 1;
 					if (newTime > SLEEP_TICKS_END) newTime = SLEEP_TICKS_END;
 				}
@@ -232,7 +236,7 @@ public class SmoothSleep extends LoggablePlugin {
 			}
 		}, 0L, 0L);
 
-		// Thanks to IAlIstannen at the Spigot forums for this idea of NMS sleepTick modification
+		// Thanks to IAlIstannen @ Spigot for this idea of NMS sleepTick modification
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
 			List<Player> remove = new ArrayList<>();
 			if (!sleepers.isEmpty()) {
@@ -291,6 +295,27 @@ public class SmoothSleep extends LoggablePlugin {
 		}
 		return a;
 	}
+
+	/**
+	 * Calculates the night speed multiplier based on the curve amount and percent (0-1) of players sleeping.
+	 * @param curve A value between 0-1 (not inclusive) that determines the curve. Higher values will cause the returned
+	 *              value to increase more rapidy with lower percents and slower with higher percents, lower values will
+	 *              cause the returned value to increase more slowly with lower percents and rise rapidy with higher percents.
+	 *              A value of 0.5 will be a linear function where the percent is returned. Clamped 0-1
+	 * @param percent The percent of sleeping players. 0 will always return the minimum night speed, and 1 will always
+	 *                return the max night speed. Clamped 0-1
+	 * @return Returns a value between 0-1 indicating how fast night should proceed.
+	 */
+	// Thanks to math wizard theminerdude AKA Drathares @ NarniaMC for helping to discover and simplify this equation
+	public double calcSpeed(double curve, double percent) {
+		curve = curve > 1 ? 1 : curve < 0 ? 0 : curve;			// Clamp curve to 0-1.
+		percent = percent > 1 ? 1 : percent < 0 ? 0 : percent;	// Clamp percent to 0-1;
+		if (near(curve, 1)) return near(percent, 0) ? 0f : 1f;	// Filter out values too close to 1 -- any sleepers = max speed
+		if (near(curve, 0)) return near(percent, 1) ? 1f : 0f;	// Filter out values too close to 0 -- all sleepers = max speed
+		return (curve * percent) / (2 * curve * percent - curve - percent + 1);
+	}
+
+	private boolean near(double a, double b) { return Math.abs(a - b) < 0.0001f; }
 
 	public class MultPair {
 		public int min, max;

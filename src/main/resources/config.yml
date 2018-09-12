@@ -12,6 +12,15 @@
 # -- This value must be a whole number greater than 0
 # -- For reference, a speed mult of 50 will make a full night take roughly 10 seconds
 #
+# night-speed-curve: A value between 0-1 which can give more or less weight to fewer players sleeping
+# -- If this is 0.5 (default), the percent of sleeping players will linearly affect night speed
+# -- If less than 0.5, speed will increase slowly at first then more quickly as more player sleep
+# -- If more than 0.5, speed will increase quickly at first, then more slowly as more players sleep
+# -- If 0 (min), will result in min night speed until everyone sleeps
+# -- If 1 (max), any number of players will cause max night speed
+# -- As a visualiztion, check out this chart: https://www.desmos.com/calculator/nwmstzhjgv
+# -- In this graph, the X axis is the percentage of players sleeping and Y is the night speed, C is the curve
+#
 # morning-subtitle: The message shown under the clock upon waking up if 'use-titles' is enabled.
 # -- Any short message with ampersand {&} color codes. Good idea to wrap this value in 'quotes' or it may break
 # -- If you want to keep the clock, but not the subtitle, then just leave this blank (empty quotes '')
@@ -83,6 +92,7 @@ worlds:
   world:
     min-night-speed-mult: 10
     max-night-speed-mult: 50
+    night-speed-curve: 0.5
     use-titles: true
     sleeping-title: '&b{12H}:{MIN} {MER_UPPER}'
     morning-title: '&e{12H}:{MIN} {MER_UPPER}'
