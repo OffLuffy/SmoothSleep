@@ -94,11 +94,13 @@ worlds:
     max-night-speed-mult: 50
     night-speed-curve: 0.5
     use-titles: true
+    use-action-bar: true
     sleeping-title: '&b{12H}:{MIN} {MER_UPPER}'
     morning-title: '&e{12H}:{MIN} {MER_UPPER}'
     sleeping-subtitle: '&a{SLEEPERS}/{TOTAL} Sleeping &3({TIMESCALE}x speed)'
     morning-subtitle: '&aRise and shine, {USERNAME}!'
     morning-sound: 'ENTITY_PLAYER_LEVELUP'
+    action-bar: '&a{SLEEPERS}/{TOTAL} Players Asleep'
     morning-particle-options:
       particle: 'VILLAGER_HAPPY'
       amount: 50

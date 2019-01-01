@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PlayerEventsListener implements Listener {
 
@@ -27,5 +28,13 @@ public class PlayerEventsListener implements Listener {
 		Player p = e.getPlayer();
 		World w = e.getBed().getWorld();
 		if (plugin.worldEnabled(w) && plugin.isNight(w)) { plugin.removeSleeper(p); }
+	}
+
+	@EventHandler(ignoreCancelled = true)
+	public void playerJoin(PlayerJoinEvent e) {
+		if (!plugin.enabled) return;
+		Player p = e.getPlayer();
+		World w = p.getWorld();
+		if (plugin.worldEnabled(w) && plugin.isNight(w) && p.hasPermission(plugin.PERM_IGNORE)) { plugin.addSleepIgnored(w, p); }
 	}
 }
