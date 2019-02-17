@@ -1,123 +1,53 @@
-#
-# CONFIG OPTIONS
-#
-# min-night-speed-mult: The lowest possible night speed multiplier (if the tiniest fraction of players are sleeping)
-# -- This value must be a whole number greater than 0
-# -- Keep in mind that this is NOT the speed of night if a single player is sleeping. If 1 of 2 people are sleeping,
-#    then the speed multiple will be halfway between the min and max multiples. SmoothSleep will scale the multiple
-#    based on the ratio of people sleeping
-# -- Vanilla time scale is used if there are no sleepers, not the min mult speed.
-#
-# max-night-speed-mult: The highest possible night speed multiplier (if everyone is sleeping)
-# -- This value must be a whole number greater than 0
-# -- For reference, a speed mult of 50 will make a full night take roughly 10 seconds
-#
-# night-speed-curve: A value between 0-1 which can give more or less weight to fewer players sleeping
-# -- If this is 0.5 (default), the percent of sleeping players will linearly affect night speed
-# -- If less than 0.5, speed will increase slowly at first then more quickly as more player sleep
-# -- If more than 0.5, speed will increase quickly at first, then more slowly as more players sleep
-# -- If 0 (min), will result in min night speed until everyone sleeps
-# -- If 1 (max), any number of players will cause max night speed
-# -- As a visualiztion, check out this chart: https://www.desmos.com/calculator/nwmstzhjgv
-# -- In this graph, the X axis is the percentage of players sleeping and Y is the night speed, C is the curve
-#
-# morning-subtitle: The message shown under the clock upon waking up if 'use-titles' is enabled.
-# -- Any short message with ampersand {&} color codes. Good idea to wrap this value in 'quotes' or it may break
-# -- If you want to keep the clock, but not the subtitle, then just leave this blank (empty quotes '')
-# -- Supports variables:
-# -- -- {12H} - The 12-hour portion of the server time
-# -- -- {24H} - The 24-hour portion of the server time
-# -- -- {MIN} - The minutes portion of the server time
-# -- -- {MER_UPPER} - The uppercase meridiem counterpart of 12-hour time, AM or PM
-# -- -- {MER_LOWER} - The lowercase meridiem counterpart of 12-hour time, am or pm
-# -- -- {SLEEPERS} - The number of players currently sleeping
-# -- -- {WAKERS} - The number of non-ignored non-sleeping players
-# -- -- {TOTAL} - The number of players sleeping + non-sleeping, non-ignored players
-# -- -- {TIMESCALE} - How many times faster than normal time is passing
-# -- -- {USERNAME} - The player's username (not always the one that is displayed in game)
-# -- -- {DISPLAYNAME} - The player's name as it is shown in game. May contain prefixes, color codes, etc.
-# -- -- {HOURS_SLEPT} - How many in-game hours the player has slept, regardless of timescale
-# -- -- {LEVEL} - The player's current level
-# -- -- {DAYS_LIVED} - The number of days that the player has lived
-# -- -- {REM_HOURS_LIVED} - The number of hours the player has lived after subtracting days
-# -- -- {REM_MINS_LIVED} - The number of minutes the player has lived after subtracting days and hours
-# -- -- {TOTAL_HOURS_LIVED} - The number of hours that the player has lived (total hours, doesn't subtract days)
-# -- -- {TOTAL_MINS_LIVED} - The number of minutes that the player has lived (total minutes, doesn't subtract hours or days)
-# -- -- {TIME_LIVED} - The time the player has lived in days, minutes, and seconds; formatted as '0d, 0h, 0m'
-# -- -- {WORLD} - The name of the world that the player is sleeping in
-# -- -- {SERVER_IP} - 'server-ip' specified in server.properties
-# -- -- {SERVER_MOTD} - 'motd' specified in server.properties (including colors)
-# -- -- {SERVER_NAME} - 'server-name' specified in server.properties (including colors)
-# -- -- {SERVER_MOTD_STRIP} - 'motd' specified in server.properties (stripped of colors)
-# -- -- {SERVER_NAME_STRIP} - 'server-name' specified in server.properties (stripped of colors)
-# -- -- {NICKNAME} - Essentials nickname without the group prefix. Same as DISPLAYNAME if essentials isn't installed.
-# -- -- {NICKNAME_STRIP} - NICKNAME without colors or formats.
-#
-# morning-sound: If this is a valid sound, then it will play for a player when they wake up.
-# -- For a list of valid sounds, refer to https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
-# -- To disable this, just leave blank (empty quotes '')
-#
-# morning-particle-options:
-# -- particle: The name of the particle to use. For a list, refer to https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html
-# -- -- Some particles require data. They will not work: REDSTONE, BLOCK_CRACK, BLOCK_DUST, FALLING_DUST, ITEM_CRACK
-#       LEGACY_BLOCK_CRACK, LEGACY_BLOCK_DUST, LEGACY_FALLING_DUST, SPELL_MOB, SPELL_MOB_AMBIENT
-# -- amount: The number of particle to spawn. This also controls how long the particles last since each ticks spawns a particle.
-# -- radius: How far around the player the particles should spawn
-#
-# use-titles: If true, displays a large clock and sleeper stats when sleeping, and 'morning-subtitle' in the morning
-#
-# instant-day-if-all-sleeping: If true, this will instantly skip night if all non-sleep-ignored players are sleeping.
-#
-# essentials-settings:
-# -- ignore-afk: If essentials is installed, setting this to true will exempt AFK player from needing to sleep
-# -- ignore-vanished: Same as ignore-afk, but exempts vanished players from needing to sleep
-#
-# replenish-settings:
-# -- heal-negative-statuses: If true, heals negative status effects if the player has slept the required hours
-# -- hours-to-heal-negative: The hours of sleep required to heal negative statuses
-# -- heal-positive-statuses: If true, heals positive status effects if the player has slept the required hours
-# -- hours-to-heal-positive: The hours of sleep required to heal positive statuses
-# -- ticks-per-health: Ticks to sleep (including timescaled ticks) to heal the amount specified
-# -- health-amount: The amount healed per interval specified. Can be negative. 1 = half a heart
-# -- ticks-per-food: Ticks to sleep (including timescaled ticks) to feed the amount specified
-# -- food-amount: Ticks to sleep (including timescaled ticks) to feed the amount specified
-#
-# =============================
+# More info: https://www.spigotmc.org/resources/smoothsleep.32043
 enable-stats: true
+update-notify-login: true
 logging-settings:
-  log-debug: false
+  log-debug: true
   log-warning: true
   log-info: true
 worlds:
   world:
     min-night-speed-mult: 10
-    max-night-speed-mult: 50
+    max-night-speed-mult: 20
     night-speed-curve: 0.5
-    use-titles: true
-    use-action-bar: true
-    sleeping-title: '&b{12H}:{MIN} {MER_UPPER}'
-    morning-title: '&e{12H}:{MIN} {MER_UPPER}'
-    sleeping-subtitle: '&a{SLEEPERS}/{TOTAL} Sleeping &3({TIMESCALE}x speed)'
-    morning-subtitle: '&aRise and shine, {USERNAME}!'
     morning-sound: 'ENTITY_PLAYER_LEVELUP'
-    action-bar: '&a{SLEEPERS}/{TOTAL} Players Asleep'
     morning-particle-options:
       particle: 'VILLAGER_HAPPY'
-      amount: 50
-      radius: 1.5
-    title-stay-ticks: 20
-    title-fade-ticks: 40
-    clear-weather-when-morning: true
+      amount: 20
+      radius: 0.5
+      enabled: true
+      delay-ticks: 5
+      pattern: 'RANDOM'
     instant-day-if-all-sleeping: false
     essentials-settings:
       ignore-afk: true
-      ignore-vanished: true
+      ignore-vanish: true
     replenish-settings:
       heal-negative-statuses: true
       hours-to-heal-negative: 3
       heal-positive-statuses: false
       hours-to-heal-positive: 3
-      ticks-per-health: 3000
-      health-amount: 1
-      ticks-per-food: 3000
-      food-amount: 0
+      ticks-per-heal: 1000
+      heal-amount: 0
+      heal-awake: false
+      ticks-per-feed: 1000
+      feed-amount: 0
+      feed-awake: false
+    clear-weather-when-morning: true
+    titles:
+      enabled: true
+      sleep-title: '&b{12H}:{MIN} {MER_UPPER}'
+      sleep-subtitle: '&a{SLEEPERS}/{TOTAL} Sleeping &3({TIMESCALE}x speed)'
+      morning-title: '&e{12H}:{MIN} {MER_UPPER}'
+      morning-subtitle: '&aRise and shine, {USERNAME}!'
+      stay-ticks: 20
+      fade-ticks: 40
+    action-bar:
+      enabled: true
+      show-if-awake: false
+      title: '&4Health: &c{HEALTH_BAR} &3Food: &b{FOOD_BAR}'
+    boss-bar:
+      enabled: true
+      show-if-awake: true
+      color: 'BLUE'
+      title: '&a{SLEEPERS}/{TOTAL} Sleeping &3- &b{12H}:{MIN} {MER_UPPER}'

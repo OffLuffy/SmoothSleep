@@ -1,19 +1,18 @@
-package me.offluffy.SmoothSleep.commands;
+package com.luffbox.smoothsleep.commands;
 
-import me.offluffy.SmoothSleep.SmoothSleep;
+import com.luffbox.smoothsleep.SmoothSleep;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.MemoryConfiguration;
 
 public class AddWorld implements CommandExecutor {
 
-	private SmoothSleep plugin;
+	private SmoothSleep pl;
 
-	public AddWorld(SmoothSleep p) { plugin = p; }
+	public AddWorld(SmoothSleep plugin) { pl = plugin; }
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -29,13 +28,13 @@ public class AddWorld implements CommandExecutor {
 				sender.sendMessage(ChatColor.RED + "That world couldn't be found!");
 				return true;
 			}
-			if (plugin.conf.contains("worlds." + w.getName())) {
+			if (pl.data.config.contains("worlds." + w.getName())) {
 				sender.sendMessage(ChatColor.AQUA + "That world already exists in the config!");
 				sender.sendMessage(ChatColor.AQUA + "To configure your world, use " + ChatColor.GREEN + "/ssconf");
 				return true;
 			}
-			plugin.conf.set("worlds." + w.getName(), plugin.conf.getDefaultConfigurationSection("worlds.world"));
-			plugin.conf.save();
+			pl.data.config.set("worlds." + w.getName(), pl.data.config.getDefaultConfigurationSection("worlds.world"));
+			pl.data.config.save();
 			sender.sendMessage(ChatColor.AQUA + "Default values added for world: " + ChatColor.GREEN + w.getName());
 			sender.sendMessage(ChatColor.AQUA + "To configure your world, use " + ChatColor.GREEN + "/ssconf");
 			sender.sendMessage(ChatColor.AQUA + "This won't take effect until you use " + ChatColor.GREEN + "/ssreload");

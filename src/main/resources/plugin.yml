@@ -1,9 +1,9 @@
-name: ${project.artifactId}
-author: OffLuffy
+name: SmoothSleep
+version: ${project.version}
+main: com.luffbox.smoothsleep.SmoothSleep
+authors: [OffLuffy]
 description: ${project.description}
 api-version: 1.13
-version: ${project.version}
-main: ${project.groupId}.${project.name}.${project.name}
 softdepend: [Essentials]
 commands:
   smoothsleepreload:
@@ -49,4 +49,13 @@ permission:
     default: op
   smoothsleep.configure:
     description: Allows you to modify a World's config settings with the /ssconf command
+    default: op
+  smoothsleep.notify:
+    description: Users with this permission will be notified on login if there's an update available
+    default: op
+  smoothsleep.ignoreheal:
+    description: Users with this permission will not be periodically healed/hurt during sleep cycle
+    default: op
+  smoothsleep.ignorefeed:
+    description: Users with this permission will not be periodically fed/starved during sleep cycle
     default: op
