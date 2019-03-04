@@ -41,6 +41,7 @@ public class WakeParticlesTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
+		if (pd == null || pd.worldConf() == null) { cancel(); return; }
 		if (!pd.worldConf().getBoolean(PARTICLE_ENABLED)) { cancel(); return; }
 		patt.spawnParticle(type, pd.getPlayer().getLocation(), radius, (double) complete / (double) target);
 		if (++complete >= target) {
