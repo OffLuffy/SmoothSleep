@@ -3,6 +3,7 @@ package com.luffbox.smoothsleep.tasks;
 import com.luffbox.smoothsleep.PlayerData;
 import com.luffbox.smoothsleep.SmoothSleep;
 import com.luffbox.smoothsleep.WorldData;
+import com.luffbox.smoothsleep.lib.ConfigHelper;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -28,12 +29,10 @@ public class SleepTickTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		// TODO Tick player timers
 		wd.updateTimescale();
 		if (wd.isNight()) { wd.timestep(); }
 //		if (wd.hasAnyWeather() && tickWeather) { wd.timestepWeather(); }
 		if (!wd.isNight()) { // Not night or weather, cancel everything
-			Set<Player> sleepers = wd.getSleepers();
 			wd.getSleepers().forEach(plr -> {
 				PlayerData pd = pl.data.getPlayerData(plr);
 				if (pd != null) {
@@ -41,6 +40,9 @@ public class SleepTickTask extends BukkitRunnable {
 					pd.stopDeepSleep();
 				} // Cancelling deep sleep task should remove them from bed
 			});
+			if (wd.getSettings().getBoolean(ConfigHelper.WorldSettingKey.CLEAR_WEATHER)) {
+				wd.clearWeather();
+			}
 			cancel();
 		}
 		if (wd.getSleepers().size() <= 0) { cancel(); } else {

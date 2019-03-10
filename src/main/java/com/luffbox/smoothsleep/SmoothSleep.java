@@ -18,10 +18,10 @@ public final class SmoothSleep extends LoggablePlugin {
 
 	public static final long SLEEP_TICKS_START = 12541L,
 			SLEEP_TICKS_END = 23460L,
-			SLEEP_TICKS_DURA = SLEEP_TICKS_END - SLEEP_TICKS_START + 2;
-	public static final long TICKS_PER_DAY = 1728000,
-			TICKS_PER_HOUR = 72000,
-			TICKS_PER_MIN = 1200;
+			SLEEP_TICKS_DURA = SLEEP_TICKS_END - SLEEP_TICKS_START;
+	public static final long TICKS_PER_DAY = 1728000L,
+			TICKS_PER_HOUR = 72000L,
+			TICKS_PER_MIN = 1200L;
 
 	public static String nmsver;
 	public static boolean hasUpdate = false;

@@ -81,16 +81,12 @@ public class WorldData implements Purgeable {
 		if (ws.getBoolean(ConfigHelper.WorldSettingKey.INSTANT_DAY) && getWakers().size() <= 0) {
 			timescale = SmoothSleep.SLEEP_TICKS_END - getTime();
 		} else {
-			double per = (double) getSleepers().size() / (double) (getSleepers().size() + getWakers().size());
 			double crv = getSettings().getDouble(ConfigHelper.WorldSettingKey.SPEED_CURVE);
 			double mns = ws.getDouble(ConfigHelper.WorldSettingKey.MIN_NIGHT_MULT);
 			double xns = ws.getDouble(ConfigHelper.WorldSettingKey.MAX_NIGHT_MULT);
-			timescale = MiscUtils.remapValue(true, 0.0, 1.0, mns, xns, MiscUtils.calcSpeed(crv, per));
-//			SmoothSleep.logDebug(String.format("timescale = %.2f (per = %.2f, crv = %.2f)", timescale, per, crv));
+			timescale = MiscUtils.remapValue(true, 0.0, 1.0, mns, xns, MiscUtils.calcSpeed(crv, getSleepRatio()));
 		}
 	}
-
-	// TODO In timestep() and timestepWeather(), check if a tick needs to be subtracted to account for the normal tick
 
 	public void timestep() {
 		timeTickRemain += timescale;
@@ -122,6 +118,13 @@ public class WorldData implements Purgeable {
 	}
 
 	public boolean hasAnyWeather() { return w.isThundering() || w.hasStorm(); }
+
+	public void clearWeather() {
+		w.setThundering(false);
+		w.setStorm(false);
+//		w.setThunderDuration(1);
+//		w.setWeatherDuration(1);
+	}
 
 	public ConfigHelper.WorldSettings getSettings() { return ws; }
 

@@ -62,7 +62,7 @@ public class PlayerData implements Purgeable {
 		updateTitles();
 	}
 
-	public void clearTitles() { plr.hideTitle(); }
+	public void clearTitles() { plr.sendTitle(" ", " ", 0, 0, 0); }
 	public void updateTitles() {
 		if (!worldConf().getBoolean(TITLES_ENABLED)) return;
 		if (!worldData().isNight() || !isSleeping()) {
