@@ -3,7 +3,7 @@ version: ${project.version}
 main: com.luffbox.smoothsleep.SmoothSleep
 authors: [OffLuffy]
 description: ${project.description}
-api-version: 1.13
+api-version: 1.14
 softdepend: [Essentials]
 commands:
   smoothsleepreload:

@@ -4,10 +4,7 @@ import com.luffbox.smoothsleep.PlayerData;
 import com.luffbox.smoothsleep.SmoothSleep;
 import com.luffbox.smoothsleep.WorldData;
 import com.luffbox.smoothsleep.lib.ConfigHelper;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.Set;
 
 /**
  * The task where the majority of the heavy lifting is done. Using the
@@ -45,7 +42,7 @@ public class SleepTickTask extends BukkitRunnable {
 			}
 			cancel();
 		}
-		if (wd.getSleepers().size() <= 0) { cancel(); } else {
+		if (!isCancelled() && wd.getSleepers().size() <= 0) { cancel(); } else {
 			wd.timestepTimers(wd.getTimescale()); wd.tickUI();
 		}
 	}

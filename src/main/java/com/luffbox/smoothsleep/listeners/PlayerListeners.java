@@ -33,7 +33,6 @@ public class PlayerListeners implements Listener {
 
 	@EventHandler
 	public void changeWorld(PlayerChangedWorldEvent e) {
-		World from = e.getFrom();
 		World to = e.getPlayer().getWorld();
 		PlayerData pd = pl.data.getPlayerData(e.getPlayer());
 		boolean needData = pl.data.worldEnabled(to);

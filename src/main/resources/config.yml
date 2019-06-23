@@ -18,6 +18,9 @@ worlds:
       enabled: true
       delay-ticks: 5
       pattern: 'RANDOM'
+    sleep-reward:
+      required-hours: 3
+      potion-effects:
     instant-day-if-all-sleeping: false
     essentials-settings:
       ignore-afk: true

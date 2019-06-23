@@ -8,9 +8,9 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
-// TODO Better defaults for morning particles
-// TODO Remove TestWakeParticles command
+// TODO Morning buff options?
 
+@SuppressWarnings("ConstantConditions")
 public final class SmoothSleep extends LoggablePlugin {
 
 	public static final String PERM_IGNORE = "smoothsleep.ignore";

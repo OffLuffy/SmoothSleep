@@ -124,7 +124,6 @@ pip-log.txt
 .mr.developer.cfg
 *.jar
 test/
-lib/
 target/
 
 dependency-reduced-pom\.xml
