@@ -1,9 +1,12 @@
 package com.luffbox.smoothsleep;
 
 import com.luffbox.smoothsleep.commands.*;
+import com.luffbox.smoothsleep.lib.ConfigHelper;
 import com.luffbox.smoothsleep.lib.LoggablePlugin;
+import com.luffbox.smoothsleep.listeners.NightListeners;
 import com.luffbox.smoothsleep.listeners.PlayerListeners;
 import com.luffbox.smoothsleep.tasks.EveryTickTask;
+import com.luffbox.smoothsleep.tasks.TransmitDataTask;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
@@ -44,6 +47,7 @@ public final class SmoothSleep extends LoggablePlugin {
 		logDebug("DataStore initialized");
 
 		getServer().getPluginManager().registerEvents(new PlayerListeners(this), this);
+		getServer().getPluginManager().registerEvents(new NightListeners(this), this);
 
 		getServer().getPluginCommand("smoothsleepreload").setExecutor(new Reload(this));
 		getServer().getPluginCommand("smoothsleeptoggle").setExecutor(new ToggleEnabled(this));
@@ -52,6 +56,9 @@ public final class SmoothSleep extends LoggablePlugin {
 		getServer().getPluginCommand("smoothsleepconfigureworld").setExecutor(new ConfigureWorld(this));
 
 		everyTickTask = new EveryTickTask(this).runTaskTimer(this, 0L, 0L);
+		if (data.config.getBoolean(ConfigHelper.GlobalSettingKey.ENABLE_DATA)) {
+			new TransmitDataTask(this).runTaskLater(this, 1L);
+		}
 	}
 
 	@Override

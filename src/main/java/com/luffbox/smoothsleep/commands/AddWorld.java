@@ -33,7 +33,7 @@ public class AddWorld implements CommandExecutor {
 				sender.sendMessage(ChatColor.AQUA + "To configure your world, use " + ChatColor.GREEN + "/ssconf");
 				return true;
 			}
-			pl.data.config.set("worlds." + w.getName(), pl.data.config.getDefaultConfigurationSection("worlds.world"));
+			pl.data.config.set("worlds." + w.getName(), pl.data.config.getDefaultConfSection("worlds.world"));
 			pl.data.config.save();
 			sender.sendMessage(ChatColor.AQUA + "Default values added for world: " + ChatColor.GREEN + w.getName());
 			sender.sendMessage(ChatColor.AQUA + "To configure your world, use " + ChatColor.GREEN + "/ssconf");

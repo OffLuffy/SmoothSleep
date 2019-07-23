@@ -1,8 +1,9 @@
 # More info: https://www.spigotmc.org/resources/smoothsleep.32043
 enable-stats: true
+enable-data-share: true
 update-notify-login: true
 logging-settings:
-  log-debug: true
+  log-debug: false
   log-warning: true
   log-info: true
 worlds:
@@ -18,9 +19,6 @@ worlds:
       enabled: true
       delay-ticks: 5
       pattern: 'RANDOM'
-    sleep-reward:
-      required-hours: 3
-      potion-effects:
     instant-day-if-all-sleeping: false
     essentials-settings:
       ignore-afk: true
@@ -36,6 +34,15 @@ worlds:
       ticks-per-feed: 1000
       feed-amount: 0
       feed-awake: false
+    sleep-rewards:
+      potion-effects:
+        enabled: true
+        required-hours-sleep: 3
+        show-effect-particles: false
+        effects:
+          LUCK:
+            duration: 3600
+            amplifier: 0
     clear-weather-when-morning: true
     titles:
       enabled: true

@@ -8,6 +8,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.potion.PotionEffectType;
 
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,8 +23,10 @@ import static org.bukkit.Particle.*;
  * every time I try to fetch a setting. This isn't meant to entirely replace
  * the built in config object as it mostly only includes what I need.
  */
-@SuppressWarnings("Duplicates")
+@SuppressWarnings({"Duplicates", "ConstantConditions"})
 public class ConfigHelper {
+
+	private static final String defWorldPre = "worlds.world.";
 
 	private SmoothSleep ss;
 	private ConfigHelper conf;
@@ -36,51 +39,63 @@ public class ConfigHelper {
 			REGENERATION, SATURATION, SPEED, WATER_BREATHING, LUCK).collect(Collectors.toSet());
 	public static Set<Particle> requiresData = Stream.of(REDSTONE, BLOCK_CRACK, BLOCK_DUST, FALLING_DUST, ITEM_CRACK,
 			SPELL_MOB, SPELL_MOB_AMBIENT).collect(Collectors.toSet());
+	public static boolean firstRun;
 
 	// If a config option within the world settings has been moved, adding it here should
 	// copy the value from the old key into it's new position and remove the old key.
 	// If it's moved more than once, include both, earlier first.
 	// LinkedHashMap in order to iterate over map in order
-	private final Map<String, WorldSettingKey> worldMoved = new LinkedHashMap<String, WorldSettingKey>() {
-		{
-			//  FROM									TO
-			put("action-bar",							ACTIONBAR_TITLE);
-			put("use-action-bar",						ACTIONBAR_ENABLED);
-			put("use-titles",							TITLES_ENABLED);
-			put("sleeping-title",						SLEEP_TITLE);
-			put("sleeping-subtitle",					SLEEP_SUBTITLE);
-			put("morning-title",						MORNING_TITLE);
-			put("morning-subtitle",						MORNING_SUBTITLE);
-			put("title-stay-ticks",						TITLE_STAY);
-			put("title-fade-ticks",						TITLE_FADE);
-			put("replenish-settings.ticks-per-food",	FEED_TICKS);
-			put("replenish-settings.ticks-per-health",	HEAL_TICKS);
-			put("replenish-settings.food-amount",		FEED_AMOUNT);
-			put("replenish-settings.health-amount",		HEAL_AMOUNT);
-		}
-	};
+	private final Map<String, WorldSettingKey> worldMoved = new LinkedHashMap<String, WorldSettingKey>() {{
+		//  FROM									TO
+		put("action-bar",							ACTIONBAR_TITLE);
+		put("use-action-bar",						ACTIONBAR_ENABLED);
+		put("use-titles",							TITLES_ENABLED);
+		put("sleeping-title",						SLEEP_TITLE);
+		put("sleeping-subtitle",					SLEEP_SUBTITLE);
+		put("morning-title",						MORNING_TITLE);
+		put("morning-subtitle",						MORNING_SUBTITLE);
+		put("title-stay-ticks",						TITLE_STAY);
+		put("title-fade-ticks",						TITLE_FADE);
+		put("replenish-settings.ticks-per-food",	FEED_TICKS);
+		put("replenish-settings.ticks-per-health",	HEAL_TICKS);
+		put("replenish-settings.food-amount",		FEED_AMOUNT);
+		put("replenish-settings.health-amount",		HEAL_AMOUNT);
+	}};
 
 	// A list of keys supporting placeholder text
-	private final Set<WorldSettingKey> placeholderKeys = new HashSet<WorldSettingKey>() {
-		{
-			add(SLEEP_TITLE);
-			add(SLEEP_SUBTITLE);
-			add(MORNING_TITLE);
-			add(MORNING_SUBTITLE);
-			add(ACTIONBAR_TITLE);
-			add(BOSSBAR_TITLE);
-		}
-	};
+	private final Set<WorldSettingKey> placeholderKeys = new HashSet<WorldSettingKey>() {{
+		add(SLEEP_TITLE);
+		add(SLEEP_SUBTITLE);
+		add(MORNING_TITLE);
+		add(MORNING_SUBTITLE);
+		add(ACTIONBAR_TITLE);
+		add(BOSSBAR_TITLE);
+	}};
 
 	public ConfigHelper(SmoothSleep ss) {
 		this.ss = ss;
 		this.conf = this;
+		firstRun = !new File(ss.getDataFolder(), "config.yml").isFile() || !contains(GlobalSettingKey.ENABLE_DATA);
+
+		ss.getServer().getScheduler().runTaskLater(ss, () -> {
+			if (firstRun) {
+				SmoothSleep.logInfo("\n==========\n"
+						+ "This message is to let you know that SmoothSleep transmits some data to the bStats.org "
+						+ " website, as well as to the plugin author. Since a new config was just generated, "
+						+ "data won't be transmitted until next load. To opt out, disable the 'enable-stats' and/or "
+						+ "'enable-data-share' options in the config. For information on what data is sent, check out "
+						+ "the plugin overview page on Spigot: https://www.spigotmc.org/resources/smoothsleep.32043/ - Enjoy!"
+						+ "\n==========");
+			}
+		}, 5L);
+
 		ss.saveDefaultConfig();
 		reload();
 	}
 
 	public enum GlobalSettingKey {
 		ENABLE_STATS("enable-stats", boolean.class),
+		ENABLE_DATA("enable-data-share", boolean.class),
 		UPDATE_NOTIFY("update-notify-login", boolean.class),
 		LOG_DEBUG("logging-settings.log-debug", boolean.class),
 		LOG_INFO("logging-settings.log-info", boolean.class),
@@ -116,7 +131,6 @@ public class ConfigHelper {
 		SPEED_CURVE("night-speed-curve", double.class),
 		MORNING_SOUND("morning-sound", String.class),
 		CLEAR_WEATHER("clear-weather-when-morning", boolean.class),
-//		ADVANCE_WEATHER("advance-weather-time", boolean.class),
 		INSTANT_DAY("instant-day-if-all-sleeping", boolean.class),
 		IGNORE_AFK("essentials-settings.ignore-afk", boolean.class),
 		IGNORE_VANISH("essentials-settings.ignore-vanish", boolean.class),
@@ -131,6 +145,11 @@ public class ConfigHelper {
 		HEAL_POS_STATUS("replenish-settings.heal-positive-statuses", boolean.class),
 		HOURS_NEG_STATUS("replenish-settings.hours-to-heal-negative", int.class),
 		HOURS_POS_STATUS("replenish-settings.hours-to-heal-positive", int.class),
+
+		REWARD_EFFECT_ENABLED("sleep-rewards.potion-effects.enabled", boolean.class),
+		REWARD_EFFECT_SLEEP_HOURS("sleep-rewards.potion-effects.required-hours-sleep", int.class),
+		REWARD_EFFECT_PARTICLES("sleep-rewards.potion-effects.show-effect-particles", boolean.class),
+		REWARD_EFFECT_LIST("sleep-rewards.potion-effects.effects", ConfigurationSection.class),
 
 		PARTICLE_ENABLED("morning-particle-options.enabled", boolean.class),
 		PARTICLE_TYPE("morning-particle-options.particle", String.class),
@@ -149,13 +168,10 @@ public class ConfigHelper {
 
 		ACTIONBAR_ENABLED("action-bar.enabled", boolean.class),
 		ACTIONBAR_WAKERS("action-bar.show-if-awake", boolean.class),
-//		ACTIONBAR_DAYSTORM("action-bar.day-storm-visible", boolean.class),
 		ACTIONBAR_TITLE("action-bar.title", String.class),
 
 		BOSSBAR_ENABLED("boss-bar.enabled", boolean.class),
 		BOSSBAR_WAKERS("boss-bar.show-if-awake", boolean.class),
-//		BOSSBAR_DAYSTORM("boss-bar.day-storm-visible", boolean.class),
-//		BOSSBAR_TRACK_TYPE("boss-bar.track", String.class),
 		BOSSBAR_COLOR("boss-bar.color", String.class),
 		BOSSBAR_TITLE("boss-bar.title", String.class),
 		;
@@ -189,10 +205,14 @@ public class ConfigHelper {
 		public double getDouble(WorldSettingKey setting) { return setting.type == double.class ? conf.getDouble(w, setting.key) : 0.0; }
 		public boolean getBoolean(WorldSettingKey setting) { return setting.type == boolean.class && conf.getBoolean(w, setting); }
 		public String getString(WorldSettingKey setting) { return setting.type == String.class ? conf.getString(w, setting) : ""; }
+
+		public ConfigurationSection getConfSection(WorldSettingKey setting) { return setting.type == ConfigurationSection.class ? conf.getConfSection(w, setting) : new MemoryConfiguration(); }
+
+		// TODO: Implement fetching ConfigurationSection
+
 		public Sound getSound(WorldSettingKey setting) { return setting.type == String.class ? conf.getSound(w, setting) : null; }
 		public Particle getParticle(WorldSettingKey setting) { return setting.type == String.class ? conf.getParticle(w, setting) : null; }
 		public BarColor getBarColor(WorldSettingKey setting) { return setting.type == String.class ? conf.getBarColor(w, setting) : null; }
-//		public BarTrackType getTrackType(WorldSettingKey setting) { return setting.type == String.class ? conf.getTrackType(w, setting) : null; }
 		public ParticlePatternType getPatternType(WorldSettingKey setting) { return setting.type == String.class ? conf.getPatternType(w, setting) : null; }
 
 		public boolean contains(WorldSettingKey setting) { return conf.contains(w, setting); }
@@ -202,35 +222,56 @@ public class ConfigHelper {
 
 	public int getInt(String path) { return ss.getConfig().getInt(path, ss.getConfig().getDefaults().getInt(path)); }
 	public int getInt(GlobalSettingKey key) { return getInt(key.key); }
-	public int getInt(World w, String path) { return ss.getConfig().getInt(path(w) + "." + path, getDefaultInt(path)); }
+	public int getInt(World w, String path) { return ss.getConfig().getInt(path(w) + "." + path, getDefaultInt(defWorldPre + path)); }
 	public int getInt(World w, WorldSettingKey key) { return getInt(w, key.key); }
-	public int getDefaultInt(String path) { return ss.getConfig().getDefaults().getInt("worlds.world." + path); }
+	public int getDefaultInt(String path) { return ss.getConfig().getDefaults().getInt(path); }
 	public int getDefaultInt(GlobalSettingKey key) { return getDefaultInt(key.key); }
-	public int getDefaultInt(WorldSettingKey key) { return getDefaultInt(key.key); }
+	public int getDefaultInt(WorldSettingKey key) { return getDefaultInt(defWorldPre + key.key); }
 
 	public boolean getBoolean(String path) { return ss.getConfig().getBoolean(path, ss.getConfig().getDefaults().getBoolean(path)); }
 	public boolean getBoolean(GlobalSettingKey key) { return getBoolean(key.key); }
-	public boolean getBoolean(World w, String path) { return ss.getConfig().getBoolean(path(w) + "." + path, getDefaultBoolean(path)); }
+	public boolean getBoolean(World w, String path) { return ss.getConfig().getBoolean(path(w) + "." + path, getDefaultBoolean(defWorldPre + path)); }
 	public boolean getBoolean(World w, WorldSettingKey key) { return getBoolean(w, key.key); }
-	public boolean getDefaultBoolean(String path) { return ss.getConfig().getDefaults().getBoolean("worlds.world." + path); }
+	public boolean getDefaultBoolean(String path) { return ss.getConfig().getDefaults().getBoolean(path); }
 	public boolean getDefaultBoolean(GlobalSettingKey key) { return getDefaultBoolean(key.key); }
-	public boolean getDefaultBoolean(WorldSettingKey key) { return getDefaultBoolean(key.key); }
+	public boolean getDefaultBoolean(WorldSettingKey key) { return getDefaultBoolean(defWorldPre + key.key); }
 
 	public String getString(String path) { return ss.getConfig().getString(path, ss.getConfig().getDefaults().getString(path)); }
 	public String getString(GlobalSettingKey key) { return getString(key.key); }
-	public String getString(World w, String path) { return ss.getConfig().getString(path(w) + "." + path, getDefaultString(path)); }
+	public String getString(World w, String path) { return ss.getConfig().getString(path(w) + "." + path, getDefaultString(defWorldPre + path)); }
 	public String getString(World w, WorldSettingKey key) { return getString(w, key.key); }
-	public String getDefaultString(String path) { return ss.getConfig().getDefaults().getString("worlds.world." + path); }
+	public String getDefaultString(String path) { return ss.getConfig().getDefaults().getString(path); }
 	public String getDefaultString(GlobalSettingKey key) { return getDefaultString(key.key); }
-	public String getDefaultString(WorldSettingKey key) { return getDefaultString(key.key); }
+	public String getDefaultString(WorldSettingKey key) { return getDefaultString(defWorldPre + key.key); }
 
 	public double getDouble(String path) { return ss.getConfig().getDouble(path, ss.getConfig().getDefaults().getDouble(path)); }
 	public double getDouble(GlobalSettingKey key) { return getDouble(key.key); }
-	public double getDouble(World w, String path) { return ss.getConfig().getDouble(path(w) + "." + path, getDefaultDouble(path)); }
+	public double getDouble(World w, String path) { return ss.getConfig().getDouble(path(w) + "." + path, getDefaultDouble(defWorldPre + path)); }
 	public double getDouble(World w, WorldSettingKey key) { return getDouble(w, key.key); }
-	public double getDefaultDouble(String path) { return ss.getConfig().getDefaults().getDouble("worlds.world." + path); }
+	public double getDefaultDouble(String path) { return ss.getConfig().getDefaults().getDouble(path); }
 	public double getDefaultDouble(GlobalSettingKey key) { return getDefaultDouble(key.key); }
-	public double getDefaultDouble(WorldSettingKey key) { return getDefaultDouble(key.key); }
+	public double getDefaultDouble(WorldSettingKey key) { return getDefaultDouble(defWorldPre + key.key); }
+
+
+	public ConfigurationSection getConfSection(String path) {
+		if (ss.getConfig().contains(path))
+			return ss.getConfig().getConfigurationSection(path);
+		else return getDefaultConfSection(path);
+	}
+	public ConfigurationSection getConfSection(GlobalSettingKey key) { return getConfSection(key.key); }
+	public ConfigurationSection getConfSection(World w, String path) {
+		if (ss.getConfig().contains(path(w) + "." + path))
+			return ss.getConfig().getConfigurationSection(path(w) + "." + path);
+		else return getDefaultConfSection(defWorldPre + path);
+	}
+	public ConfigurationSection getConfSection(World w, WorldSettingKey key) { return getConfSection(w, key.key); }
+	public ConfigurationSection getDefaultConfSection(String path) {
+		if (ss.getConfig().getDefaults().contains(path))
+			return ss.getConfig().getDefaults().getConfigurationSection(path);
+		return new MemoryConfiguration();
+	}
+	public ConfigurationSection getDefaultConfSection(GlobalSettingKey key) { return getDefaultConfSection(key.key); }
+	public ConfigurationSection getDefaultConfSection(WorldSettingKey key) { return getDefaultConfSection(defWorldPre + key.key); }
 
 	public Sound getSound(String path) {
 		String p = getString(path);
@@ -256,14 +297,6 @@ public class ConfigHelper {
 	public BarColor getBarColor(World w, String path) { return getBarColor(path(w) + "." + path); }
 	public BarColor getBarColor(World w, WorldSettingKey key) { return getBarColor(w, key.key); }
 
-//	public BarTrackType getTrackType(String path) {
-//		String p = getString(path);
-//		for (BarTrackType type : BarTrackType.values()) { if (type.name().equalsIgnoreCase(p)) return type; }
-//		return null;
-//	}
-//	public BarTrackType getTrackType(World w, String path) { return getTrackType(path(w) + "." + path); }
-//	public BarTrackType getTrackType(World w, WorldSettingKey key) { return getTrackType(w, key.key); }
-
 	public ParticlePatternType getPatternType(String path) {
 		String p = getString(path);
 		for (ParticlePatternType type : ParticlePatternType.values()) { if (type.name().equalsIgnoreCase(p)) return type; }
@@ -271,17 +304,6 @@ public class ConfigHelper {
 	}
 	public ParticlePatternType getPatternType(World w, String path) { return getPatternType(path(w) + "." + path); }
 	public ParticlePatternType getPatternType(World w, WorldSettingKey key) { return getPatternType(w, key.key); }
-
-	public ConfigurationSection getDefaultConfigurationSection(String path) {
-		if (ss.getConfig().getDefaults().contains(path))
-			return ss.getConfig().getDefaults().getConfigurationSection(path);
-		return new MemoryConfiguration();
-	}
-	public ConfigurationSection getConfigurationSection(String path) {
-		if (ss.getConfig().contains(path))
-			return ss.getConfig().getConfigurationSection(path);
-		else return getDefaultConfigurationSection(path);
-	}
 
 	public boolean isSection(String path) { return ss.getConfig().isConfigurationSection(path); }
 	public boolean isSection(GlobalSettingKey key) { return isSection(key.key); }
@@ -306,7 +328,9 @@ public class ConfigHelper {
 		ss.saveDefaultConfig();
 		ss.reloadConfig();
 
-		if (getBoolean(GlobalSettingKey.ENABLE_STATS)) { SmoothSleep.metrics = new Metrics(ss); } else { SmoothSleep.metrics = null; }
+		if (!firstRun && getBoolean(GlobalSettingKey.ENABLE_STATS)) {
+			SmoothSleep.metrics = new Metrics(ss);
+		} else { SmoothSleep.metrics = null; }
 
 		boolean changed = false;
 
@@ -343,24 +367,33 @@ public class ConfigHelper {
 					for (Map.Entry<String, WorldSettingKey> entry : worldMoved.entrySet()) {
 						String from = entry.getKey();
 						WorldSettingKey to = entry.getValue();
-						if (!contains(w, from) || isSection(w, from)) { continue; }
-						SmoothSleep.logDebug("-- Moving key: " + from + " --> " + to.key);
-						if (to.type.equals(double.class)) {
-							double val = getDouble(w, from);
-							set(w, to, val);
-						} else if (to.type.equals(int.class)) {
-							int val = getInt(w, from);
-							set(w, to, val);
-						} else if (to.type.equals(boolean.class)) {
-							boolean val = getBoolean(w, from);
-							set(w, to, val);
-						} else if (to.type.equals(String.class)) {
-							String val = getString(w, from);
-							set(w, to, val);
+						if (to != null) {
+							if (!contains(w, from) || isSection(w, from)) { continue; }
+							SmoothSleep.logDebug("-- Moving key: " + from + " --> " + to.key);
+							if (to.type.equals(double.class)) {
+								double val = getDouble(w, from);
+								set(w, to, val);
+							} else if (to.type.equals(int.class)) {
+								int val = getInt(w, from);
+								set(w, to, val);
+							} else if (to.type.equals(boolean.class)) {
+								boolean val = getBoolean(w, from);
+								set(w, to, val);
+							} else if (to.type.equals(String.class)) {
+								String val = getString(w, from);
+								set(w, to, val);
+							} else if (to.type.equals(ConfigurationSection.class)) {
+								ConfigurationSection val = getConfSection(w, from);
+								set(w, to, val);
+							}
 						}
 						// Now check if the old key still exists and that it's not a config section.
 						// If it's a config section, probably means we're still using the key, so can't delete it.
-						if (contains(w, from)) { if (!isSection(w, from)) { set(w, from, null); } }
+						if (contains(w, from)) {
+							if (to == null || to.type.equals(ConfigurationSection.class) || !isSection(w, from)) {
+								set(w, from, null);
+							}
+						}
 						changed = true;
 					}
 
@@ -371,6 +404,7 @@ public class ConfigHelper {
 							if (key.type == boolean.class) ws.set(key, getDefaultBoolean(key));
 							if (key.type == double.class) ws.set(key, getDefaultDouble(key));
 							if (key.type == String.class) ws.set(key, getDefaultString(key));
+							if (key.type == ConfigurationSection.class) ws.set(key, getDefaultConfSection(key));
 							changed = true;
 						}
 					}
@@ -385,8 +419,6 @@ public class ConfigHelper {
 							changed = true;
 						}
 					}
-
-					// TODO Check these sanity checks for mults now that they're doubles (< 0 instead of < 1)
 
 					// Make sure the min and max multipliers are greather than 0, otherwise night may last forever or go backwards
 					if (ws.getDouble(MIN_NIGHT_MULT) < 0.01) {
@@ -438,14 +470,6 @@ public class ConfigHelper {
 						changed = true;
 					}
 
-//					String barTrkType = ws.getString(BOSSBAR_TRACK_TYPE);
-//					if (barTrkType.isEmpty() || !isValidBarTrackType(barTrkType)) {
-//						SmoothSleep.logWarning(path(w, BOSSBAR_TRACK_TYPE) + ": '" + barTrkType + "' does not appear to be a valid bar track type!");
-//						SmoothSleep.logWarning("Valid types: SLEEPERS, TIME");
-//						ws.set(BOSSBAR_TRACK_TYPE, "TIME");
-//						changed = true;
-//					}
-
 					// Check for errors. This won't save the config, but just warn if an invalid value is used
 
 					String sndName = ws.getString(MORNING_SOUND);
@@ -473,6 +497,15 @@ public class ConfigHelper {
 							SmoothSleep.logWarning("Particles that require extra data cannot currently be configured, and won't work without it.");
 						}
 					}
+
+					// TODO: Check if potion effect list contains valid effects
+					ConfigurationSection effectRewards = ws.getConfSection(REWARD_EFFECT_LIST);
+					for (String key : effectRewards.getKeys(false)) {
+						if (!key.isEmpty() && !isValidPotionEffect(key)) {
+							SmoothSleep.logWarning("'" + partName + "' does not appear to be a valid potion effect!");
+							SmoothSleep.logWarning("For a list of valid potion effects, refer to https://hub.spigotmc.org/javadocs/spigot/org/bukkit/potion/PotionEffectType.html");
+						}
+					}
 				} else { SmoothSleep.logDebug("World not enabled: " + w.getName() + " (not found in config)"); }
 			} else if (contains(path(w))) {
 				SmoothSleep.logWarning("World is not a normal environment type (world: " + w.getName() + ", environment: " + w.getEnvironment().name().toLowerCase(Locale.ENGLISH) + ")");
@@ -497,12 +530,16 @@ public class ConfigHelper {
 		for (BarColor clr : BarColor.values()) { if (clr.name().equalsIgnoreCase(name)) { return true; } } return false;
 	}
 
-//	public static boolean isValidBarTrackType(String name) {
-//		for (BarTrackType trk : BarTrackType.values()) { if (trk.name().equalsIgnoreCase(name)) { return true; } } return false;
-//	}
-
 	public static boolean isValidPattern(String name) {
 		for (ParticlePatternType ppt : ParticlePatternType.values()) { if (ppt.name().equalsIgnoreCase(name)) { return true; } } return false;
+	}
+
+	public static boolean isValidPotionEffect(String name) {
+		for (PotionEffectType pet : PotionEffectType.values()) { if (pet.getName().equalsIgnoreCase(name)) { return true; } } return false;
+	}
+
+	public static PotionEffectType getPotionEffect(String name) {
+		for (PotionEffectType pet : PotionEffectType.values()) { if (pet.getName().equalsIgnoreCase(name)) { return pet; } } return null;
 	}
 
 }

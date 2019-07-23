@@ -10,8 +10,14 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.luffbox.smoothsleep.lib.ConfigHelper.WorldSettingKey.*;
 
@@ -166,12 +172,42 @@ public class PlayerData implements Purgeable {
 		if (deepSleepTask == null) return;
 		deepSleepTask.cancel();
 		deepSleepTask = null;
-		if (woke) { // Only run particles if woken by reaching morning. 'woke' should be false otherwise.
+		if (woke) { // Only if woken by reaching morning. 'woke' should be false otherwise.
+			// Run wake particle task
 			WakeParticlesTask wpt = new WakeParticlesTask(pl, this);
 			wpt.runTaskTimer(pl, 5, worldConf().getInt(PARTICLE_DELAY));
+
+			// Play wake sound
 			if (worldConf().getSound(MORNING_SOUND) != null) {
 				getPlayer().playSound(getPlayer().getLocation(), worldConf().getSound(MORNING_SOUND), 1.0f, 1.0f);
 			}
+
+			// Apply sleep reward effects
+			if (worldConf().getBoolean(REWARD_EFFECT_ENABLED)) {
+				ConfigurationSection potFx = worldConf().getConfSection(REWARD_EFFECT_LIST);
+				if (!potFx.getKeys(false).isEmpty()) {
+					if ((int) timers.getSlpt() / 1000L >= worldConf().getInt(REWARD_EFFECT_SLEEP_HOURS)) {
+						Set<PotionEffect> effects = new HashSet<>();
+						boolean particles = worldConf().getBoolean(REWARD_EFFECT_PARTICLES);
+						for (String key : potFx.getKeys(false)) {
+							PotionEffectType pet = ConfigHelper.getPotionEffect(key);
+							if (pet != null && potFx.getInt(key + ".duration") > 0L) {
+								effects.add(new PotionEffect(pet,
+										potFx.getInt(key + ".duration"),
+										potFx.getInt(key + ".amplifier"),
+										true, particles, true
+								));
+							}
+						}
+						for (PotionEffect pe : effects) {
+							PotionEffect curFx = getPlayer().getPotionEffect(pe.getType());
+							boolean override = curFx == null || curFx.getAmplifier() < pe.getAmplifier() || curFx.getDuration() < pe.getDuration();
+							getPlayer().addPotionEffect(pe, override);
+						}
+					}
+				}
+			}
+
 		} else {
 			clearTitles();
 			clearActionBar();
