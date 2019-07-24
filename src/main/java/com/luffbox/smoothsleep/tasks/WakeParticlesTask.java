@@ -36,7 +36,6 @@ public class WakeParticlesTask extends BukkitRunnable {
 			case CIRCLE: patt = new CirclePattern(); break;
 			case SPIRAL: patt = new SpiralPattern(); break;
 		}
-		SmoothSleep.logDebug("Starting WakeParticleTask for " + pd.getPlayer().getName() + ", pattern: " + pattType.name());
 	}
 
 	@Override
@@ -45,7 +44,6 @@ public class WakeParticlesTask extends BukkitRunnable {
 		if (!pd.worldConf().getBoolean(PARTICLE_ENABLED)) { cancel(); return; }
 		patt.spawnParticle(type, pd.getPlayer().getLocation(), radius, (double) complete / (double) target);
 		if (++complete >= target) {
-			SmoothSleep.logDebug("Finished WakeParticleTask for " + pd.getPlayer().getName());
 			cancel();
 		}
 	}

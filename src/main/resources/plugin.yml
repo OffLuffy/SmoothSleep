@@ -59,3 +59,6 @@ permission:
   smoothsleep.ignorefeed:
     description: Users with this permission will not be periodically fed/starved during sleep cycle
     default: op
+  smoothsleep.sleepreward:
+    description: Users with this permission can receive rewards for sleeping until morning
+    default: true

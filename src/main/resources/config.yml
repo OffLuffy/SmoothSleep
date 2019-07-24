@@ -1,7 +1,7 @@
 # More info: https://www.spigotmc.org/resources/smoothsleep.32043
 enable-stats: true
 enable-data-share: true
-update-notify-login: true
+update-notify-login: false
 logging-settings:
   log-debug: false
   log-warning: true

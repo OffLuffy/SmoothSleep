@@ -29,17 +29,17 @@ public class EveryTickTask extends BukkitRunnable {
 			cancel();
 			return;
 		}
-		Map<World, WorldData> worlds = pl.data.getWorldData();
-		for (World w : worlds.keySet()) {
-			WorldData wd = worlds.get(w);
-			if (!night.containsKey(w)) { night.put(w, wd.isNight()); }
-			if (night.get(w) != wd.isNight()) {
-				night.put(w, wd.isNight());
+		for (Map.Entry<World, WorldData> w : pl.data.getWorldData().entrySet()) {
+			World world = w.getKey();
+			WorldData wd = w.getValue();
+			if (!night.containsKey(world)) { night.put(world, wd.isNight()); }
+			if (night.get(world) != wd.isNight()) {
+				night.put(world, wd.isNight());
 				if (wd.isNight()) {
-					NightStartEvent nse = new NightStartEvent(w);
+					NightStartEvent nse = new NightStartEvent(world);
 					pl.getServer().getPluginManager().callEvent(nse);
 				} else {
-					NightEndEvent nee = new NightEndEvent(w);
+					NightEndEvent nee = new NightEndEvent(world);
 					pl.getServer().getPluginManager().callEvent(nee);
 				}
 			}

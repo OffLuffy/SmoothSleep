@@ -44,11 +44,6 @@ public class PlayerData implements Purgeable {
 	}
 
 	public ConfigHelper.WorldSettings worldConf() {
-		if (pl == null) SmoothSleep.logDebug("worldConf(): Plugin is null");
-		else if (pl.data == null) SmoothSleep.logDebug("worldConf(): Plugin data is null");
-		else if (pl.data.config == null) SmoothSleep.logDebug("worldConf(): Config is null");
-		else if (pl.data.config.worlds == null) SmoothSleep.logDebug("worldConf(): World data cache is null");
-		if (plr == null) SmoothSleep.logDebug("worldConf(): Player is null");
 		return pl.data.config.worlds.get(plr.getWorld());
 	}
 	public WorldData worldData() { return pl.data.getWorldData(plr); }
@@ -160,7 +155,6 @@ public class PlayerData implements Purgeable {
 	}
 
 	public void startDeepSleep() {
-		SmoothSleep.logDebug("Starting deep sleep for " + getPlayer().getName());
 		if (deepSleepRunning()) return;
 		woke = false;
 		DeepSleepTask dst = new DeepSleepTask(pl, plr);
@@ -168,7 +162,6 @@ public class PlayerData implements Purgeable {
 	}
 
 	public void stopDeepSleep() {
-		SmoothSleep.logDebug("Stopping deep sleep for " + getPlayer().getName());
 		if (deepSleepTask == null) return;
 		deepSleepTask.cancel();
 		deepSleepTask = null;
@@ -183,7 +176,7 @@ public class PlayerData implements Purgeable {
 			}
 
 			// Apply sleep reward effects
-			if (worldConf().getBoolean(REWARD_EFFECT_ENABLED)) {
+			if (worldConf().getBoolean(REWARD_EFFECT_ENABLED) && getPlayer().hasPermission("smoothsleep.sleepreward")) {
 				ConfigurationSection potFx = worldConf().getConfSection(REWARD_EFFECT_LIST);
 				if (!potFx.getKeys(false).isEmpty()) {
 					if ((int) timers.getSlpt() / 1000L >= worldConf().getInt(REWARD_EFFECT_SLEEP_HOURS)) {
@@ -224,7 +217,7 @@ public class PlayerData implements Purgeable {
 		}
 	}
 
-	public void setWoke(boolean woke) { this.woke = woke; SmoothSleep.logDebug("Setting " + getPlayer().getName() + " as woke"); }
+	public void setWoke(boolean woke) { this.woke = woke; }
 
 	@Override
 	public void purgeData() {

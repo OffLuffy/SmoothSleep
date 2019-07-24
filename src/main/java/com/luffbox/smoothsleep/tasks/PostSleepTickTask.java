@@ -16,7 +16,6 @@ public class PostSleepTickTask extends BukkitRunnable {
 	}
 	@Override
 	public void run() {
-		SmoothSleep.logDebug("Running one final UI update");
 		wd.tickUI();
 		wd.getPlayers().forEach(plr -> {
 			PlayerData pd = pl.data.getPlayerData(plr);

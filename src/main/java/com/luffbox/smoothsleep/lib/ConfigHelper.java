@@ -346,7 +346,6 @@ public class ConfigHelper {
 
 		boolean foundTypo = false;
 		for (World w : Bukkit.getWorlds()) {
-			SmoothSleep.logDebug("Checking config for world: " + w.getName());
 			if (w.getEnvironment() == World.Environment.NORMAL) {
 				if (contains(path(w))) {
 					WorldSettings ws = new WorldSettings(w);
@@ -506,7 +505,7 @@ public class ConfigHelper {
 							SmoothSleep.logWarning("For a list of valid potion effects, refer to https://hub.spigotmc.org/javadocs/spigot/org/bukkit/potion/PotionEffectType.html");
 						}
 					}
-				} else { SmoothSleep.logDebug("World not enabled: " + w.getName() + " (not found in config)"); }
+				}
 			} else if (contains(path(w))) {
 				SmoothSleep.logWarning("World is not a normal environment type (world: " + w.getName() + ", environment: " + w.getEnvironment().name().toLowerCase(Locale.ENGLISH) + ")");
 			}

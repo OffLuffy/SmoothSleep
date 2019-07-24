@@ -25,7 +25,6 @@ public class WorldData implements Purgeable {
 	private double timescale = 0.0, timeTickRemain/*, weatherTickRemain*/;
 
 	public WorldData(SmoothSleep plugin, World world, ConfigHelper.WorldSettings settings) {
-		SmoothSleep.logDebug("Initializing data for world: " + world.getName());
 		pl = plugin;
 		w = world;
 		ws = settings;
