@@ -4,6 +4,7 @@ import com.luffbox.smoothsleep.PlayerData;
 import com.luffbox.smoothsleep.SmoothSleep;
 import com.luffbox.smoothsleep.WorldData;
 import com.luffbox.smoothsleep.lib.ConfigHelper;
+import com.luffbox.smoothsleep.lib.MiscUtils;
 import com.luffbox.smoothsleep.tasks.UpdateNotifyTask;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
@@ -48,6 +49,8 @@ public class PlayerListeners implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void enterBed(PlayerBedEnterEvent e) {
+		MiscUtils.filterTrace(new Exception("#enterBed()"), null);
+		if (!pl.isEnabled()) { return; }
 		World w = e.getPlayer().getWorld();
 		if (!pl.data.worldEnabled(w)) { return; }
 		WorldData wd = pl.data.getWorldData(w);
@@ -57,23 +60,20 @@ public class PlayerListeners implements Listener {
 		if (wd.isNight()) {
 			pd.getTimers().resetAll();
 			wd.startSleepTick();
-			pd.startDeepSleep();
 		}
 	}
-
+/*
 	@EventHandler(ignoreCancelled = true)
 	public void leaveBed(PlayerBedLeaveEvent e) {
+		if (!pl.isEnabled()) { return; }
+		MiscUtils.filterTrace(new Exception("#leaveBed()"), null);
 		World w = e.getPlayer().getWorld();
 		if (!pl.data.worldEnabled(w)) { return; }
 		WorldData wd = pl.data.getWorldData(w);
 		if (wd == null) { SmoothSleep.logWarning("An error occurred while handing leaveBed event. Missing WorldData."); return; }
 		PlayerData pd = pl.data.getPlayerData(e.getPlayer());
 		if (pd == null) { SmoothSleep.logWarning("An error occurred while handling leaveBed event. Missing PlayerData."); return; }
-		if (wd.isNight()) {
-			if (wd.getSleepers().size() <= 0) { wd.stopSleepTick(); }
-			pd.stopDeepSleep();
-			pd.getTimers().resetAll();
-		}
+		//pd.wake(false);
 	}
-
+*/
 }

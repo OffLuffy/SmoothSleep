@@ -3,6 +3,7 @@ package com.luffbox.smoothsleep;
 import com.luffbox.smoothsleep.lib.ConfigHelper;
 import com.luffbox.smoothsleep.lib.MiscUtils;
 import com.luffbox.smoothsleep.lib.Purgeable;
+import com.luffbox.smoothsleep.lib.TickHelper;
 import com.luffbox.smoothsleep.tasks.SleepTickTask;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -20,15 +21,14 @@ public class WorldData implements Purgeable {
 
 	private World w;
 	private ConfigHelper.WorldSettings ws;
-//	private WeatherDuration wd;
+	private TickHelper tickHelper;
 	private BukkitTask sleepTickTask;
-	private double timescale = 0.0, timeTickRemain/*, weatherTickRemain*/;
+	private double timescale = 0.0, timeTickRemain;
 
 	public WorldData(SmoothSleep plugin, World world, ConfigHelper.WorldSettings settings) {
 		pl = plugin;
 		w = world;
 		ws = settings;
-//		wd = new WeatherDuration(w);
 	}
 
 	public World getWorld() { return w; }
@@ -62,7 +62,9 @@ public class WorldData implements Purgeable {
 	public double getSleepRatio() {
 		double s = getSleepers().size(); // Sleepers count
 		double a = getWakers().size() + s; // Wakers + Sleepers count
-		return a == 0 ? 0 : s / a; // Gives 0-1, always returns 0 if no one is online to avoid divide by zero
+		if (a <= 1 && s >= 1) return 1.0; // Only player is sleeping
+		if (a <= 1 || s <= 1) return 0.0; // No one sleeping or online
+		return s - 1 / a - 1; // -1 on both = first player sleeping causes min night mult
 	}
 
 	public long getTime() { return w.getTime(); }
@@ -83,6 +85,7 @@ public class WorldData implements Purgeable {
 			double crv = getSettings().getDouble(ConfigHelper.WorldSettingKey.SPEED_CURVE);
 			double mns = ws.getDouble(ConfigHelper.WorldSettingKey.MIN_NIGHT_MULT);
 			double xns = ws.getDouble(ConfigHelper.WorldSettingKey.MAX_NIGHT_MULT);
+			double ratio = getSleepRatio();
 			timescale = MiscUtils.remapValue(true, 0.0, 1.0, mns, xns, MiscUtils.calcSpeed(crv, getSleepRatio()));
 		}
 	}
@@ -90,29 +93,19 @@ public class WorldData implements Purgeable {
 	public void timestep() {
 		timeTickRemain += timescale;
 		int a = (int) timeTickRemain - 1;
-//		SmoothSleep.logDebug("Time step: +" + a + " ticks");
-		w.setTime(Math.min(w.getTime() + a, SmoothSleep.SLEEP_TICKS_END));
+		tickHelper.tick(a, SmoothSleep.SLEEP_TICKS_END);
 		timeTickRemain %= 1;
+		timestepTimers(timescale);
 	}
 
-	public boolean isNight() { return getTime() > SmoothSleep.SLEEP_TICKS_START && getTime() < SmoothSleep.SLEEP_TICKS_END; }
-
-//	public WeatherDuration getWeatherDuration() { return wd; }
-
-//	public void timestepWeather() {
-//		if (!hasAnyWeather()) return;
-//		weatherTickRemain += timescale;
-//		int a = (int) weatherTickRemain - 1;
-////		SmoothSleep.logDebug("Weather step: +" + a + " ticks");
-//		wd.decStormDuration(a);
-//		wd.decThunderDuration(a);
-//		weatherTickRemain %= 1;
-//	}
+	public boolean isNight() { return getTime() > SmoothSleep.SLEEP_TICKS_START && getTime() <= SmoothSleep.SLEEP_TICKS_END; }
 
 	public void timestepTimers(double timescale) {
 		getPlayers().forEach(plr -> {
 			PlayerData pd = pl.data.getPlayerData(plr);
-			pd.tickTimers(timescale);
+			if (pd != null) {
+				pd.tickTimers(timescale);
+			}
 		});
 	}
 
@@ -121,8 +114,6 @@ public class WorldData implements Purgeable {
 	public void clearWeather() {
 		w.setThundering(false);
 		w.setStorm(false);
-//		w.setThunderDuration(1);
-//		w.setWeatherDuration(1);
 	}
 
 	public ConfigHelper.WorldSettings getSettings() { return ws; }
@@ -133,29 +124,25 @@ public class WorldData implements Purgeable {
 	}
 
 	public void startSleepTick() {
+		if (!pl.isEnabled()) return;
 		if (sleepTickRunning()) return;
+		SmoothSleep.logDebug("#startSleepTick()");
+		tickHelper = new TickHelper(w, ws, ws.getTickOptions());
 		SleepTickTask stt = new SleepTickTask(pl, this);
 		sleepTickTask = stt.runTaskTimer(pl, 0L, 0L);
 	}
 
 	public void stopSleepTick() {
+		SmoothSleep.logDebug("#stopSleepTick()");
 		getPlayers().forEach(plr -> {
 			PlayerData pd = pl.data.getPlayerData(plr);
 			if (pd != null) { pd.hideBossBar(); }
 		});
 		if (sleepTickRunning()) { sleepTickTask.cancel(); }
 		sleepTickTask = null;
-	}
-
-	public void tickUI() {
-		getPlayers().forEach(plr -> {
-			PlayerData pd = pl.data.getPlayerData(plr);
-			if (pd != null) { pd.updateUI(); }
-		});
+		if (tickHelper != null) tickHelper.reset();
 	}
 
 	@Override
-	public void purgeData() {
-
-	}
+	public void purgeData() {}
 }

@@ -75,7 +75,7 @@ public class ConfigHelper {
 	public ConfigHelper(SmoothSleep ss) {
 		this.ss = ss;
 		this.conf = this;
-		firstRun = !new File(ss.getDataFolder(), "config.yml").isFile() || !contains(GlobalSettingKey.ENABLE_DATA);
+		firstRun = !new File(ss.getDataFolder(), "config.yml").isFile();
 
 		ss.getServer().getScheduler().runTaskLater(ss, () -> {
 			if (firstRun) {
@@ -95,7 +95,6 @@ public class ConfigHelper {
 
 	public enum GlobalSettingKey {
 		ENABLE_STATS("enable-stats", boolean.class),
-		ENABLE_DATA("enable-data-share", boolean.class),
 		UPDATE_NOTIFY("update-notify-login", boolean.class),
 		LOG_DEBUG("logging-settings.log-debug", boolean.class),
 		LOG_INFO("logging-settings.log-info", boolean.class),
@@ -118,8 +117,7 @@ public class ConfigHelper {
 
 	/**
 	 * This enum represents every world option available and allows me to more easily update
-	 * old configs with new world settings even if the server is using worlds other than 'world'.
-	 * This only affects per-world settings, but currently I only have per-world settings.<br />
+	 * old configs with new world settings even if the server is using worlds other than 'world'.<br />
 	 * The {@link #key} is the setting path within a world's configuration section.
 	 * The {@link #type} variable makes it so that I can check if a key will return the proper
 	 * type before attempting to read from the config. It also allows me to iterate over the
@@ -129,11 +127,15 @@ public class ConfigHelper {
 		MIN_NIGHT_MULT("min-night-speed-mult", double.class),
 		MAX_NIGHT_MULT("max-night-speed-mult", double.class),
 		SPEED_CURVE("night-speed-curve", double.class),
+		ACCEL_RAND_TICK("accelerate-random-tick", boolean.class),
+		MAX_RAND_TICK("max-random-tick", int.class),
+		ACCEL_WEATHER("accelerate-weather", boolean.class),
 		MORNING_SOUND("morning-sound", String.class),
 		CLEAR_WEATHER("clear-weather-when-morning", boolean.class),
 		INSTANT_DAY("instant-day-if-all-sleeping", boolean.class),
 		IGNORE_AFK("essentials-settings.ignore-afk", boolean.class),
 		IGNORE_VANISH("essentials-settings.ignore-vanish", boolean.class),
+		HEAL_VILLAGERS("heal-slept-villagers", boolean.class),
 
 		HEAL_AMOUNT("replenish-settings.heal-amount", int.class),
 		HEAL_TICKS("replenish-settings.ticks-per-heal", int.class),
@@ -201,15 +203,18 @@ public class ConfigHelper {
 
 		public WorldSettings(World w) { this.w = w; }
 
+		public TickOptions getTickOptions() {
+			TickOptions opt = new TickOptions();
+			opt.weather = getBoolean(ACCEL_WEATHER);
+			opt.randomTick = getBoolean(ACCEL_RAND_TICK);
+			return opt;
+		}
+
 		public int getInt(WorldSettingKey setting) { return setting.type == int.class ? conf.getInt(w, setting.key) : 0; }
 		public double getDouble(WorldSettingKey setting) { return setting.type == double.class ? conf.getDouble(w, setting.key) : 0.0; }
 		public boolean getBoolean(WorldSettingKey setting) { return setting.type == boolean.class && conf.getBoolean(w, setting); }
 		public String getString(WorldSettingKey setting) { return setting.type == String.class ? conf.getString(w, setting) : ""; }
-
 		public ConfigurationSection getConfSection(WorldSettingKey setting) { return setting.type == ConfigurationSection.class ? conf.getConfSection(w, setting) : new MemoryConfiguration(); }
-
-		// TODO: Implement fetching ConfigurationSection
-
 		public Sound getSound(WorldSettingKey setting) { return setting.type == String.class ? conf.getSound(w, setting) : null; }
 		public Particle getParticle(WorldSettingKey setting) { return setting.type == String.class ? conf.getParticle(w, setting) : null; }
 		public BarColor getBarColor(WorldSettingKey setting) { return setting.type == String.class ? conf.getBarColor(w, setting) : null; }
@@ -497,7 +502,6 @@ public class ConfigHelper {
 						}
 					}
 
-					// TODO: Check if potion effect list contains valid effects
 					ConfigurationSection effectRewards = ws.getConfSection(REWARD_EFFECT_LIST);
 					for (String key : effectRewards.getKeys(false)) {
 						if (!key.isEmpty() && !isValidPotionEffect(key)) {

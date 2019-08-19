@@ -1,6 +1,7 @@
 package com.luffbox.smoothsleep.commands;
 
 import com.luffbox.smoothsleep.SmoothSleep;
+import com.luffbox.smoothsleep.lib.ConfigHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -8,7 +9,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class AddWorld implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+public class AddWorld implements TabExecutor {
 
 	private SmoothSleep pl;
 
@@ -40,5 +45,21 @@ public class AddWorld implements CommandExecutor {
 			sender.sendMessage(ChatColor.AQUA + "This won't take effect until you use " + ChatColor.GREEN + "/ssreload");
 		}
 		return true;
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+		List<String> opts = new ArrayList<>();
+		if (args.length == 1) {
+			for (World w : pl.getServer().getWorlds()) {
+				if (!pl.data.worldEnabled(w)) {
+					String worldName = w.getName().toLowerCase(Locale.ENGLISH);
+					if (worldName.startsWith(args[0].toLowerCase())) {
+						opts.add(w.getName());
+					}
+				}
+			}
+		}
+		return opts;
 	}
 }

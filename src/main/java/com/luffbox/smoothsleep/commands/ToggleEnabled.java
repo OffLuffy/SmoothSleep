@@ -6,7 +6,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class ToggleEnabled implements CommandExecutor {
+import java.util.List;
+
+public class ToggleEnabled implements TabExecutor {
 
 	private SmoothSleep pl;
 
@@ -24,5 +26,10 @@ public class ToggleEnabled implements CommandExecutor {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+		return null;
 	}
 }

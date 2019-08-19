@@ -3,54 +3,55 @@ package com.luffbox.smoothsleep.tasks;
 import com.luffbox.smoothsleep.PlayerData;
 import com.luffbox.smoothsleep.SmoothSleep;
 import com.luffbox.smoothsleep.WorldData;
-import com.luffbox.smoothsleep.lib.ConfigHelper;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Set;
+
 /**
- * The task where the majority of the heavy lifting is done. Using the
- * data collected in the EveryTickTask, this task will only be running
- * if a player is sleeping. This lets me keep the task that always runs
- * relatively light weight, minimizing the resource impact of the plugin.
- * @see EveryTickTask
+ * This task only runs during the night while players are sleeping.
+ * It handles stepping ticks and cancels itself when it's done.
  */
 public class SleepTickTask extends BukkitRunnable {
 
 	private SmoothSleep pl;
 	private WorldData wd;
-//	private boolean tickWeather;
+	private int counter;
+
 	public SleepTickTask(SmoothSleep plugin, WorldData worldData) {
 		pl = plugin;
 		wd = worldData;
-//		tickWeather = wd.getSettings().getBoolean(ConfigHelper.WorldSettingKey.ADVANCE_WEATHER);
+		counter = 0;
 	}
 
 	@Override
 	public void run() {
+		Set<Player> sleepers = wd.getSleepers();
 		wd.updateTimescale();
-		if (wd.isNight()) { wd.timestep(); }
-//		if (wd.hasAnyWeather() && tickWeather) { wd.timestepWeather(); }
-		if (!wd.isNight()) { // Not night or weather, cancel everything
-			wd.getSleepers().forEach(plr -> {
-				PlayerData pd = pl.data.getPlayerData(plr);
-				if (pd != null) {
-					pd.setWoke(true);
-					pd.stopDeepSleep();
-				} // Cancelling deep sleep task should remove them from bed
-			});
-			if (wd.getSettings().getBoolean(ConfigHelper.WorldSettingKey.CLEAR_WEATHER)) {
-				wd.clearWeather();
+		boolean isNight = wd.isNight();
+		if (isNight) { wd.timestep(); }
+		SmoothSleep.logDebug("===== SleepTickTask#run() ======");
+		SmoothSleep.logDebug("| - isNight = " + isNight);
+		SmoothSleep.logDebug("| - sleeper count = " + sleepers.size());
+		sleepers.forEach(plr -> {
+			PlayerData pd = pl.data.getPlayerData(plr);
+			if (pd != null) {
+				SmoothSleep.logDebug("| - Sleeper: " + pd.getPlayer().getName());
+				SmoothSleep.logDebug("| --- is sleeping = " + pd.isSleeping());
+				if (isNight) {
+					pd.updateUI();
+					if (counter > 50) {
+						pd.setSleepTicks(0);
+						counter = 0;
+					}
+					counter++;
+				} else {
+					pd.wake();
+				}
+			} else {
+				SmoothSleep.logDebug("| - Sleeper's PlayerData is null!");
 			}
-			cancel();
-		}
-		if (!isCancelled() && wd.getSleepers().size() <= 0) { cancel(); } else {
-			wd.timestepTimers(wd.getTimescale()); wd.tickUI();
-		}
-	}
-
-	@Override
-	public void cancel() {
-		super.cancel();
-		PostSleepTickTask pst = new PostSleepTickTask(pl, wd);
-		pst.runTaskLater(pl, 1);
+		});
+		if (!isNight || sleepers.isEmpty()) { wd.stopSleepTick(); }
 	}
 }

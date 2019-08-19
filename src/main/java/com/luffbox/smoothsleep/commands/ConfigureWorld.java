@@ -5,14 +5,15 @@ import com.luffbox.smoothsleep.lib.ConfigHelper;
 import com.luffbox.smoothsleep.lib.ConfigHelper.WorldSettingKey;
 import org.bukkit.*;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 import static org.bukkit.ChatColor.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
-public class ConfigureWorld implements CommandExecutor {
+public class ConfigureWorld implements TabExecutor {
 
 	private SmoothSleep pl;
 
@@ -108,13 +109,6 @@ public class ConfigureWorld implements CommandExecutor {
 							return true;
 						}
 						break;
-//					case BOSSBAR_TRACK_TYPE:
-//						if (!ConfigHelper.isValidBarTrackType(value)) {
-//							sender.sendMessage(RED + "'" + value + "' does not appear to be a valid boss bar track type!");
-//							sender.sendMessage(GRAY + "Valid track types: TIME, SLEEPERS");
-//							return true;
-//						}
-//						break;
 					case PARTICLE_PATTERN:
 						if (!ConfigHelper.isValidPattern(value)) {
 							sender.sendMessage(RED + "'" + value + "' does not appear to be a valid particle pattern type!");
@@ -129,7 +123,7 @@ public class ConfigureWorld implements CommandExecutor {
 				return true;
 			} else if (key.type == int.class) {
 				try {
-					int value = Integer.valueOf(args[2]);
+					int value = Integer.parseInt(args[2]);
 					pl.data.config.set(w, key, value);
 					pl.data.config.save();
 					sender.sendMessage(GREEN + settingName + DARK_AQUA + " changed from " + AQUA
@@ -141,7 +135,7 @@ public class ConfigureWorld implements CommandExecutor {
 				}
 			} else if (key.type == double.class) {
 				try {
-					double value = Double.valueOf(args[2]);
+					double value = Double.parseDouble(args[2]);
 					pl.data.config.set(w, key, value);
 					pl.data.config.save();
 					sender.sendMessage(GREEN + settingName + DARK_AQUA + " changed from " + AQUA
@@ -188,5 +182,26 @@ public class ConfigureWorld implements CommandExecutor {
 			} else { sb.append(key.name().toLowerCase(Locale.ENGLISH)).append(SEP); }
 		}
 		if (sb.length() > 0) { sender.sendMessage(GRAY + sb.toString().substring(0, sb.length() - SEP.length())); }
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+		List<String> opts = new ArrayList<>();
+		if (args.length == 1) {
+			for (World w : pl.data.getWorldData().keySet()) {
+				String worldName = w.getName().toLowerCase(Locale.ENGLISH);
+				if (worldName.startsWith(args[0].toLowerCase())) {
+					opts.add(w.getName());
+				}
+			}
+		} else if (args.length == 2) {
+			for (WorldSettingKey key : WorldSettingKey.values()) {
+				String keyName = key.name().toLowerCase(Locale.ENGLISH);
+				if (keyName.startsWith(args[1].toLowerCase())) {
+					opts.add(keyName);
+				}
+			}
+		}
+		return opts;
 	}
 }

@@ -10,7 +10,8 @@ public class EssUserHelper implements UserHelper {
 	private IEssentials ess;
 	public EssUserHelper(SmoothSleep pl) {
 		ess = (IEssentials) pl.getServer().getPluginManager().getPlugin("Essentials");
-		SmoothSleep.logInfo(pl.getDescription().getName() + ": Hooked to Essentials v" + ess.getDescription().getVersion());
+		if (ess == null) { throw new NullPointerException(); }
+		SmoothSleep.logInfo("Hooked to Essentials v" + ess.getDescription().getVersion());
 	}
 
 	@Override
