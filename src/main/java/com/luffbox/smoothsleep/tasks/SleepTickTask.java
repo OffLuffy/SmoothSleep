@@ -27,31 +27,12 @@ public class SleepTickTask extends BukkitRunnable {
 	@Override
 	public void run() {
 		Set<Player> sleepers = wd.getSleepers();
-		wd.updateTimescale();
+		if (sleepers.isEmpty()) {
+			cancel();
+			return;
+		}
 		boolean isNight = wd.isNight();
 		if (isNight) { wd.timestep(); }
-		SmoothSleep.logDebug("===== SleepTickTask#run() ======");
-		SmoothSleep.logDebug("| - isNight = " + isNight);
-		SmoothSleep.logDebug("| - sleeper count = " + sleepers.size());
-		sleepers.forEach(plr -> {
-			PlayerData pd = pl.data.getPlayerData(plr);
-			if (pd != null) {
-				SmoothSleep.logDebug("| - Sleeper: " + pd.getPlayer().getName());
-				SmoothSleep.logDebug("| --- is sleeping = " + pd.isSleeping());
-				if (isNight) {
-					pd.updateUI();
-					if (counter > 50) {
-						pd.setSleepTicks(0);
-						counter = 0;
-					}
-					counter++;
-				} else {
-					pd.wake();
-				}
-			} else {
-				SmoothSleep.logDebug("| - Sleeper's PlayerData is null!");
-			}
-		});
-		if (!isNight || sleepers.isEmpty()) { wd.stopSleepTick(); }
+		if (!isNight || sleepers.isEmpty()) { cancel(); }
 	}
 }

@@ -1,4 +1,4 @@
-package com.luffbox.smoothsleep.lib;
+package com.luffbox.smoothsleep.lib.hooks;
 
 import org.bukkit.entity.Player;
 

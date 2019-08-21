@@ -16,7 +16,7 @@ public final class SmoothSleep extends LoggablePlugin {
 	public static final String PERM_NOTIFY = "smoothsleep.notify";
 
 	public static final long SLEEP_TICKS_START = 12541L,
-			SLEEP_TICKS_END = 23500L,
+			SLEEP_TICKS_END = 23499L,
 			SLEEP_TICKS_DURA = SLEEP_TICKS_END - SLEEP_TICKS_START;
 	public static final long TICKS_PER_DAY = 1728000L,
 			TICKS_PER_HOUR = 72000L,

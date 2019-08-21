@@ -54,15 +54,9 @@ public class PlayerData implements Purgeable {
 	}
 
 	public void clearTitles() {
-//		SmoothSleep.logDebug("#clearTitles()");
 		plr.sendTitle(" ", " ", 0, 0, 0);
 	}
 	public void updateTitles() {
-//		SmoothSleep.logDebug("#updateTitles()");
-//		SmoothSleep.logDebug("-- titles enabled = " + worldConf().getBoolean(TITLES_ENABLED));
-//		SmoothSleep.logDebug("-- isNight = " + worldData().isNight());
-//		SmoothSleep.logDebug("-- isSleeping = " + isSleeping());
-//		SmoothSleep.logDebug("-- woke = " + woke);
 		if (!worldConf().getBoolean(TITLES_ENABLED)) return;
 		if (!worldData().isNight() || !isSleeping()) {
 			if (woke) plr.sendTitle(mrnTitle(), mrnSubtitle(), 0, worldConf().getInt(TITLE_STAY), worldConf().getInt(TITLE_FADE));
@@ -148,9 +142,7 @@ public class PlayerData implements Purgeable {
 	public void updateIgnorePerm() { ignorePerm = plr.hasPermission(SmoothSleep.PERM_IGNORE); }
 
 	public void wake() {
-		boolean complete = worldData().isNight();
-		MiscUtils.filterTrace(new Exception("#wake(" + complete + ")"), null);
-		setSleepTicks(100);
+		boolean complete = worldData().hasFinishedSleeping(getPlayer());
 		if (complete) {
 			woke = true;
 
@@ -191,8 +183,10 @@ public class PlayerData implements Purgeable {
 			updateUI();
 		} else {
 			clearTitles();
-			if (!worldConf().getBoolean(ConfigHelper.WorldSettingKey.ACTIONBAR_WAKERS)) clearActionBar();
-			if (!worldConf().getBoolean(ConfigHelper.WorldSettingKey.BOSSBAR_WAKERS)) hideBossBar();
+			if (worldData().getSleepers().isEmpty()
+					|| !worldConf().getBoolean(ConfigHelper.WorldSettingKey.ACTIONBAR_WAKERS)) clearActionBar();
+			if (worldData().getSleepers().isEmpty()
+					|| !worldConf().getBoolean(ConfigHelper.WorldSettingKey.BOSSBAR_WAKERS)) hideBossBar();
 			getTimers().resetAll();
 		}
 		if (worldConf().getBoolean(HEAL_NEG_STATUS)) {
@@ -206,6 +200,7 @@ public class PlayerData implements Purgeable {
 			}
 		}
 		timers.resetAll();
+		setSleepTicks(100);
 	}
 
 	@Override
@@ -230,7 +225,6 @@ public class PlayerData implements Purgeable {
 	private String bossBarTitle() { return MiscUtils.trans(subStr(worldConf().getString(BOSSBAR_TITLE))); }
 
 	public void setSleepTicks(long ticks) {
-		MiscUtils.filterTrace(new Exception("#setSleepTicks(" + ticks + ")"), "com.luffbox");
 		try {
 			Object nmsPlr = ReflectUtil.invokeMethod(plr, "getHandle");
 			ReflectUtil.setValue(nmsPlr, false, "sleepTicks", (int) ticks);
