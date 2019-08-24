@@ -4,7 +4,6 @@ import com.luffbox.smoothsleep.SmoothSleep;
 import com.luffbox.smoothsleep.lib.ConfigHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;

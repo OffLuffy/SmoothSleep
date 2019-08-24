@@ -4,7 +4,6 @@ import com.luffbox.smoothsleep.PlayerData;
 import com.luffbox.smoothsleep.SmoothSleep;
 import com.luffbox.smoothsleep.WorldData;
 import com.luffbox.smoothsleep.lib.ConfigHelper;
-import com.luffbox.smoothsleep.lib.MiscUtils;
 import com.luffbox.smoothsleep.tasks.UpdateNotifyTask;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;

@@ -4,7 +4,6 @@ import com.luffbox.smoothsleep.SmoothSleep;
 import com.luffbox.smoothsleep.lib.MiscUtils;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
-import org.apache.commons.lang.text.StrSubstitutor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 

@@ -19,8 +19,7 @@ public class TickHelper {
 		if (rts != null) { randTickSpeed = rts; }
 	}
 
-	public void tick(int ticks, long limit) {
-		if (w.getTime() + ticks > limit) { ticks = (int) (limit - w.getTime()); }
+	public void tick(int ticks) {
 		w.setTime(w.getTime() + ticks);
 		if (options.weather) { w.setWeatherDuration(w.getWeatherDuration() - ticks); }
 		if (options.randomTick) {

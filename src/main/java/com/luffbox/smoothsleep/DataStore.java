@@ -88,7 +88,18 @@ public class DataStore implements Purgeable {
 	}
 
 	public boolean isPluginEnabled() { return pluginEnabled; }
-	public void setPluginEnabled(boolean enabled) { pluginEnabled = enabled; }
+	public void setPluginEnabled(boolean enabled) {
+		pluginEnabled = enabled;
+		pl.getServer().getScheduler().runTaskLater(pl, () -> {
+			for (WorldData wd : worldData.values()) {
+				for (PlayerData pd : wd.getPlayerData()) {
+					pd.clearActionBar();
+					pd.clearTitles();
+					pd.hideBossBar();
+				}
+			}
+		}, 1L);
+	}
 
 	public Map<World, WorldData> getWorldData() { return new HashMap<>(worldData); }
 	public WorldData getWorldData(World w) { return w == null ? null : worldData.get(w); }

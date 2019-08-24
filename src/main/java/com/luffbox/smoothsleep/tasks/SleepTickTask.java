@@ -27,7 +27,12 @@ public class SleepTickTask extends BukkitRunnable {
 	@Override
 	public void run() {
 		Set<Player> sleepers = wd.getSleepers();
-		if (sleepers.isEmpty()) {
+		if (!pl.data.isPluginEnabled() || sleepers.isEmpty()) {
+			for (PlayerData pd : wd.getPlayerData()) {
+				if (pd == null) continue;
+				pd.clearActionBar();
+				pd.hideBossBar();
+			}
 			cancel();
 			return;
 		}

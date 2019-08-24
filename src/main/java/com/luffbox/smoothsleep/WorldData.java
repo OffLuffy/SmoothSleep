@@ -38,12 +38,30 @@ public class WorldData implements Purgeable {
 
 	public Set<Player> getPlayers() { return new HashSet<>(w.getPlayers()); }
 
+	public Set<PlayerData> getPlayerData() {
+		Set<PlayerData> pds = new HashSet<>();
+		for (Player plr : w.getPlayers()) {
+			PlayerData pd = pl.data.getPlayerData(plr);
+			if (pd != null) { pds.add(pd); }
+		}
+		return pds;
+	}
+
 	public Set<Player> getSleepers() {
 		Set<Player> sleepers = new HashSet<>();
 		w.getPlayers().forEach(plr -> {
 			if (plr.isSleeping()) sleepers.add(plr);
 		});
 		return sleepers;
+	}
+
+	public Set<PlayerData> getSleeperData() {
+		Set<PlayerData> pds = new HashSet<>();
+		for (Player plr : getSleepers()) {
+			PlayerData pd = pl.data.getPlayerData(plr);
+			if (pd != null) { pds.add(pd); }
+		}
+		return pds;
 	}
 
 	public boolean hasSleepers() {
@@ -67,7 +85,7 @@ public class WorldData implements Purgeable {
 		double a = getWakers().size() + s; // Wakers + Sleepers count
 		if (a <= 1 && s >= 1) return 1.0; // Only player is sleeping
 		if (a <= 1 || s <= 1) return 0.0; // No one sleeping or online
-		return s - 1 / a - 1; // -1 on both = first player sleeping causes min night mult
+		return (s - 1) / (a - 1); // -1 on both = first player sleeping causes min night mult
 	}
 
 	public void resetFinishedSleeping() { finishedSleeping.clear(); }
@@ -75,6 +93,8 @@ public class WorldData implements Purgeable {
 	public void setFinishedSleeping(Player plr) { finishedSleeping.add(plr); }
 
 	public long getTime() { return w.getTime(); }
+
+	public boolean isNight() { return getTime() >= SmoothSleep.SLEEP_TICKS_START && getTime() < SmoothSleep.SLEEP_TICKS_END; }
 
 	public double getTimeRatio() {
 		long current = getTime();
@@ -92,43 +112,45 @@ public class WorldData implements Purgeable {
 			double crv = getSettings().getDouble(ConfigHelper.WorldSettingKey.SPEED_CURVE);
 			double mns = ws.getDouble(ConfigHelper.WorldSettingKey.MIN_NIGHT_MULT);
 			double xns = ws.getDouble(ConfigHelper.WorldSettingKey.MAX_NIGHT_MULT);
-			double ratio = getSleepRatio();
 			timescale = MiscUtils.remapValue(true, 0.0, 1.0, mns, xns, MiscUtils.calcSpeed(crv, getSleepRatio()));
 		}
 	}
 
 	public void timestep() {
+		long wtime = getTime();
 		updateTimescale();
 		timeTickRemain += timescale;
 		int ticks = (int) timeTickRemain - 1;
-		if (getTime() + ticks > SmoothSleep.SLEEP_TICKS_END) {
-			ticks = (int) SmoothSleep.SLEEP_TICKS_END - (int) getTime();
-		}
-		tickHelper.tick(ticks, SmoothSleep.SLEEP_TICKS_END);
+		boolean toMorning = wtime + ticks + 1 >= SmoothSleep.SLEEP_TICKS_END;
+		if (toMorning) { ticks = (int) (SmoothSleep.SLEEP_TICKS_END - wtime); }
+		timestepTimers(ticks, toMorning);
+		tickHelper.tick(ticks);
 		timeTickRemain %= 1;
-		timestepTimers(ticks);
 	}
 
-	public boolean isNight() { return getTime() > SmoothSleep.SLEEP_TICKS_START && getTime() <= SmoothSleep.SLEEP_TICKS_END; }
-
-	public void timestepTimers(int timescale) {
+	public void timestepTimers(int timescale, boolean isMorning) {
+		final int ticks = timescale + 1;
 		boolean setSleepTicks = counter > 50;
-		boolean wake = getTime() >= SmoothSleep.SLEEP_TICKS_END;
-		getSleepers().forEach(plr -> {
+		getPlayers().forEach(plr -> {
 			PlayerData pd = pl.data.getPlayerData(plr);
 			if (pd != null) {
+				if (isMorning) { setFinishedSleeping(plr); }
+				pd.updateUI();
+				if (isMorning) {
+					pd.hideBossBar();
+					pd.clearActionBar();
+				}
 				if (isNight()) {
-					pd.updateUI();
-					if (wake) { pd.hideBossBar(); pd.clearActionBar(); }
 					if (plr.isSleeping()) {
-						pd.tickTimers(timescale);
-						if (wake) { setFinishedSleeping(plr);}
-						if (setSleepTicks) { pd.setSleepTicks(0); }
+						pd.tickTimers(ticks);
+						if (setSleepTicks) {
+							pd.setSleepTicks(0);
+						}
 					}
 				}
 			}
 		});
-		if (setSleepTicks || wake) { counter = 0; } else { counter++; }
+		if (setSleepTicks || isMorning) { counter = 0; } else { counter++; }
 	}
 
 	public boolean hasAnyWeather() { return w.isThundering() || w.hasStorm(); }
@@ -146,7 +168,7 @@ public class WorldData implements Purgeable {
 	}
 
 	public void startSleepTick() {
-		if (!pl.isEnabled()) return;
+		if (!pl.data.isPluginEnabled()) return;
 		if (sleepTickRunning()) return;
 		tickHelper = new TickHelper(w, ws, ws.getTickOptions());
 		SleepTickTask stt = new SleepTickTask(pl, this);
