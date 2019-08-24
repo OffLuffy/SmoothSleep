@@ -1,34 +1,35 @@
 name: SmoothSleep
 version: ${project.version}
 main: com.luffbox.smoothsleep.SmoothSleep
+api-version: 1.13
+prefix: SS
+softdepend: [Essentials,PlaceholderAPI]
 authors: [OffLuffy]
 description: ${project.description}
-api-version: 1.14
-softdepend: [Essentials]
 commands:
   smoothsleepreload:
     description: Reloads SmoothSleep's config values
-    permission: "smoothsleep.reload"
+    permission: smoothsleep.reload
     usage: /ssreload
     aliases: [ssreload, ssleepreload, sleepreload]
   smoothsleeptoggle:
     description: Disables or enables the plugin. It will enable itself after a relaod/restart.
-    permission: "smoothsleep.toggle"
+    permission: smoothsleep.toggle
     usage: /sstoggle
     aliases: [sstoggle, ssleeptoggle, sleeptoggle]
   smoothsleepmetrics:
     description: Toggles metrics for SmoothSleep
-    permission: "smoothsleep.metrics"
+    permission: smoothsleep.metrics
     usage: /ssmetrics
     aliases: [ssmetrics, ssleepmetrics, sleepmetrics]
   smoothsleepaddworld:
     description: Adds a new world to the config
-    permission: "smoothsleep.addworld"
+    permission: smoothsleep.addworld
     usage: /ssaddworld <world>
     aliases: [ssaddworld, ssleepaddworld, sleepaddworld]
   smoothsleepconfigureworld:
     description: Configure a world's SmoothSleep settings
-    permission: "smoothsleep.configure"
+    permission: smoothsleep.configure
     usage: /ssconf <world> <setting> <value>
     aliases: [ssconfigure, ssconf, ssleepconfigure, ssleepconf, sleepconfigure, sleepconf]
 permission:
@@ -40,7 +41,7 @@ permission:
     default: op
   smoothsleep.ignore:
     description: Allows not needing to sleep
-    default: op
+    default: false
   smoothsleep.metrics:
     description: Allows toggline metrics for SmoothSleep on/off
     default: op
@@ -52,13 +53,13 @@ permission:
     default: op
   smoothsleep.notify:
     description: Users with this permission will be notified on login if there's an update available
-    default: op
+    default: false
   smoothsleep.ignoreheal:
     description: Users with this permission will not be periodically healed/hurt during sleep cycle
-    default: op
+    default: false
   smoothsleep.ignorefeed:
     description: Users with this permission will not be periodically fed/starved during sleep cycle
-    default: op
+    default: false
   smoothsleep.sleepreward:
     description: Users with this permission can receive rewards for sleeping until morning
     default: true

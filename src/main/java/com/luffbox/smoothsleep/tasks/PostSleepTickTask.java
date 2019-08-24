@@ -16,7 +16,7 @@ public class PostSleepTickTask extends BukkitRunnable {
 	}
 	@Override
 	public void run() {
-		wd.tickUI();
+		//wd.tickUI();
 		wd.getPlayers().forEach(plr -> {
 			PlayerData pd = pl.data.getPlayerData(plr);
 			if (pd != null) { pd.clearActionBar(); pd.hideBossBar(); }

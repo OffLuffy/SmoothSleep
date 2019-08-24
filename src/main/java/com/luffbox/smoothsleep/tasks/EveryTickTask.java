@@ -12,9 +12,9 @@ import java.util.Map;
 
 /**
  * The task that will run on every tick as long as the plugin is
- * enabled. It will only collect relevant information and store
- * it in the DataStore to be handled by other tasks later.
- * @see com.luffbox.smoothsleep.DataStore
+ * enabled. It's only used to trigger night start and end events
+ * @see NightStartEvent
+ * @see NightEndEvent
  */
 public class EveryTickTask extends BukkitRunnable {
 
@@ -25,10 +25,7 @@ public class EveryTickTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		if (!pl.isEnabled()) {
-			cancel();
-			return;
-		}
+		if (!pl.isEnabled()) { return; }
 		for (Map.Entry<World, WorldData> w : pl.data.getWorldData().entrySet()) {
 			World world = w.getKey();
 			WorldData wd = w.getValue();
@@ -36,10 +33,10 @@ public class EveryTickTask extends BukkitRunnable {
 			if (night.get(world) != wd.isNight()) {
 				night.put(world, wd.isNight());
 				if (wd.isNight()) {
-					NightStartEvent nse = new NightStartEvent(world);
+					NightStartEvent nse = new NightStartEvent(world, wd);
 					pl.getServer().getPluginManager().callEvent(nse);
 				} else {
-					NightEndEvent nee = new NightEndEvent(world);
+					NightEndEvent nee = new NightEndEvent(world, wd);
 					pl.getServer().getPluginManager().callEvent(nee);
 				}
 			}

@@ -1,4 +1,4 @@
-package com.luffbox.smoothsleep.lib;
+package com.luffbox.smoothsleep.lib.hooks;
 
 import com.earth2me.essentials.IEssentials;
 import com.earth2me.essentials.User;
@@ -7,10 +7,14 @@ import org.bukkit.entity.Player;
 
 public class EssUserHelper implements UserHelper {
 
+	private SmoothSleep pl;
 	private IEssentials ess;
-	public EssUserHelper(SmoothSleep pl) {
-		ess = (IEssentials) pl.getServer().getPluginManager().getPlugin("Essentials");
-		SmoothSleep.logInfo(pl.getDescription().getName() + ": Hooked to Essentials v" + ess.getDescription().getVersion());
+
+	public EssUserHelper(SmoothSleep plugin) {
+		this.pl = plugin;
+		ess = (IEssentials) plugin.getServer().getPluginManager().getPlugin("Essentials");
+		if (ess == null) { throw new NullPointerException(); }
+		SmoothSleep.logInfo("Hooked to Essentials v" + ess.getDescription().getVersion());
 	}
 
 	@Override
