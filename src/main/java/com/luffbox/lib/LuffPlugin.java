@@ -1,4 +1,4 @@
-package com.luffbox.smoothsleep.lib;
+package com.luffbox.lib;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -7,19 +7,26 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.net.URL;
 import java.util.Scanner;
 
-public class LoggablePlugin extends JavaPlugin {
+public class LuffPlugin extends JavaPlugin {
 
-	private static LoggablePlugin inst;
+	private static final String[] SVP = {"major", "minor", "patch"};
+
+	private static LuffPlugin inst;
+
 	protected String resourceId = null;
+	public static String nmsver;
 
-	public LoggablePlugin() { inst = this; }
+	public LuffPlugin() {
+		inst = this;
+		nmsver = getServer().getClass().getPackage().getName();
+		nmsver = nmsver.substring(nmsver.lastIndexOf(".") + 1);
+	}
 
 	public enum LogLevel {
 		INFO("info"),
 		DEBUG("debug"),
 		WARN("warning"),
 		SEVERE("severe");
-
 		private String levelName;
 		LogLevel(String name) { levelName = name; }
 		public String getLevelName() { return levelName; }
@@ -35,7 +42,28 @@ public class LoggablePlugin extends JavaPlugin {
 			String newVer = out.toString();
 			if (!getVersion().equals(newVer)) {
 				logWarning("Installed version: " + getVersion() + ", current version: " + newVer);
-				logWarning("Download the current version at https://www.spigotmc.org/resources/" + resourceId + "/");
+				boolean showDownload = true;
+				try {
+					// Try to check semantic version; if it fails, just show the download link
+					String[] newVerParts = newVer.split(".");
+					String[] oldVerParts = getVersion().split(".");
+					for (int i = 0; i < 3; i++) { // 0 = major, 1 = minor, 2 = patch (SemVer)
+						int lv = Integer.parseInt(newVerParts[i]); // Latest release on Spigot's site
+						int cv = Integer.parseInt(oldVerParts[i]); // Current version being used
+						if (lv < cv) {
+							logWarning("Using a version that isn't released yet.");
+							showDownload = false;
+							break;
+						} else if (lv > cv) {
+							logWarning("A new " + SVP[i] + " version is available.");
+							break;
+						}
+						// If lv == cv, continue to next iteration
+					}
+				} catch (Exception ignore) {}
+				if (showDownload) {
+					logWarning("Download the current version at https://www.spigotmc.org/resources/" + resourceId + "/");
+				}
 				return true;
 			}
 		} catch (Exception ignore) {}
@@ -97,4 +125,5 @@ public class LoggablePlugin extends JavaPlugin {
 	 * @param msg The message to print to console
 	 */
 	public static void logSevere(String msg) { log(LogLevel.SEVERE, true, ChatColor.RED ,msg); }
+
 }

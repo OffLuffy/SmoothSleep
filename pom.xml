@@ -11,7 +11,7 @@
 
     <name>SmoothSleep</name>
 
-    <description>Smooth sleeping experience for multiplayer Bukkit servers</description>
+    <description>Smooth sleep mechanics for multiplayer servers</description>
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

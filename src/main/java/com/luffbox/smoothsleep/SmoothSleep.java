@@ -1,69 +1,62 @@
 package com.luffbox.smoothsleep;
 
-import com.luffbox.smoothsleep.commands.*;
-import com.luffbox.smoothsleep.lib.LoggablePlugin;
-import com.luffbox.smoothsleep.listeners.NightListeners;
-import com.luffbox.smoothsleep.listeners.PlayerListeners;
-import com.luffbox.smoothsleep.tasks.EveryTickTask;
+import com.luffbox.lib.ConfigHelper;
+import com.luffbox.lib.LuffPlugin;
+import com.luffbox.smoothsleep.data.GlobalConfig;
+import com.luffbox.smoothsleep.data.WorldData;
 import org.bstats.bukkit.Metrics;
-import org.bukkit.Bukkit;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.World;
 
-public final class SmoothSleep extends LoggablePlugin {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-	public static final String PERM_IGNORE = "smoothsleep.ignore";
-	public static final String PERM_NOTIFY = "smoothsleep.notify";
+public final class SmoothSleep extends LuffPlugin {
 
-	public static final long SLEEP_TICKS_START = 12541L,
-			SLEEP_TICKS_END = 23460L,
-			SLEEP_TICKS_DURA = SLEEP_TICKS_END - SLEEP_TICKS_START;
-	public static final long TICKS_PER_DAY = 1728000L,
-			TICKS_PER_HOUR = 72000L,
-			TICKS_PER_MIN = 1200L;
+	private ConfigHelper conf;
+	private GlobalConfig globalConf;
+	private Map<World, WorldData> worldData = new HashMap<>();
 
-	public static String nmsver;
 	public static boolean hasUpdate = false;
-
-	public DataStore data;
 	public static Metrics metrics;
-
-	private BukkitTask everyTickTask;
 
 	@Override
 	public void onEnable() {
+		// Plugin startup logic
 		resourceId = "32043";
-		nmsver = Bukkit.getServer().getClass().getPackage().getName();
-		nmsver = nmsver.substring(nmsver.lastIndexOf(".") + 1);
-		hasUpdate = checkUpdate();
 
-		metrics = new Metrics(this);
-		data = new DataStore(this); // init() after assign so data variable isn't null
-		data.init();
-
-		getServer().getPluginManager().registerEvents(new PlayerListeners(this), this);
-		getServer().getPluginManager().registerEvents(new NightListeners(this), this);
-
-		registerCmd("smoothsleepreload", new Reload(this));
-		registerCmd("smoothsleeptoggle", new ToggleEnabled(this));
-		registerCmd("smoothsleepmetrics", new ToggleMetrics(this));
-		registerCmd("smoothsleepaddworld", new AddWorld(this));
-		registerCmd("smoothsleepconfigureworld", new ConfigureWorld(this));
-
-		everyTickTask = new EveryTickTask(this).runTaskTimer(this, 0L, 0L);
+		loadData();
 	}
 
 	@Override
 	public void onDisable() {
-		if (everyTickTask != null) everyTickTask.cancel();
-		data.purgeData();
+		// Plugin shutdown logic
+		purgeData();
 	}
 
-	private void registerCmd(String cmd, TabExecutor exe) {
-		PluginCommand pc = getServer().getPluginCommand(cmd);
-		if (pc != null) {
-			pc.setExecutor(exe);
-			pc.setTabCompleter(exe);
-		}
+	public void loadData() {
+		hasUpdate = checkUpdate();
+		metrics = new Metrics(this);
+		conf = new ConfigHelper(this);
+		globalConf = new GlobalConfig(this);
+		Set<String> worlds = conf.getConfSection("worlds").getKeys(false);
+		worlds.forEach(w -> {
+			World world = getServer().getWorld(w);
+			try {
+				worldData.put(world, new WorldData(this, world));
+			} catch (NullPointerException e) {
+				// TODO Log null world in config
+			}
+		});
 	}
+
+	public void purgeData() {
+		metrics = null;
+		globalConf = null;
+		worldData.clear();
+	}
+
+	public ConfigHelper getConfigHelper() { return conf; }
+	public GlobalConfig getGlobalConfig() { return globalConf; }
+	public WorldData getWorldData(World w) { return worldData.get(w); }
 }

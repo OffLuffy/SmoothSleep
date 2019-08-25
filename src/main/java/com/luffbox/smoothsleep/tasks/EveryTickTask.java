@@ -1,44 +1,28 @@
 package com.luffbox.smoothsleep.tasks;
 
-import com.luffbox.smoothsleep.SmoothSleep;
-import com.luffbox.smoothsleep.WorldData;
+import com.luffbox.smoothsleep.data.WorldData;
+import com.luffbox.smoothsleep.events.NightBeginEvent;
 import com.luffbox.smoothsleep.events.NightEndEvent;
-import com.luffbox.smoothsleep.events.NightStartEvent;
-import org.bukkit.World;
+import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * The task that will run on every tick as long as the plugin is
- * enabled. It's only used to trigger night start and end events
- * @see NightStartEvent
- * @see NightEndEvent
- */
 public class EveryTickTask extends BukkitRunnable {
 
-	private SmoothSleep pl;
-	public EveryTickTask(SmoothSleep plugin) { pl = plugin; }
-
-	private Map<World, Boolean> night = new HashMap<>();
+	WorldData worldData;
+	public EveryTickTask(WorldData worldData) {
+		this.worldData = worldData;
+	}
 
 	@Override
 	public void run() {
-		if (!pl.isEnabled()) { return; }
-		for (Map.Entry<World, WorldData> w : pl.data.getWorldData().entrySet()) {
-			World world = w.getKey();
-			WorldData wd = w.getValue();
-			if (!night.containsKey(world)) { night.put(world, wd.isNight()); }
-			if (night.get(world) != wd.isNight()) {
-				night.put(world, wd.isNight());
-				if (wd.isNight()) {
-					NightStartEvent nse = new NightStartEvent(world, wd);
-					pl.getServer().getPluginManager().callEvent(nse);
-				} else {
-					NightEndEvent nee = new NightEndEvent(world, wd);
-					pl.getServer().getPluginManager().callEvent(nee);
-				}
+		if (worldData.wasNight != worldData.isNight()) {
+			worldData.wasNight = worldData.isNight();
+			if (worldData.wasNight) {
+				NightBeginEvent nbe = new NightBeginEvent(worldData);
+				Bukkit.getPluginManager().callEvent(nbe);
+			} else {
+				NightEndEvent nee = new NightEndEvent(worldData);
+				Bukkit.getPluginManager().callEvent(nee);
 			}
 		}
 	}

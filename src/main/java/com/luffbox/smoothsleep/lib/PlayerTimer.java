@@ -1,6 +1,6 @@
 package com.luffbox.smoothsleep.lib;
 
-public class PlayerTimers {
+public class PlayerTimer {
 
 	public enum TimerType {
 		/**
