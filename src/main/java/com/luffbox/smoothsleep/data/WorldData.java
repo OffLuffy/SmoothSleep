@@ -24,6 +24,8 @@ public class WorldData {
 
 	public World getWorld() { return world; }
 
+	public WorldConfig getWorldConfig() { return config; }
+
 	public long getTime() { return world.getTime(); }
 
 	public boolean isNight() {

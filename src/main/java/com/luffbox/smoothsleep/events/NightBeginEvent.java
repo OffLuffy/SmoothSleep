@@ -7,7 +7,7 @@ import org.bukkit.event.HandlerList;
 
 public class NightBeginEvent extends Event {
 	private static final HandlerList handlers = new HandlerList();
-	private WorldData worldData;
+	private final WorldData worldData;
 	public NightBeginEvent(WorldData worldData) {
 		this.worldData = worldData;
 	}

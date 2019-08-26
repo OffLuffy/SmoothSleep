@@ -12,11 +12,7 @@ public class NightTickTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		if (worldData == null) { cancel(); return; }
-		if (worldData.isNight()) {
+		if (worldData == null || !worldData.isNight()) { cancel(); return; }
 
-		} else {
-			// TODO Cancel task
-		}
 	}
 }

@@ -9,6 +9,7 @@ import java.util.Scanner;
 
 public class LuffPlugin extends JavaPlugin {
 
+	// Semantic Versioning part names
 	private static final String[] SVP = {"major", "minor", "patch"};
 
 	private static LuffPlugin inst;

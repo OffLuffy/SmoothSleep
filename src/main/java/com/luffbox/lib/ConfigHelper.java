@@ -15,6 +15,12 @@ public class ConfigHelper {
 
 	public ConfigHelper(Plugin plugin) {
 		this.plugin = plugin;
+		reload();
+	}
+
+	public void reload() {
+		plugin.saveDefaultConfig();
+		plugin.reloadConfig();
 		conf = plugin.getConfig();
 		defaults = conf.getDefaults();
 	}

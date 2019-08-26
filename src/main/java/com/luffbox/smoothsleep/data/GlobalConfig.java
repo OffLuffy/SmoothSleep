@@ -9,7 +9,7 @@ public class GlobalConfig {
 	private ConfigHelper conf;
 
 	public GlobalConfig(SmoothSleep plugin) {
-		conf = plugin.getConfigHelper();
+		conf = SmoothSleep.data.getConfigHelper();
 	}
 
 	public void set(GlobalConfigKey key, Object value) { conf.set(key.key, value); }
