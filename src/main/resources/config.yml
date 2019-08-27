@@ -1,6 +1,6 @@
-# More info: https://www.spigotmc.org/resources/smoothsleep.32043
+# More info: https://www.spigotmc.org/resources/32043
+enabled: true
 enable-stats: true
-enable-data-share: true
 update-notify-login: false
 logging-settings:
   log-debug: false
@@ -17,14 +17,10 @@ worlds:
     clear-weather-when-morning: true
     heal-slept-villagers: true
     morning-sound: 'ENTITY_PLAYER_LEVELUP'
-    morning-particle-options:
-      particle: 'VILLAGER_HAPPY'
-      amount: 20
-      radius: 0.5
-      enabled: true
-      delay-ticks: 5
-      pattern: 'RANDOM'
     instant-day-if-all-sleeping: false
+    phantoms:
+      reset-all-ratio: 0.5
+      spawn-success-chance: 0.5
     essentials-settings:
       ignore-afk: true
       ignore-vanish: true

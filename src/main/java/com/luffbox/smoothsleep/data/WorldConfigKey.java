@@ -18,6 +18,8 @@ public enum WorldConfigKey {
 	IGNORE_AFK("essentials-settings.ignore-afk", boolean.class),
 	IGNORE_VANISH("essentials-settings.ignore-vanish", boolean.class),
 	HEAL_VILLAGERS("heal-slept-villagers", boolean.class),
+	PHANTOM_RESET_RATIO("phantoms.reset-all-ratio", double.class),
+	PHANTOM_SPAWN_CHANCE("phantoms.spawn-success-chance", double.class),
 
 	HEAL_AMOUNT("replenish-settings.heal-amount", int.class),
 	HEAL_TICKS("replenish-settings.ticks-per-heal", int.class),

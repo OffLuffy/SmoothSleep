@@ -2,13 +2,14 @@ package com.luffbox.smoothsleep.lib;
 
 import com.luffbox.lib.ConfigHelper;
 import com.luffbox.smoothsleep.SmoothSleep;
-import com.luffbox.smoothsleep.data.GlobalConfig;
-import com.luffbox.smoothsleep.data.GlobalConfigKey;
-import com.luffbox.smoothsleep.data.WorldConfig;
-import com.luffbox.smoothsleep.data.WorldData;
+import com.luffbox.smoothsleep.data.*;
+import com.luffbox.smoothsleep.listeners.EntityListeners;
+import com.luffbox.smoothsleep.listeners.PlayerListeners;
+import com.luffbox.smoothsleep.listeners.TimeListeners;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,10 +18,12 @@ import java.util.Set;
 public class DataStore {
 
 	private SmoothSleep plugin;
-	public static Metrics metrics;
+	private boolean enabled;
+	private static Metrics metrics;
 	private ConfigHelper conf;
 	private GlobalConfig globalConf;
 	private Map<World, WorldData> worldData = new HashMap<>();
+	private Map<Player, PlayerData> playerData = new HashMap<>();
 
 	public DataStore(SmoothSleep plugin) {
 		this.plugin = plugin;
@@ -29,7 +32,10 @@ public class DataStore {
 
 	public void loadData() {
 		this.conf = new ConfigHelper(plugin);
-		this.globalConf = new GlobalConfig(plugin);
+		this.globalConf = new GlobalConfig();
+
+		if (!globalConf.getBoolean(GlobalConfigKey.ENABLED)) { return; } // Stop here if disabled in config
+
 		Set<String> worlds = conf.getConfSection("worlds").getKeys(false);
 		for (String w : worlds) {
 			World world = plugin.getServer().getWorld(w);
@@ -45,6 +51,8 @@ public class DataStore {
 			}
 			worldData.put(world, new WorldData(plugin, world));
 			SmoothSleep.logDebug("Loaded configuration for world:" + world.getName());
+
+			for (Player p : world.getPlayers()) { addPlayerData(p); }
 		}
 		if (globalConf.getBoolean(GlobalConfigKey.ENABLE_STATS)) {
 			metrics = new Metrics(plugin);
@@ -68,9 +76,17 @@ public class DataStore {
 
 		// TODO Sanity check config values
 
+		// Register via LuffPlugin so I can unregister easily later
+		plugin.registerEvents(new PlayerListeners());
+		plugin.registerEvents(new EntityListeners());
+		plugin.registerEvents(new TimeListeners());
+
+		// TODO Initialize tasks if already night and already sleepers
+
 	}
 
 	public void purgeData() {
+		plugin.unregisterAllEvents();
 		worldData.clear();
 		metrics = null;
 	}
@@ -79,8 +95,16 @@ public class DataStore {
 
 	public GlobalConfig getGlobalConfig() { return globalConf; }
 
-	public WorldData getWorldData(World w) { return worldData.get(w); }
+	public WorldData getWorldData(World world) { return worldData.get(world); }
 
-	public WorldConfig getWorldConfig(World w) { return worldData.containsKey(w) ? worldData.get(w).getWorldConfig() : null; }
+	public WorldConfig getWorldConfig(World world) { return worldData.containsKey(world) ? worldData.get(world).getWorldConfig() : null; }
+
+	public boolean isWorldEnabled(World world) { return worldData.containsKey(world); }
+
+	public void addPlayerData(Player player) { playerData.put(player, new PlayerData(player)); }
+
+	public void removePlayerData(Player player) { if (player != null) { playerData.remove(player); } }
+
+	public PlayerData getPlayerData(Player player) { return playerData.get(player); }
 
 }

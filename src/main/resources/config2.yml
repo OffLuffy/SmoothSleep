@@ -1,0 +1,12 @@
+enabled: true
+enabled-stats: true
+update-notify-login: false
+logging-settings:
+  log-debug: false
+  log-warning: true
+  log-severe: true
+world-settings:
+  world:
+    min-night-speed: 1.0
+    max-night-speed: 20.0
+    speed-curve: 0.5

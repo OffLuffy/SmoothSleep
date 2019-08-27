@@ -37,7 +37,7 @@
                     <relocations>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>com.luffbox.smoothsleep.stats</shadedPattern>
+                            <shadedPattern>com.luffbox.lib.stats</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

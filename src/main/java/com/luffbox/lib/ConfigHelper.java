@@ -11,7 +11,6 @@ public class ConfigHelper {
 
 	private Plugin plugin;
 	protected Configuration conf;
-	protected Configuration defaults;
 
 	public ConfigHelper(Plugin plugin) {
 		this.plugin = plugin;
@@ -22,25 +21,24 @@ public class ConfigHelper {
 		plugin.saveDefaultConfig();
 		plugin.reloadConfig();
 		conf = plugin.getConfig();
-		defaults = conf.getDefaults();
 	}
 
 	public Configuration getConfig() { return conf; }
-	public Configuration getDefaults() { return defaults; }
+	public Configuration getDefaults() { return conf.getDefaults(); }
 
 	public void set(String path, Object value) { conf.set(path, value); }
 
 	public int getInt(String path) { return conf.getInt(path, getDefaultInt(path)); }
-	public int getDefaultInt(String path) { return defaults == null ? 0 : defaults.getInt(path); }
+	public int getDefaultInt(String path) { return getDefaults() == null ? 0 : getDefaults().getInt(path); }
 
 	public boolean getBoolean(String path) { return conf.getBoolean(path, getDefaultBoolean(path)); }
-	public boolean getDefaultBoolean(String path) { return defaults != null && defaults.getBoolean(path); }
+	public boolean getDefaultBoolean(String path) { return getDefaults() != null && getDefaults().getBoolean(path); }
 
 	public String getString(String path) { return conf.getString(path, getDefaultString(path)); }
-	public String getDefaultString(String path) { return defaults == null ? "" : defaults.getString(path); }
+	public String getDefaultString(String path) { return getDefaults() == null ? "" : getDefaults().getString(path); }
 
 	public double getDouble(String path) { return conf.getDouble(path, getDefaultDouble(path)); }
-	public double getDefaultDouble(String path) { return defaults == null ? 0.0 : defaults.getDouble(path); }
+	public double getDefaultDouble(String path) { return getDefaults() == null ? 0.0 : getDefaults().getDouble(path); }
 
 
 	public ConfigurationSection getConfSection(String path) {
@@ -49,8 +47,8 @@ public class ConfigHelper {
 		else return getDefaultConfSection(path);
 	}
 	public ConfigurationSection getDefaultConfSection(String path) {
-		if (defaults.contains(path))
-			return defaults.getConfigurationSection(path);
+		if (getDefaults().contains(path))
+			return getDefaults().getConfigurationSection(path);
 		return new MemoryConfiguration();
 	}
 

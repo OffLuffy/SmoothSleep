@@ -2,10 +2,13 @@ package com.luffbox.lib;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 public class LuffPlugin extends JavaPlugin {
 
@@ -13,6 +16,7 @@ public class LuffPlugin extends JavaPlugin {
 	private static final String[] SVP = {"major", "minor", "patch"};
 
 	private static LuffPlugin inst;
+	private Set<LuffListener> listeners = new HashSet<>();
 
 	protected String resourceId = null;
 	public static String nmsver;
@@ -21,6 +25,16 @@ public class LuffPlugin extends JavaPlugin {
 		inst = this;
 		nmsver = getServer().getClass().getPackage().getName();
 		nmsver = nmsver.substring(nmsver.lastIndexOf(".") + 1);
+	}
+
+	public PluginManager pm() { return getServer().getPluginManager(); }
+	public void registerEvents(LuffListener listener) {
+		listener.register(this);
+		listeners.add(listener);
+	}
+	public void unregisterAllEvents() {
+		for (LuffListener l : listeners) { l.unregister(this); }
+		listeners.clear();
 	}
 
 	public enum LogLevel {
