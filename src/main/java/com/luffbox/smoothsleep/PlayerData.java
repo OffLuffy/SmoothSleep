@@ -70,7 +70,7 @@ public class PlayerData implements Purgeable {
 	public void updateActionBar() {
 		if (!worldConf().getBoolean(ACTIONBAR_ENABLED)) { return; }
 		if (!isSleeping() && !worldConf().getBoolean(ACTIONBAR_WAKERS)) { return; }
-		if (!worldData().isNight() || worldData().getSleepers().isEmpty()) { return; }
+		if (!worldData().isNight() || worldData().getSleepers().isEmpty()) { clearActionBar(); return; }
 		pl.data.actionBarHelper.sendActionBar(plr, actionBarTitle());
 	}
 
@@ -183,11 +183,16 @@ public class PlayerData implements Purgeable {
 			updateUI();
 		} else {
 			clearTitles();
-			if (worldData().getSleepers().isEmpty()
-					|| !worldConf().getBoolean(ConfigHelper.WorldSettingKey.ACTIONBAR_WAKERS)) clearActionBar();
-			if (worldData().getSleepers().isEmpty()
-					|| !worldConf().getBoolean(ConfigHelper.WorldSettingKey.BOSSBAR_WAKERS)) hideBossBar();
 			getTimers().resetAll();
+			if (worldData().getSleepers().isEmpty()) {
+				for (PlayerData pd : worldData().getPlayerData()) {
+					pd.clearActionBar();
+					pd.hideBossBar();
+				}
+			} else {
+				if (!worldConf().getBoolean(ConfigHelper.WorldSettingKey.ACTIONBAR_WAKERS)) clearActionBar();
+				if (!worldConf().getBoolean(ConfigHelper.WorldSettingKey.BOSSBAR_WAKERS)) hideBossBar();
+			}
 		}
 		if (worldConf().getBoolean(HEAL_NEG_STATUS)) {
 			if ((int) timers.getSlpt() / 1000L >= worldConf().getInt(HOURS_NEG_STATUS)) {
