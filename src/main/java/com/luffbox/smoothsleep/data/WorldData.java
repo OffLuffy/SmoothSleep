@@ -21,7 +21,7 @@ public class WorldData {
 	public WorldData(SmoothSleep plugin, World world) {
 		if (world == null) throw new NullPointerException();
 		this.world = world;
-		this.config = new WorldConfig(plugin, world);
+		this.config = new WorldConfig(world);
 		this.tickHelper = new TickHelper(this);
 	}
 
@@ -33,8 +33,8 @@ public class WorldData {
 		long wtime = getTime();
 		tickRemain += timescale;
 		int ticks = (int) tickRemain - 1;
-		boolean toMorning = wtime + ticks + 1 >= Constants.NIGHT_END;
-		if (toMorning) { ticks = (int) (Constants.NIGHT_END - wtime); }
+		boolean toMorning = wtime + ticks >= Constants.NIGHT_END - 1;
+		if (toMorning) { ticks = (int) (Constants.NIGHT_END - wtime - 1); }
 
 		tickHelper.tick(ticks); // Tick time, weather, randomTicks
 

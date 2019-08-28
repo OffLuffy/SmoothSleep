@@ -8,7 +8,10 @@ public class GlobalConfig {
 
 	private ConfigHelper conf() { return SmoothSleep.data.getConfigHelper(); }
 
+	public boolean contains(GlobalConfigKey key) { return conf().contains(key.key); }
+
 	public void set(GlobalConfigKey key, Object value) { conf().set(key.key, value); }
+	public void setToDefault(GlobalConfigKey key) { conf().setToDefault(key.key); }
 
 	public int getInt(GlobalConfigKey key) { return conf().getInt(key.key); }
 	public int getDefaultInt(GlobalConfigKey key) { return conf().getDefaultInt(key.key); }

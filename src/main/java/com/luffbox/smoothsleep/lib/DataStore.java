@@ -31,8 +31,10 @@ public class DataStore {
 	}
 
 	public void loadData() {
-		this.conf = new ConfigHelper(plugin);
-		this.globalConf = new GlobalConfig();
+		conf = new ConfigHelper(plugin);
+		globalConf = new GlobalConfig();
+
+		updateConfigGlobals();
 
 		if (!globalConf.getBoolean(GlobalConfigKey.ENABLED)) { return; } // Stop here if disabled in config
 
@@ -49,7 +51,11 @@ public class DataStore {
 				SmoothSleep.logWarning("SmoothSleep only works in normal worlds (not nether, end, etc)");
 				continue;
 			}
-			worldData.put(world, new WorldData(plugin, world));
+
+			WorldData wd = new WorldData(plugin, world);
+			updateConfigWorld(wd);
+			worldData.put(world, wd);
+
 			SmoothSleep.logDebug("Loaded configuration for world:" + world.getName());
 
 			for (Player p : world.getPlayers()) { addPlayerData(p); }
@@ -89,6 +95,76 @@ public class DataStore {
 		plugin.unregisterAllEvents();
 		worldData.clear();
 		metrics = null;
+	}
+
+	public void updateConfigGlobals() {
+		// Manual moves
+		if (conf.contains("worlds")) {
+			SmoothSleep.logDebug("Old world settings moving to '" + WorldConfig.WORLDS_SECT + "'");
+			if (!conf.contains(WorldConfig.WORLDS_SECT)) {
+				conf.set(WorldConfig.WORLDS_SECT, conf.getConfSection("worlds"));
+			} else {
+				for (String world : conf.getConfSection("worlds").getKeys(false)) {
+					if (!conf.contains(WorldConfig.WORLDS_SECT + "." + world)) {
+						conf.set(WorldConfig.WORLDS_SECT + "." + world, conf.getConfSection("worlds."+ world));
+					}
+				}
+			}
+			conf.set("worlds", null);
+		}
+		// Remove unused keys/sections, move any keys that were renamed
+		for (Map.Entry<String, GlobalConfigKey> moveEntry : Constants.movedGlobalSettings.entrySet()) {
+			if (conf.contains(moveEntry.getKey())) {
+				if (moveEntry.getValue() == null) { // Delete keys not being used anymore
+					SmoothSleep.logDebug("Removing unused config key: " + moveEntry.getKey());
+					conf.set(moveEntry.getKey(), null);
+					continue;
+				}
+				SmoothSleep.logDebug("Config key '" + moveEntry.getKey() + "' has moved to '" + moveEntry.getValue().key + "'");
+				if (!globalConf.contains(moveEntry.getValue())) { // Move renamed keys if it doesn't exist
+					Object val = conf.getConfig().get(moveEntry.getKey()); // Cache current value
+					globalConf.set(moveEntry.getValue(), val); // Set current value to new path
+				}
+				conf.set(moveEntry.getKey(), null); // Remove old path
+			}
+		}
+		// Add any non-existing new keys
+		for (GlobalConfigKey gck : GlobalConfigKey.values()) { // Add new keys
+			if (!conf.getConfig().contains(gck.key)) {
+				SmoothSleep.logDebug("New key added to config: " + gck.key);
+				globalConf.setToDefault(gck);
+			}
+		}
+	}
+
+	public void updateConfigWorld(WorldData worldData) {
+		World world = worldData.getWorld();
+		WorldConfig wconf = worldData.getWorldConfig();
+		// Remove unused keys/sections, move any keys that were renamed
+		for (Map.Entry<String, WorldConfigKey> moveEntry : Constants.movedWorldSettings.entrySet()) {
+			String fromPath = wconf.path() + "." + moveEntry.getKey();
+			String toPath = wconf.path(moveEntry.getValue());
+			if (conf.contains(fromPath)) {
+				if (moveEntry.getValue() == null) {
+					SmoothSleep.logDebug("Removing unused config key: " + fromPath);
+					conf.set(fromPath, null);
+					continue;
+				}
+				SmoothSleep.logDebug("Config key '" + fromPath + "' has moved to '" + toPath + "'");
+				if (!conf.contains(toPath)) {
+					Object val = conf.getConfig().get(fromPath);
+					wconf.set(moveEntry.getValue(), val);
+				}
+				conf.set(fromPath, null);
+			}
+		}
+		// Add any non-existing new keys
+		for (WorldConfigKey wck : WorldConfigKey.values()) { // Add new keys
+			if (!conf.getConfig().contains(wck.key)) {
+				SmoothSleep.logDebug("New key added to config: " + wck.key);
+				wconf.setToDefault(wck);
+			}
+		}
 	}
 
 	public ConfigHelper getConfigHelper() { return conf; }

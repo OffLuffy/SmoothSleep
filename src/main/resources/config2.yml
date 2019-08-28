@@ -10,3 +10,25 @@ world-settings:
     min-night-speed: 1.0
     max-night-speed: 20.0
     speed-curve: 0.5
+    instant-day:
+      enabled: false
+      ratio: 1.0
+    tick-settings:
+      weather: false
+      random-tick: true
+      random-tick-limit: 1000
+    morning-settings:
+      clear-weather: true
+      heal-sleeping-villagers: true
+    sleep-rewards:
+      status-effects:
+        give-effects:
+          LUCK:
+            duration: 3600
+            amplifier: 1
+            require-hours: 2
+          HASTE:
+            duration: 3600
+            amplifier: 1
+            require-hours: 3
+        heal-effects:
