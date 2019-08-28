@@ -5,10 +5,11 @@ import com.luffbox.smoothsleep.lib.ConfigHelper.GlobalSettingKey;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class ToggleMetrics implements CommandExecutor {
+import java.util.List;
+
+public class ToggleMetrics implements TabExecutor {
 
 	private SmoothSleep pl;
 
@@ -27,5 +28,10 @@ public class ToggleMetrics implements CommandExecutor {
 			sender.sendMessage(state ? (ChatColor.GREEN + "Enabled SmoothSleep Metrics") : (ChatColor.GOLD + "Disabled SmoothSleep Metrics"));
 		}
 		return true;
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+		return null;
 	}
 }

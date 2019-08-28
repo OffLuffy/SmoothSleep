@@ -48,6 +48,7 @@ public class PlayerListeners implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void enterBed(PlayerBedEnterEvent e) {
+		if (!pl.isEnabled()) { return; }
 		World w = e.getPlayer().getWorld();
 		if (!pl.data.worldEnabled(w)) { return; }
 		WorldData wd = pl.data.getWorldData(w);
@@ -57,23 +58,20 @@ public class PlayerListeners implements Listener {
 		if (wd.isNight()) {
 			pd.getTimers().resetAll();
 			wd.startSleepTick();
-			pd.startDeepSleep();
 		}
 	}
 
 	@EventHandler(ignoreCancelled = true)
 	public void leaveBed(PlayerBedLeaveEvent e) {
+		if (!pl.isEnabled()) { return; }
 		World w = e.getPlayer().getWorld();
 		if (!pl.data.worldEnabled(w)) { return; }
 		WorldData wd = pl.data.getWorldData(w);
 		if (wd == null) { SmoothSleep.logWarning("An error occurred while handing leaveBed event. Missing WorldData."); return; }
 		PlayerData pd = pl.data.getPlayerData(e.getPlayer());
 		if (pd == null) { SmoothSleep.logWarning("An error occurred while handling leaveBed event. Missing PlayerData."); return; }
-		if (wd.isNight()) {
-			if (wd.getSleepers().size() <= 0) { wd.stopSleepTick(); }
-			pd.stopDeepSleep();
-			pd.getTimers().resetAll();
-		}
+		pd.wake();
+		if (wd.getSleepers().isEmpty()) { wd.stopSleepTick(); }
 	}
 
 }

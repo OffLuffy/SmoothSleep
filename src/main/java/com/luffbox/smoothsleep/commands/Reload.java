@@ -4,10 +4,11 @@ import com.luffbox.smoothsleep.SmoothSleep;
 import com.luffbox.smoothsleep.lib.ConfigHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-public class Reload implements CommandExecutor {
+import java.util.List;
+
+public class Reload implements TabExecutor {
 
 	private SmoothSleep pl;
 
@@ -26,5 +27,10 @@ public class Reload implements CommandExecutor {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+		return null;
 	}
 }

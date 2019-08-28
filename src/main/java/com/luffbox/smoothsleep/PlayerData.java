@@ -1,12 +1,7 @@
 package com.luffbox.smoothsleep;
 
-import com.luffbox.smoothsleep.lib.ConfigHelper;
-import com.luffbox.smoothsleep.lib.MiscUtils;
-import com.luffbox.smoothsleep.lib.PlayerTimers;
-import com.luffbox.smoothsleep.lib.Purgeable;
-import com.luffbox.smoothsleep.tasks.DeepSleepTask;
+import com.luffbox.smoothsleep.lib.*;
 import com.luffbox.smoothsleep.tasks.WakeParticlesTask;
-import org.apache.commons.lang.text.StrSubstitutor;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -14,7 +9,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +25,6 @@ public class PlayerData implements Purgeable {
 	private Player plr;
 	private boolean ignorePerm = false;
 	private BossBar bar;
-	private BukkitTask deepSleepTask;
 	private boolean woke = false;
 
 	public PlayerData(SmoothSleep plugin, Player player) {
@@ -40,7 +33,6 @@ public class PlayerData implements Purgeable {
 		plr = player;
 		timers = new PlayerTimers();
 		update();
-		if (plr.isSleeping()) { startDeepSleep(); }
 	}
 
 	public ConfigHelper.WorldSettings worldConf() {
@@ -52,9 +44,7 @@ public class PlayerData implements Purgeable {
 	// Do not call on sleep tick! (Will cause perm check every tick)
 	public void update() {
 		updateIgnorePerm();
-		if (worldConf().getBoolean(BOSSBAR_ENABLED)) updateBossBar();
-		updateActionBar();
-		updateTitles();
+		updateUI();
 	}
 
 	public void updateUI() {
@@ -63,7 +53,9 @@ public class PlayerData implements Purgeable {
 		updateTitles();
 	}
 
-	public void clearTitles() { plr.sendTitle(" ", " ", 0, 0, 0); }
+	public void clearTitles() {
+		plr.sendTitle(" ", " ", 0, 0, 0);
+	}
 	public void updateTitles() {
 		if (!worldConf().getBoolean(TITLES_ENABLED)) return;
 		if (!worldData().isNight() || !isSleeping()) {
@@ -78,7 +70,7 @@ public class PlayerData implements Purgeable {
 	public void updateActionBar() {
 		if (!worldConf().getBoolean(ACTIONBAR_ENABLED)) { return; }
 		if (!isSleeping() && !worldConf().getBoolean(ACTIONBAR_WAKERS)) { return; }
-		if (!worldData().isNight() || worldData().getSleepers().isEmpty()) { return; }
+		if (!worldData().isNight() || worldData().getSleepers().isEmpty()) { clearActionBar(); return; }
 		pl.data.actionBarHelper.sendActionBar(plr, actionBarTitle());
 	}
 
@@ -149,23 +141,11 @@ public class PlayerData implements Purgeable {
 	// Only check this when player joins or changes world to minimize perm checks.
 	public void updateIgnorePerm() { ignorePerm = plr.hasPermission(SmoothSleep.PERM_IGNORE); }
 
-	public boolean deepSleepRunning() {
-		if (deepSleepTask != null && deepSleepTask.isCancelled()) deepSleepTask = null;
-		return deepSleepTask != null;
-	}
+	public void wake() {
+		boolean complete = worldData().hasFinishedSleeping(getPlayer());
+		if (complete) {
+			woke = true;
 
-	public void startDeepSleep() {
-		if (deepSleepRunning()) return;
-		woke = false;
-		DeepSleepTask dst = new DeepSleepTask(pl, plr);
-		deepSleepTask =	dst.runTaskTimer(pl, 0L, 40L);
-	}
-
-	public void stopDeepSleep() {
-		if (deepSleepTask == null) return;
-		deepSleepTask.cancel();
-		deepSleepTask = null;
-		if (woke) { // Only if woken by reaching morning. 'woke' should be false otherwise.
 			// Run wake particle task
 			WakeParticlesTask wpt = new WakeParticlesTask(pl, this);
 			wpt.runTaskTimer(pl, 5, worldConf().getInt(PARTICLE_DELAY));
@@ -200,10 +180,19 @@ public class PlayerData implements Purgeable {
 					}
 				}
 			}
-
+			updateUI();
 		} else {
 			clearTitles();
-			clearActionBar();
+			getTimers().resetAll();
+			if (worldData().getSleepers().isEmpty()) {
+				for (PlayerData pd : worldData().getPlayerData()) {
+					pd.clearActionBar();
+					pd.hideBossBar();
+				}
+			} else {
+				if (!worldConf().getBoolean(ConfigHelper.WorldSettingKey.ACTIONBAR_WAKERS)) clearActionBar();
+				if (!worldConf().getBoolean(ConfigHelper.WorldSettingKey.BOSSBAR_WAKERS)) hideBossBar();
+			}
 		}
 		if (worldConf().getBoolean(HEAL_NEG_STATUS)) {
 			if ((int) timers.getSlpt() / 1000L >= worldConf().getInt(HOURS_NEG_STATUS)) {
@@ -215,28 +204,35 @@ public class PlayerData implements Purgeable {
 				ConfigHelper.positiveEffects.forEach(pe -> plr.removePotionEffect(pe));
 			}
 		}
+		timers.resetAll();
+		setSleepTicks(100);
 	}
-
-	public void setWoke(boolean woke) { this.woke = woke; }
 
 	@Override
 	public void purgeData() {
-		if (deepSleepTask != null) deepSleepTask.cancel();
 		if (bar != null) {
 			bar.removeAll();
 			bar = null;
 		}
 	}
 
-	// Some short-hand methods to assist with placeholder variables
-	private StrSubstitutor strSub() {
-		return MiscUtils.sub(plr.getWorld(), plr, worldData().getSleepers().size(), worldData().getWakers().size(),
+	private String subStr(String template) {
+		return pl.data.placeholders.replace(template, plr.getWorld(), plr, worldData().getSleepers().size(), worldData().getWakers().size(),
 				worldData().getTimescale(), (int) getTimers().getSlpt(), pl.data.userHelper.getNickname(plr));
 	}
-	private String slpTitle() { return MiscUtils.trans(strSub().replace(worldConf().getString(SLEEP_TITLE))); }
-	private String slpSubtitle() { return MiscUtils.trans(strSub().replace(worldConf().getString(SLEEP_SUBTITLE))); }
-	private String mrnTitle() { return MiscUtils.trans(strSub().replace(worldConf().getString(MORNING_TITLE))); }
-	private String mrnSubtitle() { return MiscUtils.trans(strSub().replace(worldConf().getString(MORNING_SUBTITLE))); }
-	private String actionBarTitle() { return MiscUtils.trans(strSub().replace(worldConf().getString(ACTIONBAR_TITLE))); }
-	private String bossBarTitle() { return MiscUtils.trans(strSub().replace(worldConf().getString(BOSSBAR_TITLE))); }
+
+	// Some short-hand methods to assist with placeholder variables
+	private String slpTitle() { return MiscUtils.trans(subStr(worldConf().getString(SLEEP_TITLE))); }
+	private String slpSubtitle() { return MiscUtils.trans(subStr(worldConf().getString(SLEEP_SUBTITLE))); }
+	private String mrnTitle() { return MiscUtils.trans(subStr(worldConf().getString(MORNING_TITLE))); }
+	private String mrnSubtitle() { return MiscUtils.trans(subStr(worldConf().getString(MORNING_SUBTITLE))); }
+	private String actionBarTitle() { return MiscUtils.trans(subStr(worldConf().getString(ACTIONBAR_TITLE))); }
+	private String bossBarTitle() { return MiscUtils.trans(subStr(worldConf().getString(BOSSBAR_TITLE))); }
+
+	public void setSleepTicks(long ticks) {
+		try {
+			Object nmsPlr = ReflectUtil.invokeMethod(plr, "getHandle");
+			ReflectUtil.setValue(nmsPlr, false, "sleepTicks", (int) ticks);
+		} catch (Exception e) { e.printStackTrace(); }
+	}
 }

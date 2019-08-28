@@ -95,7 +95,6 @@ public class MiscUtils {
 	}
 	public static boolean near(double a, double b) { return Math.abs(a - b) < 0.0001f; }
 
-	@SuppressWarnings("deprecation")
 	public static StrSubstitutor sub(World w, Player p, int sc, int wc, double timescale, long ticksSlept, String nickname) {
 		long worldTime = w.getTime();
 		long timeLived = p.getTicksLived();
@@ -140,7 +139,6 @@ public class MiscUtils {
 		return new StrSubstitutor(values, "{", "}");
 	}
 
-	@SuppressWarnings("SameParameterValue")
 	private static String bar(int val, int size, int seg) {
 		char fillSym = '\u28FF';
 		int filled = (int) remapValue(true, 0, size, 0, seg, val);
@@ -151,6 +149,16 @@ public class MiscUtils {
 		for (int i = 0; i < remain; i++) { sb.append(fillSym); }
 		sb.append(ChatColor.RESET);
 		return sb.toString();
+	}
+
+	public static void filterTrace(Exception ex, String filter) {
+		SmoothSleep.logDebug("===== Filtered Stack Trace (" + ex.getMessage() + ") =====");
+		for (StackTraceElement ste : ex.getStackTrace()) {
+			if (filter == null || filter.isEmpty() || ste.getClassName().contains(filter)) {
+				SmoothSleep.logDebug(String.format("  at %s.%s(%s:%d)", ste.getClassName(), ste.getMethodName(), ste.getFileName(), ste.getLineNumber()));
+			}
+		}
+		SmoothSleep.logDebug("======================================================");
 	}
 
 }

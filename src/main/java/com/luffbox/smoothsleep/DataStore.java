@@ -5,6 +5,7 @@ import com.luffbox.smoothsleep.lib.actionbar.ActionBarHelper;
 import com.luffbox.smoothsleep.lib.actionbar.NmsActionBarHelper;
 import com.luffbox.smoothsleep.lib.actionbar.PaperActionHelper;
 import com.luffbox.smoothsleep.lib.actionbar.SpigotActionBarHelper;
+import com.luffbox.smoothsleep.lib.hooks.*;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -21,6 +22,7 @@ public class DataStore implements Purgeable {
 	public ConfigHelper config;
 	public UserHelper userHelper;
 	public ActionBarHelper actionBarHelper;
+	public PlaceholderHelper placeholders;
 	private Map<World, WorldData> worldData = new HashMap<>();
 	private Map<Player, PlayerData> playerData = new HashMap<>();
 
@@ -31,6 +33,11 @@ public class DataStore implements Purgeable {
 		Plugin ess = pl.getServer().getPluginManager().getPlugin("Essentials");
 		if (ess != null && ess.isEnabled()) { userHelper = new EssUserHelper(pl); }
 		else { userHelper = new DefUserHelper(); }
+
+		Plugin papi = pl.getServer().getPluginManager().getPlugin("PlaceholderAPI");
+		if (papi != null && papi.isEnabled()) {
+			placeholders = new PlaceholderAPIHelper(pl);
+		} else { placeholders = new DefPlaceholderHelper(pl); }
 
 		try { // See if the Paper method exists
 			Player.class.getMethod("sendActionBar", String.class);
@@ -46,6 +53,7 @@ public class DataStore implements Purgeable {
 				actionBarHelper = new NmsActionBarHelper();
 			}
 		}
+		SmoothSleep.logDebug("DataStore initialized");
 	}
 
 	public void init() {
@@ -80,7 +88,18 @@ public class DataStore implements Purgeable {
 	}
 
 	public boolean isPluginEnabled() { return pluginEnabled; }
-	public void setPluginEnabled(boolean enabled) { pluginEnabled = enabled; }
+	public void setPluginEnabled(boolean enabled) {
+		pluginEnabled = enabled;
+		pl.getServer().getScheduler().runTaskLater(pl, () -> {
+			for (WorldData wd : worldData.values()) {
+				for (PlayerData pd : wd.getPlayerData()) {
+					pd.clearActionBar();
+					pd.clearTitles();
+					pd.hideBossBar();
+				}
+			}
+		}, 1L);
+	}
 
 	public Map<World, WorldData> getWorldData() { return new HashMap<>(worldData); }
 	public WorldData getWorldData(World w) { return w == null ? null : worldData.get(w); }

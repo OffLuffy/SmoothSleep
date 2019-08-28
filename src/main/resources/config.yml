@@ -1,6 +1,5 @@
 # More info: https://www.spigotmc.org/resources/smoothsleep.32043
 enable-stats: true
-enable-data-share: true
 update-notify-login: false
 logging-settings:
   log-debug: false
@@ -11,6 +10,11 @@ worlds:
     min-night-speed-mult: 10
     max-night-speed-mult: 20
     night-speed-curve: 0.5
+    accelerate-random-tick: true
+    max-random-tick: 1000
+    accelerate-weather: true
+    clear-weather-when-morning: true
+    heal-slept-villagers: true
     morning-sound: 'ENTITY_PLAYER_LEVELUP'
     morning-particle-options:
       particle: 'VILLAGER_HAPPY'
@@ -43,7 +47,6 @@ worlds:
           LUCK:
             duration: 3600
             amplifier: 0
-    clear-weather-when-morning: true
     titles:
       enabled: true
       sleep-title: '&b{12H}:{MIN} {MER_UPPER}'
