@@ -3,6 +3,7 @@ package com.luffbox.smoothsleep.data;
 import com.luffbox.lib.ConfigHelper;
 import com.luffbox.smoothsleep.SmoothSleep;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemStack;
 
 public class GlobalConfig {
 
@@ -24,6 +25,9 @@ public class GlobalConfig {
 
 	public double getDouble(GlobalConfigKey key) { return conf().getDouble(key.key); }
 	public double getDefaultDouble(GlobalConfigKey key) { return conf().getDefaultDouble(key.key); }
+
+	public ItemStack getItemStack(GlobalConfigKey key) { return conf().getItemStack(key.key); }
+	public ItemStack getDefaultItemStack(GlobalConfigKey key) { return conf().getDefaultItemStack(key.key); }
 
 	public ConfigurationSection getConfSection(GlobalConfigKey key) { return conf().getConfSection(key.key); }
 	public ConfigurationSection getDefaultConfSection(GlobalConfigKey key) { return conf().getDefaultConfSection(key.key); }
