@@ -34,6 +34,8 @@ public class ConfigHelper {
 
 	public void set(String path, Object value) { conf().set(path, value); }
 
+	public void setSerializable(String path, LuffSerializable value) { conf().set(path, value.serialize()); }
+
 	public int getInt(String path) { return conf().getInt(path, getDefaultInt(path)); }
 	public int getDefaultInt(String path) { return getDefaults() == null ? 0 : getDefaults().getInt(path); }
 

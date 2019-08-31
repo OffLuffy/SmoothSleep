@@ -18,6 +18,7 @@ import java.util.Set;
 public class DataStore {
 
 	private SmoothSleep plugin;
+	private LangHelper lang;
 	private boolean enabled;
 	private static Metrics metrics;
 	private ConfigHelper conf;
@@ -33,7 +34,8 @@ public class DataStore {
 	public void loadData() {
 		conf = new ConfigHelper(plugin);
 		globalConf = new GlobalConfig();
-
+		String language = globalConf.getString(GlobalConfigKey.LANGUAGE);
+		lang = new LangHelper(plugin, language);
 		updateConfigGlobals();
 
 		if (!globalConf.getBoolean(GlobalConfigKey.ENABLED)) { return; } // Stop here if disabled in config
@@ -41,14 +43,15 @@ public class DataStore {
 		Set<String> worlds = conf.getConfSection("worlds").getKeys(false);
 		for (String w : worlds) {
 			World world = plugin.getServer().getWorld(w);
+			Map<String, String> valueMap = new HashMap<>();
+			valueMap.put("world", w);
 			if (world == null) {
-				SmoothSleep.logSevere("Failed to load configuration for world: " + w);
-				SmoothSleep.logSevere("Make sure the world exists and has the correct name in the config.yml");
+				SmoothSleep.logSevere(lang.translate(LangKey.WORLD_CONF_LOAD_FAIL, valueMap));
 				continue;
 			}
+			valueMap.put("world", world.getName());
 			if (world.getEnvironment() != World.Environment.NORMAL) {
-				SmoothSleep.logWarning("Cannot enable SmoothSleep world: " + world.getName());
-				SmoothSleep.logWarning("SmoothSleep only works in normal worlds (not nether, end, etc)");
+				SmoothSleep.logSevere(lang.translate(LangKey.INVALID_WORLD_TYPE, valueMap));
 				continue;
 			}
 

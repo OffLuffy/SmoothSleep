@@ -2,16 +2,20 @@ package com.luffbox.smoothsleep.data;
 
 import com.luffbox.lib.ConfigHelper;
 import com.luffbox.smoothsleep.SmoothSleep;
+import com.luffbox.smoothsleep.lib.SleepRewardEffect;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class WorldConfig {
 
 	public static final String WORLDS_SECT = "world-settings";
-	private static final String DWP = WORLDS_SECT + ".world."; // Default world path
+	private static final String DWP = WORLDS_SECT + ".default-settings."; // Default world path
 
 	private World world;
 
@@ -61,5 +65,12 @@ public class WorldConfig {
 	
 	public Particle getParticle(WorldConfigKey key) { return getParticle(key.key); }
 	public Particle getParticle(String path) { return conf().getParticle(path() + "." + path); }
+
+	public Set<SleepRewardEffect> getSleepRewardEffects() {
+		Set<SleepRewardEffect> effects = new HashSet<>();
+		// TODO Get sleep reward effects
+		//ConfigurationSection sect = getConfSection();
+		return effects;
+	}
 
 }

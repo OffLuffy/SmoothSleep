@@ -1,3 +1,4 @@
+language: 'english'
 enabled: true
 enabled-stats: true
 update-notify-login: false
@@ -6,9 +7,9 @@ logging-settings:
   log-warning: true
   log-severe: true
 world-settings:
-  world:
+  default-settings:
     min-night-speed: 1.0
-    max-night-speed: 20.0
+    max-night-speed: 1.0
     speed-curve: 0.5
     instant-day:
       enabled: false
@@ -17,18 +18,32 @@ world-settings:
       weather: false
       random-tick: true
       random-tick-limit: 1000
+    phantoms:
+      reset-all-ratio: 0.5
+      spawn-success-chance: 0.5
     morning-settings:
       clear-weather: true
       heal-sleeping-villagers: true
     sleep-rewards:
-      status-effects:
-        give-effects:
+      potion-effects:
+        heal:
+          effects: [UNLUCK, SLOW_DIGGING, CONFUSION, SLOW, WEAKNESS]
+          all-negative: false
+          all-positive: false
+          require-hours: 3
+        give:
           LUCK:
-            duration: 3600
+            duration-ticks: 3600
             amplifier: 1
             require-hours: 2
+            ambient: true
+            show-icon: true
           HASTE:
-            duration: 3600
+            duration-ticks: 3600
             amplifier: 1
             require-hours: 3
-        heal-effects:
+            ambient: true
+            show-icon: true
+  world:
+    min-night-speed: 2.0
+    max-night-speed: 30.0

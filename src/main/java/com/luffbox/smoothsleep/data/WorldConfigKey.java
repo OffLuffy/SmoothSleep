@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum WorldConfigKey {
-	MIN_NIGHT_MULT("min-night-speed", double.class),
-	MAX_NIGHT_MULT("max-night-speed", double.class),
+	MIN_NIGHT_SPEED("min-night-speed", double.class),
+	MAX_NIGHT_SPEED("max-night-speed", double.class),
 	SPEED_CURVE("speed-curve", double.class),
 
-	INSTANT_DAY("instant-day.enabled", boolean.class),
+	INSTANT_DAY_ENABLED("instant-day.enabled", boolean.class),
 	INSTANT_DAY_RATIO("instant-day.ratio", double.class),
 
 	TICK_RAND_TICK("tick-settings.random-tick", boolean.class),

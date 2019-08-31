@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum GlobalConfigKey {
+	LANGUAGE("language", String.class),
 	ENABLED("enabled", boolean.class),
 	ENABLE_STATS("enable-stats", boolean.class),
 	UPDATE_NOTIFY("update-notify-login", boolean.class),

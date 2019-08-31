@@ -1,0 +1,9 @@
+severe:
+  world-config-load-fail: |
+    Failed to load configuration for world: {world}
+    Make sure the world exists and has the correct name in the config.yml
+  invalid-world-type: |
+    Cannot enable SmoothSleep in world: {world}
+    SmoothSleep only works in normal worlds (not nether, end, etc)
+warning:
+

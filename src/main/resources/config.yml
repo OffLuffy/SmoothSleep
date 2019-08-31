@@ -18,9 +18,6 @@ worlds:
     heal-slept-villagers: true
     morning-sound: 'ENTITY_PLAYER_LEVELUP'
     instant-day-if-all-sleeping: false
-    phantoms:
-      reset-all-ratio: 0.5
-      spawn-success-chance: 0.5
     essentials-settings:
       ignore-afk: true
       ignore-vanish: true
