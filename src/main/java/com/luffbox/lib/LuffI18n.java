@@ -10,6 +10,11 @@ import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.util.Map;
 
+/**
+ * A wrapper for language configuration files. Using this to fetch String keys from a
+ * language file will also parse color codes using the '&' character and can optionally
+ * replace keys using {@link StrSubstitutor} if you pass in a {@link Map<String, String>} object.
+ */
 public class LuffI18n {
 
 	private final Plugin plugin;
@@ -17,6 +22,12 @@ public class LuffI18n {
 	private final File file;
 	private FileConfiguration conf;
 
+	/**
+	 * Constructs a language file wrapper.
+	 * @param plugin This {@link Plugin} will be used to locate the 'lang' folder (placed within the plugin's data folder)
+	 * @param lang The name of the language file to load (.yml extension not required)
+	 * @see Plugin#getDataFolder()
+	 */
 	public LuffI18n(Plugin plugin, String lang) {
 		this.plugin = plugin;
 		if (lang.toLowerCase().endsWith(".yml")) { lang = lang.substring(0, lang.toLowerCase().indexOf(".yml")); }
@@ -54,6 +65,9 @@ public class LuffI18n {
 		} else return "";
 	}
 
+	/**
+	 * Loads the language file from disk.
+	 */
 	public void reloadLangFile() {
 		if (!file.getParentFile().exists()) { file.mkdirs(); }
 		conf = new YamlConfiguration();
@@ -64,6 +78,9 @@ public class LuffI18n {
 		}
 	}
 
+	/**
+	 * Saves the language file to disk
+	 */
 	public void saveLangFile() {
 		if (!file.getParentFile().exists()) { file.mkdirs(); }
 		try {

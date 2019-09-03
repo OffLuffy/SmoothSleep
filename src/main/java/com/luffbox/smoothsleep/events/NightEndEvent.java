@@ -6,20 +6,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class NightEndEvent extends Event {
 	private static final HandlerList handlers = new HandlerList();
 	private final WorldData worldData;
-	private final List<Player> fullySlept;
-	public NightEndEvent(WorldData worldData, List<Player> fullySlept) {
+	public NightEndEvent(WorldData worldData) {
 		this.worldData = worldData;
-		this.fullySlept = fullySlept;
 	}
 	public World getWorld() { return worldData.getWorld(); }
 	public WorldData getWorldData() { return worldData; }
-	public List<Player> getFullySleptPlayers() { return new ArrayList<>(fullySlept); }
+	public List<Player> getFullySleptPlayers() { return worldData.getFullySlept(); }
 	public HandlerList getHandlers() { return handlers; }
 	public static HandlerList getHandlerList() { return handlers; }
 }

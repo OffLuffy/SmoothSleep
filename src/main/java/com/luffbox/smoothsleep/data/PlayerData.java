@@ -15,7 +15,11 @@ public class PlayerData {
 		timers = new PlayerTimer();
 	}
 
+	public Player getPlayer() { return player; }
+
 	public PlayerTimer getTimers() { return timers; }
+
+	public boolean isSleeping() { return player.isSleeping(); }
 
 	private void setSleepTicks(int ticks) {
 		try {

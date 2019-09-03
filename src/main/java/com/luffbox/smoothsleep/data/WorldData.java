@@ -15,6 +15,7 @@ public class WorldData {
 	private double timescale = 1.0;
 	private double tickRemain = 0.0;
 	private TickHelper tickHelper;
+	private List<Player> fullySlept;
 
 	public boolean wasNight = isNight();
 
@@ -39,7 +40,11 @@ public class WorldData {
 		tickHelper.tick(ticks); // Tick time, weather, randomTicks
 
 		for (PlayerData pd : getPlayerData()) { // Tick player timers, process morning
-
+			if (pd.isSleeping()) {
+				if (toMorning) {
+					fullySlept.add(pd.getPlayer());
+				}
+			}
 		}
 	}
 
@@ -81,5 +86,7 @@ public class WorldData {
 		for (Player p : world.getPlayers()) { if (p.isSleeping()) { return true; } }
 		return false;
 	}
+
+	public List<Player> getFullySlept() { return new ArrayList<>(fullySlept); }
 
 }
