@@ -24,9 +24,9 @@ public class NightListeners implements Listener {
 	public void onNightStart(NightStartEvent e) {
 		if (!pl.data.worldEnabled(e.getWorld())) return;
 		e.getWorldData().resetFinishedSleeping();
-		if (e.getWorld().getPlayers().isEmpty()) return;
+		if (e.getWorldData().getPlayers().isEmpty()) return;
 		SmoothSleep.logDebug("Checking sleep-ignore for players in world: " + e.getWorld().getName());
-		for (Player pl : e.getWorld().getPlayers()) {
+		for (Player pl : e.getWorldData().getPlayers()) {
 			PlayerData pd = this.pl.data.getPlayerData(pl);
 			if (pd != null) pd.updateIgnorePerm();
 		}
@@ -34,7 +34,7 @@ public class NightListeners implements Listener {
 
 	@EventHandler
 	public void onNightEnd(NightEndEvent e) {
-		if (e.getWorld().getPlayers().isEmpty()) return;
+		if (e.getWorldData().getPlayers().isEmpty()) return;
 		if (e.getWorldData().getSettings().getBoolean(ConfigHelper.WorldSettingKey.HEAL_VILLAGERS)) {
 			for (LivingEntity le : e.getWorld().getLivingEntities()) {
 				if (le instanceof Villager) {

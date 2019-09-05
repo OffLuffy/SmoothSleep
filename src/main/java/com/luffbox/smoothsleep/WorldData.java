@@ -36,11 +36,19 @@ public class WorldData implements Purgeable {
 
 	public World getWorld() { return w; }
 
-	public Set<Player> getPlayers() { return new HashSet<>(w.getPlayers()); }
+	public Set<Player> getPlayers() {
+		Set<Player> players = new HashSet<>();
+		for (Player plr : w.getPlayers()) {
+			if (!plr.hasMetadata("NPC")) {
+				players.add(plr);
+			}
+		}
+		return players;
+	}
 
 	public Set<PlayerData> getPlayerData() {
 		Set<PlayerData> pds = new HashSet<>();
-		for (Player plr : w.getPlayers()) {
+		for (Player plr : getPlayers()) {
 			PlayerData pd = pl.data.getPlayerData(plr);
 			if (pd != null) { pds.add(pd); }
 		}
@@ -49,7 +57,7 @@ public class WorldData implements Purgeable {
 
 	public Set<Player> getSleepers() {
 		Set<Player> sleepers = new HashSet<>();
-		w.getPlayers().forEach(plr -> {
+		getPlayers().forEach(plr -> {
 			if (plr.isSleeping()) sleepers.add(plr);
 		});
 		return sleepers;
@@ -65,13 +73,13 @@ public class WorldData implements Purgeable {
 	}
 
 	public boolean hasSleepers() {
-		for (Player plr : w.getPlayers()) { if (plr.isSleeping()) { return true; } }
+		for (Player plr : getPlayers()) { if (plr.isSleeping()) { return true; } }
 		return false;
 	}
 
 	public Set<Player> getWakers() {
 		Set<Player> wakers = new HashSet<>();
-		w.getPlayers().forEach(plr -> {
+		getPlayers().forEach(plr -> {
 			if (!plr.isSleeping()) {
 				PlayerData pd = pl.data.getPlayerData(plr);
 				if (pd == null || !pd.isSleepingIgnored()) wakers.add(plr);
