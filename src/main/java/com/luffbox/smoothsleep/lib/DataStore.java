@@ -61,7 +61,7 @@ public class DataStore {
 
 			SmoothSleep.logDebug("Loaded configuration for world:" + world.getName());
 
-			for (Player p : world.getPlayers()) { addPlayerData(p); }
+			for (Player p : wd.getPlayers()) { addPlayerData(p); }
 		}
 		if (globalConf.getBoolean(GlobalConfigKey.ENABLE_STATS)) {
 			metrics = new Metrics(plugin);

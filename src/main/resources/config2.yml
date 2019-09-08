@@ -27,10 +27,34 @@ world-settings:
     sleep-rewards:
       potion-effects:
         heal:
-          effects: [UNLUCK, SLOW_DIGGING, CONFUSION, SLOW, WEAKNESS]
-          all-negative: false
-          all-positive: false
-          require-hours: 3
+          negative-effects:
+            - BLINDNESS
+            - CONFUSION
+            - HARM
+            - HUNGER
+            - POISON
+            - SLOW
+            - SLOW_DIGGING
+            - UNLUCK
+            - WEAKNESS
+            - WITHER
+          positive-effects:
+            - ABSORPTION
+            - DAMAGE_RESISTANCE
+            - FAST_DIGGING
+            - FIRE_RESISTANCE
+            - HEAL
+            - HEALTH_BOOST
+            - INCREASE_DAMAGE
+            - JUMP
+            - LUCK
+            - NIGHT_VISION
+            - REGENERATION
+            - SATURATION
+            - SPEED
+            - WATER_BREATHING
+          negative-require-hours: 3
+          positive-require-hours: 3
         give:
           LUCK:
             duration-ticks: 3600

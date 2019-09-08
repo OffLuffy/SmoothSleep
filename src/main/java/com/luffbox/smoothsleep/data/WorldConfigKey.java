@@ -17,11 +17,18 @@ public enum WorldConfigKey {
 	RAND_TICK_MAX("tick-settings.random-tick-limit", int.class),
 	TICK_WEATHER("tick-settings.weather", boolean.class),
 
+	PHANTOM_RESET_RATIO("phantoms.reset-all-ratio", double.class),
+	PHANTOM_SPAWN_CHANCE("phantoms.spawn-success-chance", double.class),
+
 	CLEAR_WEATHER("morning-settings.clear-weather", boolean.class),
 	HEAL_VILLAGERS("morning-settings.heal-sleeping-villagers", boolean.class),
 
-	PHANTOM_RESET_RATIO("phantoms.reset-all-ratio", double.class),
-	PHANTOM_SPAWN_CHANCE("phantoms.spawn-success-chance", double.class),
+	NEGATIVE_EFFECTS("sleep-rewards.potion-effects.heal.negative-effects", List.class),
+	POSITIVE_EFFECTS("sleep-rewards.potion-effects.heal.positive-effects", List.class),
+	NEGATIVE_HOURS("sleep-rewards.potion-effects.heal.negative-require-hours", int.class),
+	POSITIVE_HOURS("sleep-rewards.potion-effects.heal.positive-require-hours", int.class),
+
+	GIVE_EFFECTS("sleep-rewards.potion-effects.give", ConfigurationSection.class),
 	;
 
 	public final String key;

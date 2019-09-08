@@ -9,6 +9,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Config wrapper that assists with handling a plugin's config file.
  * This class's primary use is to retrieve a default value from the
@@ -200,11 +203,29 @@ public class ConfigHelper {
 	public Sound getSound(String path) { return getEnum(path, Sound.values()); }
 
 	/**
+	 * Attempts to resolve a List of {@link Sound} objects from the String specified at the given config key
+	 * @param path The path to the String List value in the config
+	 * @return A List of {@link Sound} objects or null. If the path in the config doesn't exist or isn't a
+	 * list, null is returned. An empty List can be returned if the list in the config is empty or if none
+	 * of the String values in the list can be resolved to a valid {@link Sound} name.
+	 */
+	public List<Sound> getSoundList(String path) { return getEnumList(path, Sound.values()); }
+
+	/**
 	 * Attempts to resolve a {@link Particle} from the String specified at the given config key
 	 * @param path The path to the String value in the config
 	 * @return A {@link Particle} if the String matches one, null otherwise
 	 */
 	public Particle getParticle(String path) { return getEnum(path, Particle.values()); }
+
+	/**
+	 * Attempts to resolve a List of {@link Particle} objects from the String specified at the given config key
+	 * @param path The path to the String List value in the config
+	 * @return A List of {@link Particle} objects or null. If the path in the config doesn't exist or isn't a
+	 * list, null is returned. An empty List can be returned if the list in the config is empty or if none
+	 * of the String values in the list can be resolved to a valid {@link Particle} name.
+	 */
+	public List<Particle> getParticleList(String path) { return getEnumList(path, Particle.values()); }
 
 	/**
 	 * Attempts to resolve a {@link Material} from the String specified at the given config key
@@ -214,11 +235,29 @@ public class ConfigHelper {
 	public Material getMaterial(String path) { return getEnum(path, Material.values()); }
 
 	/**
+	 * Attempts to resolve a List of {@link Material} objects from the String specified at the given config key
+	 * @param path The path to the String List value in the config
+	 * @return A List of {@link Material} objects or null. If the path in the config doesn't exist or isn't a
+	 * list, null is returned. An empty List can be returned if the list in the config is empty or if none
+	 * of the String values in the list can be resolved to a valid {@link Material} name.
+	 */
+	public List<Material> getMaterialList(String path) { return getEnumList(path, Material.values()); }
+
+	/**
 	 * Attempts to resolve a {@link EntityType} from the String specified at the given config key
 	 * @param path The path to the String value in the config
 	 * @return A {@link EntityType} if the String matches one, null otherwise
 	 */
 	public EntityType getEntityType(String path) { return getEnum(path, EntityType.values()); }
+
+	/**
+	 * Attempts to resolve a List of {@link EntityType} objects from the String specified at the given config key
+	 * @param path The path to the String List value in the config
+	 * @return A List of {@link EntityType} objects or null. If the path in the config doesn't exist or isn't a
+	 * list, null is returned. An empty List can be returned if the list in the config is empty or if none
+	 * of the String values in the list can be resolved to a valid {@link EntityType} name.
+	 */
+	public List<EntityType> getEntityTypeList(String path) { return getEnumList(path, EntityType.values()); }
 
 	/**
 	 * Attempts to resolve a {@link DyeColor} from the String specified at the given config key
@@ -228,6 +267,15 @@ public class ConfigHelper {
 	public DyeColor getDyeColor(String path) { return getEnum(path, DyeColor.values()); }
 
 	/**
+	 * Attempts to resolve a List of {@link DyeColor} objects from the String specified at the given config key
+	 * @param path The path to the String List value in the config
+	 * @return A List of {@link DyeColor} objects or null. If the path in the config doesn't exist or isn't a
+	 * list, null is returned. An empty List can be returned if the list in the config is empty or if none
+	 * of the String values in the list can be resolved to a valid {@link DyeColor} name.
+	 */
+	public List<DyeColor> getDyeColorList(String path) { return getEnumList(path, DyeColor.values()); }
+
+	/**
 	 * Attempts to resolve a {@link ChatColor} from the String specified at the given config key
 	 * @param path The path to the String value in the config
 	 * @return A {@link ChatColor} if the String matches one, null otherwise
@@ -235,23 +283,69 @@ public class ConfigHelper {
 	public ChatColor getChatColor(String path) { return getEnum(path, ChatColor.values()); }
 
 	/**
+	 * Attempts to resolve a List of {@link ChatColor} objects from the String specified at the given config key
+	 * @param path The path to the String List value in the config
+	 * @return A List of {@link ChatColor} objects or null. If the path in the config doesn't exist or isn't a
+	 * list, null is returned. An empty List can be returned if the list in the config is empty or if none
+	 * of the String values in the list can be resolved to a valid {@link ChatColor} name.
+	 */
+	public List<ChatColor> getChatColorList(String path) { return getEnumList(path, ChatColor.values()); }
+
+	/**
 	 * Attempts to resolve a {@link PotionEffectType} from the String specified at the given config key
 	 * @param path The path to the String value in the config
 	 * @return A {@link PotionEffectType} if the String matches one, null otherwise
 	 */
 	public PotionEffectType getPotionEffectType(String path) {
-		String p = prepString(getString(path));
-		for (PotionEffectType x : PotionEffectType.values()) { if (p.equals(prepString(x.getName()))) return x; }
-		return null;
+		return resolvePotionEffectType(getString(path));
 	}
 
-	private <T extends Enum> T getEnum(String path, T[] enums) {
-		String p = prepString(getString(path));
+	/**
+	 * Attempts to resolve a List of {@link PotionEffectType} objects from the String specified at the given config key
+	 * @param path The path to the String List value in the config
+	 * @return A List of {@link PotionEffectType} objects or null. If the path in the config doesn't exist or isn't a
+	 * list, null is returned. An empty List can be returned if the list in the config is empty or if none
+	 * of the String values in the list can be resolved to a valid {@link PotionEffectType} name.
+	 */
+	public List<PotionEffectType> getPotionEFfectTypeList(String path) {
+		if (!contains(path) || !getConfig().isList(path)) return null;
+		List<PotionEffectType> petList = new ArrayList<>();
+		List<String> stringList = getConfig().getStringList(path);
+		for (String petName : stringList) {
+			PotionEffectType pet = resolvePotionEffectType(petName);
+			if (pet != null) petList.add(pet);
+		}
+		return petList;
+	}
+
+	public <T extends Enum> T getEnum(String path, T[] enums) {
+		return resolveEnum(getString(path), enums);
+	}
+
+	public <T extends Enum> List<T> getEnumList(String path, T[] enums) {
+		if (!contains(path) || !getConfig().isList(path)) return null;
+		List<T> enumList = new ArrayList<>();
+		List<String> stringList = getConfig().getStringList(path);
+		for (String enumName : stringList) {
+			T res = resolveEnum(enumName, enums);
+			if (res != null) enumList.add(res);
+		}
+		return enumList;
+	}
+
+	public static <T extends Enum> T resolveEnum(String enumName, T[] enums) {
+		String p = prepString(enumName);
 		for (T x : enums) { if (p.equals(prepString(x.name()))) return x; }
 		return null;
 	}
 
-	private String prepString(String in) {
+	public static PotionEffectType resolvePotionEffectType(String typeName) {
+		String p = prepString(typeName);
+		for (PotionEffectType pet : PotionEffectType.values()) { if (p.equals(prepString(pet.getName()))) return pet; }
+		return null;
+	}
+
+	public static String prepString(String in) {
 		return in.toLowerCase().replace("_", "").replace(" ", "");
 	}
 

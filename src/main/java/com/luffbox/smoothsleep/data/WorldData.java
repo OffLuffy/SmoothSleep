@@ -56,10 +56,16 @@ public class WorldData {
 				&& world.getTime() <= Constants.NIGHT_END;
 	}
 
-	public List<Player> getPlayers() { return world.getPlayers(); }
+	public List<Player> getPlayers() {
+		List<Player> players = new ArrayList<>();
+		for (Player p : world.getPlayers()) {
+			if (!p.hasMetadata("NPC")) players.add(p);
+		}
+		return players;
+	}
 	public List<PlayerData> getPlayerData() {
 		List<PlayerData> data = new ArrayList<>();
-		for (Player p : world.getPlayers()) {
+		for (Player p : getPlayers()) {
 			PlayerData pd = SmoothSleep.data.getPlayerData(p);
 			if (pd != null) { data.add(pd); }
 		}
@@ -68,13 +74,13 @@ public class WorldData {
 
 	public List<Player> getSleepers() {
 		List<Player> sleepers = new ArrayList<>();
-		for (Player p : world.getPlayers()) { if (p.isSleeping()) { sleepers.add(p); } }
+		for (Player p : getPlayers()) { if (p.isSleeping()) { sleepers.add(p); } }
 		return sleepers;
 	}
 
 	public List<PlayerData> getSleeperData() {
 		List<PlayerData> data = new ArrayList<>();
-		for (Player p : world.getPlayers()) {
+		for (Player p : getPlayers()) {
 			if (!p.isSleeping()) continue;
 			PlayerData pd = SmoothSleep.data.getPlayerData(p);
 			if (pd != null) { data.add(pd); }
@@ -83,7 +89,7 @@ public class WorldData {
 	}
 
 	public boolean hasSleepers() {
-		for (Player p : world.getPlayers()) { if (p.isSleeping()) { return true; } }
+		for (Player p : getPlayers()) { if (p.isSleeping()) { return true; } }
 		return false;
 	}
 
