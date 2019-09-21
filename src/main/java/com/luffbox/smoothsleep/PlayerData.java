@@ -2,6 +2,8 @@ package com.luffbox.smoothsleep;
 
 import com.luffbox.smoothsleep.lib.*;
 import com.luffbox.smoothsleep.tasks.WakeParticlesTask;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -99,22 +101,27 @@ public class PlayerData implements Purgeable {
 	// Health and food is clamped to 20 to prevent IllegalArgumentException
 	public void tickTimers(double ticks) {
 		timers.incAll(ticks);
+
+		int maxFeed = 20;
 		if (isSleeping() || worldConf().getBoolean(FEED_AWAKE)) {
 			if (!plr.hasPermission("smoothsleep.ignorefeed")) {
 				while (timers.getFood() >= worldConf().getInt(FEED_TICKS)) {
 					timers.decFood(worldConf().getInt(FEED_TICKS));
 					int val = plr.getFoodLevel() + worldConf().getInt(FEED_AMOUNT);
-					val = Math.max(Math.min(val, 20), 0);
+					val = Math.max(Math.min(val, maxFeed), 0);
 					plr.setFoodLevel(val);
 				}
 			}
 		}
+
+		AttributeInstance mli = plr.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+		double maxLife = mli == null ? 20 : mli.getValue();
 		if (isSleeping() || worldConf().getBoolean(HEAL_AWAKE)) {
 			if (!plr.hasPermission("smoothsleep.ignoreheal")) {
 				while (timers.getHeal() >= worldConf().getInt(HEAL_TICKS)) {
 					timers.decHeal(worldConf().getInt(HEAL_TICKS));
 					double val = plr.getHealth() + worldConf().getInt(HEAL_AMOUNT);
-					val = Math.max(Math.min(val, 20), 0);
+					val = Math.max(Math.min(val, maxLife), 0);
 					plr.setHealth(val);
 				}
 			}

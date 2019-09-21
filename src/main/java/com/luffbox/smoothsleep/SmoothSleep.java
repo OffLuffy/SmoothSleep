@@ -66,4 +66,25 @@ public final class SmoothSleep extends LoggablePlugin {
 			pc.setTabCompleter(exe);
 		}
 	}
+
+	/**
+	 * Sets the value to be used by SmoothSleep to calculate the new night speed. SmoothSleep will not make
+	 * any attempt to change the time to maintain the speed specified; it'll only be used to determine the relative
+	 * speed before applying adjustments during the night. To calculate ticks that pass each tick, SmoothSleep
+	 * will multiply the base time speed by the night speed multiplier, then subtract the base speed from that to
+	 * account for the time passing that tick. SmoothSleep will expect any plugin altering this value to be modifying
+	 * the time during both the day and the night.
+	 * @param speed The base time speed, where 1.0 is vanilla speed
+	 * @return A boolean indicating if the base time was set successfully. This will return false if SmoothSleep's
+	 * DataStore object has not been instantiated yet.
+	 */
+	public boolean setBaseTimeSpeed(double speed) {
+		if (data == null) {
+			return false;
+		} else {
+			data.baseTimeSpeed = speed;
+			return true;
+		}
+	}
+
 }

@@ -36,11 +36,19 @@ public class WorldData implements Purgeable {
 
 	public World getWorld() { return w; }
 
-	public Set<Player> getPlayers() { return new HashSet<>(w.getPlayers()); }
+	public Set<Player> getPlayers() {
+		Set<Player> players = new HashSet<>();
+		for (Player plr : w.getPlayers()) {
+			if (!plr.hasMetadata("NPC")) {
+				players.add(plr);
+			}
+		}
+		return players;
+	}
 
 	public Set<PlayerData> getPlayerData() {
 		Set<PlayerData> pds = new HashSet<>();
-		for (Player plr : w.getPlayers()) {
+		for (Player plr : getPlayers()) {
 			PlayerData pd = pl.data.getPlayerData(plr);
 			if (pd != null) { pds.add(pd); }
 		}
@@ -49,7 +57,7 @@ public class WorldData implements Purgeable {
 
 	public Set<Player> getSleepers() {
 		Set<Player> sleepers = new HashSet<>();
-		w.getPlayers().forEach(plr -> {
+		getPlayers().forEach(plr -> {
 			if (plr.isSleeping()) sleepers.add(plr);
 		});
 		return sleepers;
@@ -65,13 +73,13 @@ public class WorldData implements Purgeable {
 	}
 
 	public boolean hasSleepers() {
-		for (Player plr : w.getPlayers()) { if (plr.isSleeping()) { return true; } }
+		for (Player plr : getPlayers()) { if (plr.isSleeping()) { return true; } }
 		return false;
 	}
 
 	public Set<Player> getWakers() {
 		Set<Player> wakers = new HashSet<>();
-		w.getPlayers().forEach(plr -> {
+		getPlayers().forEach(plr -> {
 			if (!plr.isSleeping()) {
 				PlayerData pd = pl.data.getPlayerData(plr);
 				if (pd == null || !pd.isSleepingIgnored()) wakers.add(plr);
@@ -119,9 +127,12 @@ public class WorldData implements Purgeable {
 	public void timestep() {
 		long wtime = getTime();
 		updateTimescale();
-		timeTickRemain += timescale;
-		int ticks = (int) timeTickRemain - 1;
-		boolean toMorning = wtime + ticks + 1 >= SmoothSleep.SLEEP_TICKS_END;
+
+		// Feels like there's a flaw in this, but too brain-dead to work it out
+		timeTickRemain += timescale * pl.data.baseTimeSpeed - pl.data.baseTimeSpeed;
+		int ticks = (int) timeTickRemain;
+		boolean toMorning = wtime + ticks + ((int) pl.data.baseTimeSpeed) >= SmoothSleep.SLEEP_TICKS_END;
+
 		if (toMorning) { ticks = (int) (SmoothSleep.SLEEP_TICKS_END - wtime); }
 		timestepTimers(ticks, toMorning);
 		tickHelper.tick(ticks);

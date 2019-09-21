@@ -1,6 +1,7 @@
 package com.luffbox.smoothsleep;
 
-import com.luffbox.smoothsleep.lib.*;
+import com.luffbox.smoothsleep.lib.ConfigHelper;
+import com.luffbox.smoothsleep.lib.Purgeable;
 import com.luffbox.smoothsleep.lib.actionbar.ActionBarHelper;
 import com.luffbox.smoothsleep.lib.actionbar.NmsActionBarHelper;
 import com.luffbox.smoothsleep.lib.actionbar.PaperActionHelper;
@@ -23,6 +24,7 @@ public class DataStore implements Purgeable {
 	public UserHelper userHelper;
 	public ActionBarHelper actionBarHelper;
 	public PlaceholderHelper placeholders;
+	public double baseTimeSpeed = 1.0;
 	private Map<World, WorldData> worldData = new HashMap<>();
 	private Map<Player, PlayerData> playerData = new HashMap<>();
 
@@ -60,8 +62,9 @@ public class DataStore implements Purgeable {
 		if (config == null) { SmoothSleep.logDebug("DataStore#init() - Config null"); }
 		if (config.worlds == null || config.worlds.isEmpty()) { SmoothSleep.logDebug("DataStore#init() - No worlds in config"); }
 		config.worlds.forEach((w, ws) -> {
-			worldData.put(w, new WorldData(pl, w, ws));
-			w.getPlayers().forEach(plr -> playerData.put(plr, new PlayerData(pl, plr)));
+			WorldData wd = new WorldData(pl, w, ws);
+			worldData.put(w, wd);
+			wd.getPlayers().forEach(plr -> playerData.put(plr, new PlayerData(pl, plr)));
 		});
 	}
 
