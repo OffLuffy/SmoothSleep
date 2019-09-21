@@ -1,6 +1,7 @@
 package com.luffbox.smoothsleep;
 
-import com.luffbox.smoothsleep.lib.*;
+import com.luffbox.smoothsleep.lib.ConfigHelper;
+import com.luffbox.smoothsleep.lib.Purgeable;
 import com.luffbox.smoothsleep.lib.actionbar.ActionBarHelper;
 import com.luffbox.smoothsleep.lib.actionbar.NmsActionBarHelper;
 import com.luffbox.smoothsleep.lib.actionbar.PaperActionHelper;
@@ -23,6 +24,7 @@ public class DataStore implements Purgeable {
 	public UserHelper userHelper;
 	public ActionBarHelper actionBarHelper;
 	public PlaceholderHelper placeholders;
+	public double baseTimeSpeed = 1.0;
 	private Map<World, WorldData> worldData = new HashMap<>();
 	private Map<Player, PlayerData> playerData = new HashMap<>();
 

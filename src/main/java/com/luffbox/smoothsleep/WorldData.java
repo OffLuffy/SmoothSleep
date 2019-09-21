@@ -127,9 +127,12 @@ public class WorldData implements Purgeable {
 	public void timestep() {
 		long wtime = getTime();
 		updateTimescale();
-		timeTickRemain += timescale;
-		int ticks = (int) timeTickRemain - 1;
-		boolean toMorning = wtime + ticks + 1 >= SmoothSleep.SLEEP_TICKS_END;
+
+		// Feels like there's a flaw in this, but too brain-dead to work it out
+		timeTickRemain += timescale * pl.data.baseTimeSpeed - pl.data.baseTimeSpeed;
+		int ticks = (int) timeTickRemain;
+		boolean toMorning = wtime + ticks + ((int) pl.data.baseTimeSpeed) >= SmoothSleep.SLEEP_TICKS_END;
+
 		if (toMorning) { ticks = (int) (SmoothSleep.SLEEP_TICKS_END - wtime); }
 		timestepTimers(ticks, toMorning);
 		tickHelper.tick(ticks);
