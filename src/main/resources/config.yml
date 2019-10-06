@@ -38,6 +38,9 @@ worlds:
       ticks-per-feed: 1000
       feed-amount: 0
       feed-awake: false
+      add-saturation: true
+      max-saturation: 1.0
+      saturation-amount: 1.0
     sleep-rewards:
       potion-effects:
         enabled: true

@@ -108,11 +108,14 @@ public class PlayerData implements Purgeable {
 				while (timers.getFood() >= worldConf().getInt(FEED_TICKS)) {
 					timers.decFood(worldConf().getInt(FEED_TICKS));
 					int val = plr.getFoodLevel() + worldConf().getInt(FEED_AMOUNT);
-					boolean sat = val >= maxFeed;
-					val = Math.max(Math.min(val, maxFeed), 0);
+					boolean addSat = worldConf().getBoolean(ADD_SATURATION) && val >= maxFeed;
+					val = MiscUtils.clamp(val, 0, maxFeed);
 					plr.setFoodLevel(val);
-					if (sat) { // Add saturation, clamp to food level, as per https://minecraft.gamepedia.com/Hunger#Mechanics
-						plr.setSaturation(Math.max(Math.min(plr.getSaturation() + 1f, plr.getFoodLevel()), 0f));
+					if (addSat && plr.getSaturation() < worldConf().getDouble(MAX_SATURATION)) {
+						// Add saturation, clamp to food level, as per https://minecraft.gamepedia.com/Hunger#Mechanics
+						double sat = plr.getSaturation() + worldConf().getDouble(SATURATION_AMOUNT);
+						sat = MiscUtils.clamp(sat, 0.0, worldConf().getDouble(MAX_SATURATION));
+						plr.setSaturation((float) sat);
 					}
 				}
 			}
@@ -125,7 +128,7 @@ public class PlayerData implements Purgeable {
 				while (timers.getHeal() >= worldConf().getInt(HEAL_TICKS)) {
 					timers.decHeal(worldConf().getInt(HEAL_TICKS));
 					double val = plr.getHealth() + worldConf().getInt(HEAL_AMOUNT);
-					val = Math.max(Math.min(val, maxLife), 0);
+					val = MiscUtils.clamp(val, 0, maxLife);
 					plr.setHealth(val);
 				}
 			}
