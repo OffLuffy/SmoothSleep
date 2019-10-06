@@ -5,6 +5,8 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
@@ -101,6 +103,8 @@ public class MiscUtils {
 		long daysLived = timeLived / SmoothSleep.TICKS_PER_DAY;
 		long hrsLived = (timeLived  % SmoothSleep.TICKS_PER_DAY) / SmoothSleep.TICKS_PER_HOUR;
 		long minLived = (timeLived % SmoothSleep.TICKS_PER_DAY % SmoothSleep.TICKS_PER_HOUR) / SmoothSleep.TICKS_PER_MIN;
+		AttributeInstance mli = p.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+		double maxLife = mli == null ? 20 : mli.getValue();
 		Map<String, String> values = new LinkedHashMap<>(); // Linked to stay in order
 		values.put("12H",				MiscUtils.ticksTo12Hours(worldTime) + "");
 		values.put("24H",				String.format("%02d", MiscUtils.ticksTo24Hours(worldTime)) + "");
@@ -131,8 +135,8 @@ public class MiscUtils {
 		values.put("NICKNAME",			nickname);
 		values.put("NICKNAME_STRIP",	stripColor(nickname));
 		values.put("HEALTH",			String.format("%d", (int) p.getHealth()));
-		values.put("HEALTH_PER",		String.format("%d%%", (int)(p.getHealth() / 20.0 * 100) ));
-		values.put("HEALTH_BAR",		bar((int) p.getHealth(), 20, 20));
+		values.put("HEALTH_PER",		String.format("%d%%", (int)(p.getHealth() / maxLife * 100) ));
+		values.put("HEALTH_BAR",		bar((int) p.getHealth(), (int) maxLife, 20));
 		values.put("FOOD",				String.format("%d", p.getFoodLevel()));
 		values.put("FOOD_PER",			String.format("%d%%", (int) (p.getFoodLevel() / 20.0 * 100)));
 		values.put("FOOD_BAR",			bar(p.getFoodLevel(), 20, 20));
