@@ -98,7 +98,7 @@ public class PlayerData implements Purgeable {
 	public void showBossBar() { if (bar != null) bar.setVisible(true); }
 	public void hideBossBar() { if (bar != null) bar.setVisible(false); }
 
-	// Health and food is clamped to 20 to prevent IllegalArgumentException
+	// Health and food is clamped to prevent IllegalArgumentException
 	public void tickTimers(double ticks) {
 		timers.incAll(ticks);
 
@@ -108,8 +108,12 @@ public class PlayerData implements Purgeable {
 				while (timers.getFood() >= worldConf().getInt(FEED_TICKS)) {
 					timers.decFood(worldConf().getInt(FEED_TICKS));
 					int val = plr.getFoodLevel() + worldConf().getInt(FEED_AMOUNT);
+					boolean sat = val >= maxFeed;
 					val = Math.max(Math.min(val, maxFeed), 0);
 					plr.setFoodLevel(val);
+					if (sat) { // Add saturation, clamp to food level, as per https://minecraft.gamepedia.com/Hunger#Mechanics
+						plr.setSaturation(Math.max(Math.min(plr.getSaturation() + 1f, plr.getFoodLevel()), 0f));
+					}
 				}
 			}
 		}
