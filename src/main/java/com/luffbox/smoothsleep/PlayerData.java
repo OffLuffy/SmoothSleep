@@ -2,6 +2,7 @@ package com.luffbox.smoothsleep;
 
 import com.luffbox.smoothsleep.lib.*;
 import com.luffbox.smoothsleep.tasks.WakeParticlesTask;
+import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.boss.BarColor;
@@ -144,6 +145,7 @@ public class PlayerData implements Purgeable {
 	// Checks if player has ignore perm or is otherwise ignoring sleepers
 	public boolean isSleepingIgnored() {
 		boolean ignore = hasIgnorePerm() || plr.isSleepingIgnored();
+		if (!ignore && plr.getGameMode() == GameMode.SPECTATOR) ignore = true;
 		if (!ignore && worldConf().getBoolean(IGNORE_VANISH) && pl.data.userHelper.isVanished(plr)) ignore = true;
 		if (!ignore && worldConf().getBoolean(IGNORE_AFK) && pl.data.userHelper.isAfk(plr)) ignore = true;
 		return ignore;
