@@ -1,8 +1,12 @@
 package com.luffbox.smoothsleep.lib;
+
 import com.luffbox.smoothsleep.SmoothSleep;
 import com.luffbox.smoothsleep.lib.particle.ParticlePatternType;
 import org.bstats.bukkit.Metrics;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.boss.BarColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -13,9 +17,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.bukkit.potion.PotionEffectType.*;
 import static com.luffbox.smoothsleep.lib.ConfigHelper.WorldSettingKey.*;
 import static org.bukkit.Particle.*;
+import static org.bukkit.potion.PotionEffectType.*;
 
 /**
  * This class mimics FileConfiguration, but all get methods will automatically
@@ -143,6 +147,9 @@ public class ConfigHelper {
 		FEED_AMOUNT("replenish-settings.feed-amount", int.class),
 		FEED_TICKS("replenish-settings.ticks-per-feed", int.class),
 		FEED_AWAKE("replenish-settings.feed-awake", boolean.class),
+		ADD_SATURATION("replenish-settings.add-saturation", boolean.class),
+		MAX_SATURATION("replenish-settings.max-saturation", double.class),
+		SATURATION_AMOUNT("replenish-settings.saturation-amount", double.class),
 		HEAL_NEG_STATUS("replenish-settings.heal-negative-statuses", boolean.class),
 		HEAL_POS_STATUS("replenish-settings.heal-positive-statuses", boolean.class),
 		HOURS_NEG_STATUS("replenish-settings.hours-to-heal-negative", int.class),

@@ -19,6 +19,20 @@ import static org.bukkit.ChatColor.translateAlternateColorCodes;
 
 public class MiscUtils {
 
+	/**
+	 * Calculates a value in a new range equivilent to the old value's position in the old range. This function makes
+	 * no attempt to verify valid values and may produce odd results if min/max values are reversed or if the old value
+	 * is not within the specified old range. If the old range values are equal (min = max), a divide by zero error
+	 * will likely be thrown.
+	 * @param clamp Whether to clamp the output to the new range. If true and the old value is outside of the old range,
+	 *              it will return either newMin (if value is below old range) or newMax (if above the old range).
+	 * @param oldMin The old minimum value. Establishes the lower end of the old range.
+	 * @param oldMax The old maximum value. Establishes the upper end of the old range.
+	 * @param newMin The new minimum value. Establishes the lower end of the new range.
+	 * @param newMax The new maximum value. Establishes the upper end of the new range.
+	 * @param value The old value. The position of this value in the old range will determine the position in the new range.
+	 * @return Returns a value that's in an equivilent position in the new range as the old value was in the old range.
+	 */
 	public static double remapValue(boolean clamp, double oldMin, double oldMax, double newMin, double newMax, double value) {
 		if (clamp) {
 			if (value >= oldMax) return newMax;

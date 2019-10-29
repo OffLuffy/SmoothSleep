@@ -2,6 +2,7 @@ package com.luffbox.smoothsleep;
 
 import com.luffbox.smoothsleep.lib.*;
 import com.luffbox.smoothsleep.tasks.WakeParticlesTask;
+import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.boss.BarColor;
@@ -108,11 +109,14 @@ public class PlayerData implements Purgeable {
 				while (timers.getFood() >= worldConf().getInt(FEED_TICKS)) {
 					timers.decFood(worldConf().getInt(FEED_TICKS));
 					int val = plr.getFoodLevel() + worldConf().getInt(FEED_AMOUNT);
-					boolean sat = val >= maxFeed;
-					val = Math.max(Math.min(val, maxFeed), 0);
+					boolean addSat = worldConf().getBoolean(ADD_SATURATION) && val >= maxFeed;
+					val = MiscUtils.clamp(val, 0, maxFeed);
 					plr.setFoodLevel(val);
-					if (sat) { // Add saturation, clamp to food level, as per https://minecraft.gamepedia.com/Hunger#Mechanics
-						plr.setSaturation(Math.max(Math.min(plr.getSaturation() + 1f, plr.getFoodLevel()), 0f));
+					if (addSat && plr.getSaturation() < worldConf().getDouble(MAX_SATURATION)) {
+						// Add saturation, clamp to food level, as per https://minecraft.gamepedia.com/Hunger#Mechanics
+						double sat = plr.getSaturation() + worldConf().getDouble(SATURATION_AMOUNT);
+						sat = MiscUtils.clamp(sat, 0.0, worldConf().getDouble(MAX_SATURATION));
+						plr.setSaturation((float) sat);
 					}
 				}
 			}
@@ -125,7 +129,7 @@ public class PlayerData implements Purgeable {
 				while (timers.getHeal() >= worldConf().getInt(HEAL_TICKS)) {
 					timers.decHeal(worldConf().getInt(HEAL_TICKS));
 					double val = plr.getHealth() + worldConf().getInt(HEAL_AMOUNT);
-					val = Math.max(Math.min(val, maxLife), 0);
+					val = MiscUtils.clamp(val, 0, maxLife);
 					plr.setHealth(val);
 				}
 			}
@@ -141,6 +145,7 @@ public class PlayerData implements Purgeable {
 	// Checks if player has ignore perm or is otherwise ignoring sleepers
 	public boolean isSleepingIgnored() {
 		boolean ignore = hasIgnorePerm() || plr.isSleepingIgnored();
+		if (!ignore && plr.getGameMode() == GameMode.SPECTATOR) ignore = true;
 		if (!ignore && worldConf().getBoolean(IGNORE_VANISH) && pl.data.userHelper.isVanished(plr)) ignore = true;
 		if (!ignore && worldConf().getBoolean(IGNORE_AFK) && pl.data.userHelper.isAfk(plr)) ignore = true;
 		return ignore;
