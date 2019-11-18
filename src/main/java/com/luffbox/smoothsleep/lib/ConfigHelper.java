@@ -512,7 +512,7 @@ public class ConfigHelper {
 					ConfigurationSection effectRewards = ws.getConfSection(REWARD_EFFECT_LIST);
 					for (String key : effectRewards.getKeys(false)) {
 						if (!key.isEmpty() && !isValidPotionEffect(key)) {
-							SmoothSleep.logWarning("'" + partName + "' does not appear to be a valid potion effect!");
+							SmoothSleep.logWarning("'" + key + "' does not appear to be a valid potion effect!");
 							SmoothSleep.logWarning("For a list of valid potion effects, refer to https://hub.spigotmc.org/javadocs/spigot/org/bukkit/potion/PotionEffectType.html");
 						}
 					}
