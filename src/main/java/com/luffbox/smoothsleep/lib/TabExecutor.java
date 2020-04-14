@@ -1,4 +1,4 @@
-package com.luffbox.smoothsleep.commands;
+package com.luffbox.smoothsleep.lib;
 
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;

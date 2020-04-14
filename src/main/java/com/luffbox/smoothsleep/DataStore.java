@@ -16,7 +16,9 @@ import java.util.Map;
 
 public class DataStore implements Purgeable {
 
-	private SmoothSleep pl;
+	private final SmoothSleep pl;
+	private final Map<World, WorldData> worldData = new HashMap<>();
+	private final Map<Player, PlayerData> playerData = new HashMap<>();
 
 	private boolean pluginEnabled = true;
 
@@ -25,8 +27,6 @@ public class DataStore implements Purgeable {
 	public ActionBarHelper actionBarHelper;
 	public PlaceholderHelper placeholders;
 	public double baseTimeSpeed = 1.0;
-	private Map<World, WorldData> worldData = new HashMap<>();
-	private Map<Player, PlayerData> playerData = new HashMap<>();
 
 	public DataStore(SmoothSleep plugin) {
 		pl = plugin;
@@ -111,11 +111,11 @@ public class DataStore implements Purgeable {
 
 	@Override
 	public void purgeData() {
-		if (worldData != null && !worldData.isEmpty()) {
+		if (!worldData.isEmpty()) {
 			worldData.values().forEach(WorldData::purgeData);
 			worldData.clear();
 		}
-		if (playerData != null && !playerData.isEmpty()) {
+		if (!playerData.isEmpty()) {
 			playerData.values().forEach(PlayerData::purgeData);
 			playerData.clear();
 		}

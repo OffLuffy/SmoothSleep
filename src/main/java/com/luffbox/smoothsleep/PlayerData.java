@@ -23,9 +23,9 @@ import static com.luffbox.smoothsleep.lib.ConfigHelper.WorldSettingKey.*;
  */
 public class PlayerData implements Purgeable {
 
-	private SmoothSleep pl;
-	private PlayerTimers timers;
-	private Player plr;
+	private final SmoothSleep pl;
+	private final PlayerTimers timers;
+	private final Player plr;
 	private boolean ignorePerm = false;
 	private BossBar bar;
 	private boolean woke = false;
@@ -122,10 +122,10 @@ public class PlayerData implements Purgeable {
 			}
 		}
 
-		AttributeInstance mli = plr.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-		double maxLife = mli == null ? 20 : mli.getValue();
 		if (isSleeping() || worldConf().getBoolean(HEAL_AWAKE)) {
 			if (!plr.hasPermission("smoothsleep.ignoreheal")) {
+				AttributeInstance mli = plr.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+				double maxLife = mli == null ? 20 : mli.getValue();
 				while (timers.getHeal() >= worldConf().getInt(HEAL_TICKS)) {
 					timers.decHeal(worldConf().getInt(HEAL_TICKS));
 					double val = plr.getHealth() + worldConf().getInt(HEAL_AMOUNT);
@@ -212,12 +212,12 @@ public class PlayerData implements Purgeable {
 		}
 		if (worldConf().getBoolean(HEAL_NEG_STATUS)) {
 			if ((int) timers.getSlpt() / 1000L >= worldConf().getInt(HOURS_NEG_STATUS)) {
-				ConfigHelper.negativeEffects.forEach(pe -> plr.removePotionEffect(pe));
+				ConfigHelper.negativeEffects.forEach(plr::removePotionEffect);
 			}
 		}
 		if (worldConf().getBoolean(HEAL_POS_STATUS)) {
 			if ((int) timers.getSlpt() / 1000L >= worldConf().getInt(HOURS_POS_STATUS)) {
-				ConfigHelper.positiveEffects.forEach(pe -> plr.removePotionEffect(pe));
+				ConfigHelper.positiveEffects.forEach(plr::removePotionEffect);
 			}
 		}
 		timers.resetAll();

@@ -7,8 +7,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class UpdateNotifyTask extends BukkitRunnable {
 
-	private SmoothSleep pl;
-	private Player plr;
+	private final SmoothSleep pl;
+	private final Player plr;
 	public UpdateNotifyTask(SmoothSleep plugin, Player player) {
 		pl = plugin;
 		plr = player;

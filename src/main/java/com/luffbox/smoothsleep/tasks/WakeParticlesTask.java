@@ -17,13 +17,15 @@ import static com.luffbox.smoothsleep.lib.ConfigHelper.WorldSettingKey.*;
  */
 public class WakeParticlesTask extends BukkitRunnable {
 
-	private SmoothSleep pl;
-	private PlayerData pd;
-	private int complete = 0, target;
-	private double radius;
-	private Particle type;
-	private ParticlePatternType pattType;
-	private ParticlePattern patt;
+	private final SmoothSleep pl;
+	private final PlayerData pd;
+	private final int target;
+	private final double radius;
+	private final Particle type;
+	private final ParticlePatternType pattType;
+	private final ParticlePattern patt;
+	private int complete = 0;
+
 	public WakeParticlesTask(SmoothSleep plugin, PlayerData plrData) {
 		pl = plugin;
 		pd = plrData;
@@ -35,6 +37,7 @@ public class WakeParticlesTask extends BukkitRunnable {
 			case RANDOM: patt = new RandomPattern(); break;
 			case CIRCLE: patt = new CirclePattern(); break;
 			case SPIRAL: patt = new SpiralPattern(); break;
+			default: patt = null;
 		}
 	}
 

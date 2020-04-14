@@ -9,8 +9,8 @@ import org.bukkit.entity.Player;
 
 public class PlaceholderAPIHelper implements PlaceholderHelper {
 
-	private SmoothSleep pl;
-	private PlaceholderAPIPlugin papi;
+	private final SmoothSleep pl;
+	private final PlaceholderAPIPlugin papi;
 
 	public PlaceholderAPIHelper(SmoothSleep plugin) {
 		this.pl = plugin;

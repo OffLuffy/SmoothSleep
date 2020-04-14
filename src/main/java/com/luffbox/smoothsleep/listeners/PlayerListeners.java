@@ -12,7 +12,7 @@ import org.bukkit.event.player.*;
 
 public class PlayerListeners implements Listener {
 
-	private SmoothSleep pl;
+	private final SmoothSleep pl;
 	public PlayerListeners(SmoothSleep plugin) { pl = plugin; }
 
 	@EventHandler
@@ -52,9 +52,9 @@ public class PlayerListeners implements Listener {
 		World w = e.getPlayer().getWorld();
 		if (!pl.data.worldEnabled(w)) { return; }
 		WorldData wd = pl.data.getWorldData(w);
-		if (wd == null) { SmoothSleep.logWarning("An error occurred while handing enterBed event. Missing WorldData."); return; }
+		if (wd == null) { SmoothSleep.logWarning("An error occurred while handing PlayerBedEnterEvent. Missing WorldData."); return; }
 		PlayerData pd = pl.data.getPlayerData(e.getPlayer());
-		if (pd == null) { SmoothSleep.logWarning("An error occurred while handling enterBed event. Missing PlayerData."); return; }
+		if (pd == null) { SmoothSleep.logWarning("An error occurred while handling PlayerBedEnterEvent. Missing PlayerData."); return; }
 		if (wd.isNight()) {
 			pd.getTimers().resetAll();
 			wd.startSleepTick();
@@ -67,9 +67,9 @@ public class PlayerListeners implements Listener {
 		World w = e.getPlayer().getWorld();
 		if (!pl.data.worldEnabled(w)) { return; }
 		WorldData wd = pl.data.getWorldData(w);
-		if (wd == null) { SmoothSleep.logWarning("An error occurred while handing leaveBed event. Missing WorldData."); return; }
+		if (wd == null) { SmoothSleep.logWarning("An error occurred while handing PlayerBedLeaveEvent. Missing WorldData."); return; }
 		PlayerData pd = pl.data.getPlayerData(e.getPlayer());
-		if (pd == null) { SmoothSleep.logWarning("An error occurred while handling leaveBed event. Missing PlayerData."); return; }
+		if (pd == null) { SmoothSleep.logWarning("An error occurred while handling PlayerBedLeaveEvent. Missing PlayerData."); return; }
 		pd.wake();
 		if (wd.getSleepers().isEmpty()) { wd.stopSleepTick(); }
 	}

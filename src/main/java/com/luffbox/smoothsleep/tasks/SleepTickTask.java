@@ -14,14 +14,12 @@ import java.util.Set;
  */
 public class SleepTickTask extends BukkitRunnable {
 
-	private SmoothSleep pl;
-	private WorldData wd;
-	private int counter;
+	private final SmoothSleep pl;
+	private final WorldData wd;
 
 	public SleepTickTask(SmoothSleep plugin, WorldData worldData) {
 		pl = plugin;
 		wd = worldData;
-		counter = 0;
 	}
 
 	@Override

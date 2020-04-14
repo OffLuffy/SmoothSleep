@@ -8,8 +8,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 // This task is intended to run a single time after the sleep tick task ends in order to update UI elements
 public class PostSleepTickTask extends BukkitRunnable {
 
-	private SmoothSleep pl;
-	private WorldData wd;
+	private final SmoothSleep pl;
+	private final WorldData wd;
 	public PostSleepTickTask(SmoothSleep plugin, WorldData worldData) {
 		pl = plugin;
 		wd = worldData;

@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 public class DefPlaceholderHelper implements PlaceholderHelper {
 
-	private SmoothSleep pl;
+	private final SmoothSleep pl;
 	public DefPlaceholderHelper(SmoothSleep plugin) {
 		this.pl = plugin;
 	}
