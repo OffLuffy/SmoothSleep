@@ -3,19 +3,21 @@ package com.luffbox.smoothsleep.commands;
 import com.luffbox.smoothsleep.SmoothSleep;
 import com.luffbox.smoothsleep.lib.ConfigHelper;
 import com.luffbox.smoothsleep.lib.ConfigHelper.WorldSettingKey;
-import org.bukkit.*;
+import com.luffbox.smoothsleep.lib.TabExecutor;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-
-import static org.bukkit.ChatColor.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static org.bukkit.ChatColor.*;
+
 public class ConfigureWorld implements TabExecutor {
 
-	private SmoothSleep pl;
+	private final SmoothSleep pl;
 
 	public ConfigureWorld(SmoothSleep plugin) { pl = plugin; }
 

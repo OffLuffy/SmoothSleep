@@ -5,9 +5,9 @@ import org.bukkit.World;
 
 public class TickHelper {
 
-	private World w;
-	private ConfigHelper.WorldSettings ws;
-	private TickOptions options;
+	private final World w;
+	private final ConfigHelper.WorldSettings ws;
+	private final TickOptions options;
 	private int randTickSpeed;
 
 	public TickHelper(World world, ConfigHelper.WorldSettings settings, TickOptions options) {

@@ -17,14 +17,14 @@ import java.util.Set;
  */
 public class WorldData implements Purgeable {
 
-	private SmoothSleep pl;
+	private final SmoothSleep pl;
 
-	private World w;
-	private ConfigHelper.WorldSettings ws;
+	private final World w;
+	private final ConfigHelper.WorldSettings ws;
+	private final Set<Player> finishedSleeping;
 	private TickHelper tickHelper;
 	private BukkitTask sleepTickTask;
 	private double timescale = 0.0, timeTickRemain;
-	private Set<Player> finishedSleeping;
 	private int counter = 0;
 
 	public WorldData(SmoothSleep plugin, World world, ConfigHelper.WorldSettings settings) {
@@ -133,7 +133,12 @@ public class WorldData implements Purgeable {
 		int ticks = (int) timeTickRemain;
 		boolean toMorning = wtime + ticks + ((int) pl.data.baseTimeSpeed) >= SmoothSleep.SLEEP_TICKS_END;
 
-		if (toMorning) { ticks = (int) (SmoothSleep.SLEEP_TICKS_END - wtime); }
+		if (toMorning) {
+			ticks = (int) (SmoothSleep.SLEEP_TICKS_END - wtime);
+			if (getSettings().getBoolean(ConfigHelper.WorldSettingKey.CLEAR_WEATHER)) {
+				clearWeather();
+			}
+		}
 		timestepTimers(ticks, toMorning);
 		tickHelper.tick(ticks);
 		timeTickRemain %= 1;

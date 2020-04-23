@@ -20,7 +20,7 @@ public class LoggablePlugin extends JavaPlugin {
 		WARN("warning"),
 		SEVERE("severe");
 
-		private String levelName;
+		private final String levelName;
 		LogLevel(String name) { levelName = name; }
 		public String getLevelName() { return levelName; }
 	}

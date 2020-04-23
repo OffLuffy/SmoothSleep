@@ -18,10 +18,10 @@ import java.util.Map;
  */
 public class EveryTickTask extends BukkitRunnable {
 
-	private SmoothSleep pl;
-	public EveryTickTask(SmoothSleep plugin) { pl = plugin; }
+	private final SmoothSleep pl;
+	private final Map<World, Boolean> night = new HashMap<>();
 
-	private Map<World, Boolean> night = new HashMap<>();
+	public EveryTickTask(SmoothSleep plugin) { pl = plugin; }
 
 	@Override
 	public void run() {

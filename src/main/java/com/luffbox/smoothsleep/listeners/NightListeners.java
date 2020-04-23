@@ -16,7 +16,7 @@ import org.bukkit.event.Listener;
 
 public class NightListeners implements Listener {
 
-	private SmoothSleep pl;
+	private final SmoothSleep pl;
 
 	public NightListeners(SmoothSleep plugin) { pl = plugin; }
 

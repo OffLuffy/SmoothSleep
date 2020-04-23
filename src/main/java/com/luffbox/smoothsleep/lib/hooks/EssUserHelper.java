@@ -7,8 +7,8 @@ import org.bukkit.entity.Player;
 
 public class EssUserHelper implements UserHelper {
 
-	private SmoothSleep pl;
-	private IEssentials ess;
+	private final SmoothSleep pl;
+	private final IEssentials ess;
 
 	public EssUserHelper(SmoothSleep plugin) {
 		this.pl = plugin;

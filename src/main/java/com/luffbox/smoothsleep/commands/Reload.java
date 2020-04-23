@@ -2,6 +2,7 @@ package com.luffbox.smoothsleep.commands;
 
 import com.luffbox.smoothsleep.SmoothSleep;
 import com.luffbox.smoothsleep.lib.ConfigHelper;
+import com.luffbox.smoothsleep.lib.TabExecutor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -10,7 +11,7 @@ import java.util.List;
 
 public class Reload implements TabExecutor {
 
-	private SmoothSleep pl;
+	private final SmoothSleep pl;
 
 	public Reload(SmoothSleep plugin) { pl = plugin; }
 

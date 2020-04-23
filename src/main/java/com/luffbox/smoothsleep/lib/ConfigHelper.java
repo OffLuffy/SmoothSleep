@@ -32,8 +32,8 @@ public class ConfigHelper {
 
 	private static final String defWorldPre = "worlds.world.";
 
-	private SmoothSleep ss;
-	private ConfigHelper conf;
+	private final SmoothSleep ss;
+	private final ConfigHelper conf;
 	public Map<World, WorldSettings> worlds = new HashMap<>();
 
 	public static Set<PotionEffectType> negativeEffects = Stream.of(BLINDNESS, CONFUSION, HARM, HUNGER, LEVITATION,
@@ -85,10 +85,9 @@ public class ConfigHelper {
 			if (firstRun) {
 				SmoothSleep.logInfo("\n==========\n"
 						+ "This message is to let you know that SmoothSleep transmits some data to the bStats.org "
-						+ " website, as well as to the plugin author. Since a new config was just generated, "
-						+ "data won't be transmitted until next load. To opt out, disable the 'enable-stats' and/or "
-						+ "'enable-data-share' options in the config. For information on what data is sent, check out "
-						+ "the plugin overview page on Spigot: https://www.spigotmc.org/resources/smoothsleep.32043/ - Enjoy!"
+						+ "website. Since a new config was just generated, data won't be transmitted until next load. "
+						+ "To opt out, disable the 'enable-stats' in the config. For information on what data is sent, "
+						+ "check out the plugin overview page on Spigot: https://www.spigotmc.org/resources/smoothsleep.32043/ - Enjoy!"
 						+ "\n==========");
 			}
 		}, 5L);
@@ -206,7 +205,7 @@ public class ConfigHelper {
 	 * requested: 0, false, or an empty string will be returned.
 	 */
 	public class WorldSettings {
-		private World w;
+		private final World w;
 
 		public WorldSettings(World w) { this.w = w; }
 
@@ -512,7 +511,7 @@ public class ConfigHelper {
 					ConfigurationSection effectRewards = ws.getConfSection(REWARD_EFFECT_LIST);
 					for (String key : effectRewards.getKeys(false)) {
 						if (!key.isEmpty() && !isValidPotionEffect(key)) {
-							SmoothSleep.logWarning("'" + partName + "' does not appear to be a valid potion effect!");
+							SmoothSleep.logWarning("'" + key + "' does not appear to be a valid potion effect!");
 							SmoothSleep.logWarning("For a list of valid potion effects, refer to https://hub.spigotmc.org/javadocs/spigot/org/bukkit/potion/PotionEffectType.html");
 						}
 					}

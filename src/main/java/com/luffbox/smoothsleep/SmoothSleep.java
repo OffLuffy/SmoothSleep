@@ -2,6 +2,7 @@ package com.luffbox.smoothsleep;
 
 import com.luffbox.smoothsleep.commands.*;
 import com.luffbox.smoothsleep.lib.LoggablePlugin;
+import com.luffbox.smoothsleep.lib.TabExecutor;
 import com.luffbox.smoothsleep.listeners.NightListeners;
 import com.luffbox.smoothsleep.listeners.PlayerListeners;
 import com.luffbox.smoothsleep.tasks.EveryTickTask;
