@@ -28,8 +28,6 @@ public class TickHelper {
 		}
 	}
 
-	public void reset() {
-		w.setGameRule(GameRule.RANDOM_TICK_SPEED, randTickSpeed);
-	}
+	public void reset() { w.setGameRule(GameRule.RANDOM_TICK_SPEED, randTickSpeed); }
 
 }

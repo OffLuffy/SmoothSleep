@@ -202,5 +202,9 @@ public class WorldData implements Purgeable {
 	}
 
 	@Override
-	public void purgeData() {}
+	public void purgeData() {
+		if (tickHelper != null) {
+			tickHelper.reset();
+		}
+	}
 }

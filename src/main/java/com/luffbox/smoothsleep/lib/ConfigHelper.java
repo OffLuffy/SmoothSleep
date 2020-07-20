@@ -340,7 +340,7 @@ public class ConfigHelper {
 		ss.reloadConfig();
 
 		if (!firstRun && getBoolean(GlobalSettingKey.ENABLE_STATS)) {
-			SmoothSleep.metrics = new Metrics(ss);
+			SmoothSleep.metrics = new Metrics(ss, SmoothSleep.STAT_ID);
 		} else { SmoothSleep.metrics = null; }
 
 		boolean changed = false;

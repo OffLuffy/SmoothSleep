@@ -14,7 +14,7 @@ public class EssUserHelper implements UserHelper {
 		this.pl = plugin;
 		ess = (IEssentials) plugin.getServer().getPluginManager().getPlugin("Essentials");
 		if (ess == null) { throw new NullPointerException(); }
-		SmoothSleep.logInfo("Hooked to Essentials v" + ess.getDescription().getVersion());
+		SmoothSleep.logInfo(String.format("Hooked to %s v%s", ess.getDescription().getName(), ess.getDescription().getVersion()));
 	}
 
 	@Override

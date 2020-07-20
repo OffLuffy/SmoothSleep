@@ -13,6 +13,8 @@ import org.bukkit.scheduler.BukkitTask;
 
 public final class SmoothSleep extends LoggablePlugin {
 
+	public static final int STAT_ID = 3005;
+
 	public static final String PERM_IGNORE = "smoothsleep.ignore";
 	public static final String PERM_NOTIFY = "smoothsleep.notify";
 
@@ -38,7 +40,7 @@ public final class SmoothSleep extends LoggablePlugin {
 		nmsver = nmsver.substring(nmsver.lastIndexOf(".") + 1);
 		hasUpdate = checkUpdate();
 
-		metrics = new Metrics(this);
+		metrics = new Metrics(this, STAT_ID);
 		data = new DataStore(this); // init() after assign so data variable isn't null
 		data.init();
 
