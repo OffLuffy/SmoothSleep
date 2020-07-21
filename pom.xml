@@ -121,6 +121,7 @@
             <groupId>net.zrips</groupId>
             <artifactId>cmi-api</artifactId>
             <version>7.6.2.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
