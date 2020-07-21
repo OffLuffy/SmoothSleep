@@ -64,6 +64,8 @@ public class ConfigHelper {
 		put("replenish-settings.ticks-per-health",	HEAL_TICKS);
 		put("replenish-settings.food-amount",		FEED_AMOUNT);
 		put("replenish-settings.health-amount",		HEAL_AMOUNT);
+		put("essentials-settings.ignore-afk",		IGNORE_AFK);
+		put("essentials-settings.ignore-vanish",	IGNORE_VANISH);
 	}};
 
 	// A list of keys supporting placeholder text
@@ -136,8 +138,8 @@ public class ConfigHelper {
 		MORNING_SOUND("morning-sound", String.class),
 		CLEAR_WEATHER("clear-weather-when-morning", boolean.class),
 		INSTANT_DAY("instant-day-if-all-sleeping", boolean.class),
-		IGNORE_AFK("essentials-settings.ignore-afk", boolean.class),
-		IGNORE_VANISH("essentials-settings.ignore-vanish", boolean.class),
+		IGNORE_AFK("compatibility-settings.ignore-afk", boolean.class),
+		IGNORE_VANISH("compatibility-settings.ignore-vanish", boolean.class),
 		HEAL_VILLAGERS("heal-slept-villagers", boolean.class),
 
 		HEAL_AMOUNT("replenish-settings.heal-amount", int.class),
