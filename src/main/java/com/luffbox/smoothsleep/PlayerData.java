@@ -190,8 +190,9 @@ public class PlayerData implements Purgeable {
 						}
 						for (PotionEffect pe : effects) {
 							PotionEffect curFx = getPlayer().getPotionEffect(pe.getType());
-							boolean override = curFx == null || curFx.getAmplifier() < pe.getAmplifier() || curFx.getDuration() < pe.getDuration();
-							getPlayer().addPotionEffect(pe, override);
+							if (curFx == null || curFx.getAmplifier() < pe.getAmplifier() || curFx.getDuration() < pe.getDuration()) {
+								getPlayer().addPotionEffect(pe);
+							}
 						}
 					}
 				}

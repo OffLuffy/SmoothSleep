@@ -24,7 +24,7 @@ worlds:
       delay-ticks: 5
       pattern: 'RANDOM'
     instant-day-if-all-sleeping: false
-    essentials-settings:
+    compatibility-settings:
       ignore-afk: true
       ignore-vanish: true
     replenish-settings:

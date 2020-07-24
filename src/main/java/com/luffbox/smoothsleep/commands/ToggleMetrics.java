@@ -25,7 +25,7 @@ public class ToggleMetrics implements TabExecutor {
 			pl.data.config.set(GlobalSettingKey.ENABLE_STATS, !state);
 			pl.data.config.save();
 			state = pl.data.config.getBoolean(GlobalSettingKey.ENABLE_STATS);
-			SmoothSleep.metrics = state ? new Metrics(pl) : null;
+			SmoothSleep.metrics = state ? new Metrics(pl, SmoothSleep.STAT_ID) : null;
 			sender.sendMessage(state ? (ChatColor.GREEN + "Enabled SmoothSleep Metrics") : (ChatColor.GOLD + "Disabled SmoothSleep Metrics"));
 		}
 		return true;

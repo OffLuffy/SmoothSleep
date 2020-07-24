@@ -192,15 +192,15 @@ public class WorldData implements Purgeable {
 	}
 
 	public void stopSleepTick() {
-		/*getPlayers().forEach(plr -> {
-			PlayerData pd = pl.data.getPlayerData(plr);
-			if (pd != null) { pd.hideBossBar(); }
-		});*/
 		if (sleepTickRunning()) { sleepTickTask.cancel(); }
 		sleepTickTask = null;
 		if (tickHelper != null) tickHelper.reset();
 	}
 
 	@Override
-	public void purgeData() {}
+	public void purgeData() {
+		if (tickHelper != null) {
+			tickHelper.reset();
+		}
+	}
 }

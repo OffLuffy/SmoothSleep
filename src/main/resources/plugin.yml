@@ -3,7 +3,7 @@ version: ${project.version}
 main: com.luffbox.smoothsleep.SmoothSleep
 api-version: 1.13
 prefix: SS
-softdepend: [Essentials,PlaceholderAPI]
+softdepend: [Essentials,CMI,PlaceholderAPI]
 authors: [OffLuffy]
 description: ${project.description}
 commands:
