@@ -84,6 +84,7 @@ public class PlayerData implements Purgeable {
 			if (bar == null) { createBossBar(); }
 			bar.setTitle(bossBarTitle());
 			bar.setColor(worldConf().getBarColor(BOSSBAR_COLOR));
+			bar.setStyle(worldConf().getBarStyle(BOSSBAR_STYLE));
 			bar.setProgress(worldData().getTimeRatio());
 			showBossBar();
 		} else { hideBossBar(); }

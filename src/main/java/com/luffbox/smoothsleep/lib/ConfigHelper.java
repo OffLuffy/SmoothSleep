@@ -8,6 +8,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.potion.PotionEffectType;
@@ -44,6 +45,8 @@ public class ConfigHelper {
 	public static Set<Particle> requiresData = Stream.of(REDSTONE, BLOCK_CRACK, BLOCK_DUST, FALLING_DUST, ITEM_CRACK,
 			SPELL_MOB, SPELL_MOB_AMBIENT).collect(Collectors.toSet());
 	public static boolean firstRun;
+
+	private static String validBarColors, validBarStyles, validParticlePatternTypes;
 
 	// If a config option within the world settings has been moved, adding it here should
 	// copy the value from the old key into it's new position and remove the old key.
@@ -98,6 +101,7 @@ public class ConfigHelper {
 		reload();
 	}
 
+	@SuppressWarnings("rawtypes")
 	public enum GlobalSettingKey {
 		ENABLE_STATS("enable-stats", boolean.class),
 		UPDATE_NOTIFY("update-notify-login", boolean.class),
@@ -128,9 +132,11 @@ public class ConfigHelper {
 	 * type before attempting to read from the config. It also allows me to iterate over the
 	 * enum values in order to automatically update old configs.
 	 */
+	@SuppressWarnings("rawtypes")
 	public enum WorldSettingKey {
 		MIN_NIGHT_MULT("min-night-speed-mult", double.class),
 		MAX_NIGHT_MULT("max-night-speed-mult", double.class),
+		ALL_ASLEEP_NIGHT_MULT("all-sleeping-speed-mult", double.class),
 		SPEED_CURVE("night-speed-curve", double.class),
 		ACCEL_RAND_TICK("accelerate-random-tick", boolean.class),
 		MAX_RAND_TICK("max-random-tick", int.class),
@@ -183,6 +189,7 @@ public class ConfigHelper {
 		BOSSBAR_ENABLED("boss-bar.enabled", boolean.class),
 		BOSSBAR_WAKERS("boss-bar.show-if-awake", boolean.class),
 		BOSSBAR_COLOR("boss-bar.color", String.class),
+		BOSSBAR_STYLE("boss-bar.style", String.class),
 		BOSSBAR_TITLE("boss-bar.title", String.class),
 		;
 
@@ -226,6 +233,7 @@ public class ConfigHelper {
 		public Sound getSound(WorldSettingKey setting) { return setting.type == String.class ? conf.getSound(w, setting) : null; }
 		public Particle getParticle(WorldSettingKey setting) { return setting.type == String.class ? conf.getParticle(w, setting) : null; }
 		public BarColor getBarColor(WorldSettingKey setting) { return setting.type == String.class ? conf.getBarColor(w, setting) : null; }
+		public BarStyle getBarStyle(WorldSettingKey setting) { return setting.type == String.class ? conf.getBarStyle(w, setting) : null; }
 		public ParticlePatternType getPatternType(WorldSettingKey setting) { return setting.type == String.class ? conf.getPatternType(w, setting) : null; }
 
 		public boolean contains(WorldSettingKey setting) { return conf.contains(w, setting); }
@@ -309,6 +317,14 @@ public class ConfigHelper {
 	}
 	public BarColor getBarColor(World w, String path) { return getBarColor(path(w) + "." + path); }
 	public BarColor getBarColor(World w, WorldSettingKey key) { return getBarColor(w, key.key); }
+
+	public BarStyle getBarStyle(String path) {
+		String p = getString(path);
+		for (BarStyle style : BarStyle.values()) { if (style.name().equalsIgnoreCase(p)) return style; }
+		return null;
+	}
+	public BarStyle getBarStyle(World w, String path) { return getBarStyle(path(w) + "." + path); }
+	public BarStyle getBarStyle(World w, WorldSettingKey key) { return getBarStyle(w, key.key); }
 
 	public ParticlePatternType getPatternType(String path) {
 		String p = getString(path);
@@ -446,6 +462,11 @@ public class ConfigHelper {
 						changed = true;
 					}
 
+					if (ws.getDouble(ALL_ASLEEP_NIGHT_MULT) < 0.01) {
+						ws.set(ALL_ASLEEP_NIGHT_MULT, 0.01);
+						changed = true;
+					}
+
 					// Make sure the particle radius is positive. Probably won't break anything but just to be safe
 					if (ws.getDouble(PARTICLE_RADIUS) < 0.0) {
 						ws.set(PARTICLE_RADIUS, Math.abs(ws.getDouble(PARTICLE_RADIUS)));
@@ -477,8 +498,16 @@ public class ConfigHelper {
 					String barClrName = ws.getString(BOSSBAR_COLOR);
 					if (barClrName.isEmpty() || !isValidBarColor(barClrName)) {
 						SmoothSleep.logWarning(path(w, BOSSBAR_COLOR) + ": '" + barClrName + "' does not appear to be a valid bar color!");
-						SmoothSleep.logWarning("Valid colors: BLUE, GREEN, PINK, PURPLE, RED, WHITE, YELLOW");
+						SmoothSleep.logWarning("Valid colors: " + validBarColors());
 						ws.set(BOSSBAR_COLOR, "BLUE");
+						changed = true;
+					}
+
+					String barStyleName = ws.getString(BOSSBAR_STYLE);
+					if (barStyleName.isEmpty() || !isValidBarStyle(barStyleName)) {
+						SmoothSleep.logWarning(path(w, BOSSBAR_STYLE) + ": '" + barStyleName + "' does not appear to be a valid bar style!");
+						SmoothSleep.logWarning("Valid styles: " + validBarStyles());
+						ws.set(BOSSBAR_STYLE, "SOLID");
 						changed = true;
 					}
 
@@ -493,7 +522,7 @@ public class ConfigHelper {
 					String pattName = ws.getString(PARTICLE_PATTERN);
 					if (!pattName.isEmpty() && !isValidPattern(pattName)) {
 						SmoothSleep.logWarning("'" + pattName + "' does not appear to be a valid particle pattern type!");
-						SmoothSleep.logWarning("Valid patterns: RANDOM, CIRCLE, SPIRAL");
+						SmoothSleep.logWarning("Valid patterns: " + validParticlePatternTypes());
 					}
 
 					String partName = ws.getString(PARTICLE_TYPE);
@@ -506,7 +535,7 @@ public class ConfigHelper {
 						Particle prt = ws.getParticle(PARTICLE_TYPE);
 						if (requiresData.contains(prt)) {
 							SmoothSleep.logWarning(path(w, PARTICLE_TYPE) + ": '" + partName + "' is a valid particle, but does not work in this version");
-							SmoothSleep.logWarning("Particles that require extra data cannot currently be configured, and won't work without it.");
+							SmoothSleep.logWarning("Particles that require extra data cannot currently be configured, and won't work otherwise.");
 						}
 					}
 
@@ -541,6 +570,10 @@ public class ConfigHelper {
 		for (BarColor clr : BarColor.values()) { if (clr.name().equalsIgnoreCase(name)) { return true; } } return false;
 	}
 
+	public static boolean isValidBarStyle(String name) {
+		for (BarStyle style : BarStyle.values()) { if (style.name().equalsIgnoreCase(name)) { return true; } } return false;
+	}
+
 	public static boolean isValidPattern(String name) {
 		for (ParticlePatternType ppt : ParticlePatternType.values()) { if (ppt.name().equalsIgnoreCase(name)) { return true; } } return false;
 	}
@@ -552,5 +585,44 @@ public class ConfigHelper {
 	public static PotionEffectType getPotionEffect(String name) {
 		for (PotionEffectType pet : PotionEffectType.values()) { if (pet.getName().equalsIgnoreCase(name)) { return pet; } } return null;
 	}
+
+	// Here we'll build a few lists of enums to be used elsewhere without additional StringBuilders
+
+	public static String validBarColors() {
+		if (validBarColors == null) {
+			StringBuilder sb = new StringBuilder();
+			for (BarColor x : BarColor.values()) {
+				if (sb.length() > 0) { sb.append(", "); }
+				sb.append(x.name());
+			}
+			validBarColors = sb.toString();
+		}
+		return validBarColors;
+	}
+
+	public static String validBarStyles() {
+		if (validBarStyles == null) {
+			StringBuilder sb = new StringBuilder();
+			for (BarStyle x : BarStyle.values()) {
+				if (sb.length() > 0) { sb.append(", "); }
+				sb.append(x.name());
+			}
+			validBarStyles = sb.toString();
+		}
+		return validBarStyles;
+	}
+
+	public static String validParticlePatternTypes() {
+		if (validParticlePatternTypes == null) {
+			StringBuilder sb = new StringBuilder();
+			for (ParticlePatternType x : ParticlePatternType.values()) {
+				if (sb.length() > 0) { sb.append(", "); }
+				sb.append(x.name());
+			}
+			validParticlePatternTypes = sb.toString();
+		}
+		return validParticlePatternTypes;
+	}
+
 
 }

@@ -13,9 +13,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import static org.bukkit.ChatColor.stripColor;
-import static org.bukkit.ChatColor.translateAlternateColorCodes;
+import static org.bukkit.ChatColor.*;
 
 public class MiscUtils {
 
@@ -89,7 +90,12 @@ public class MiscUtils {
 		}
 	}
 
-	public static String trans(String s) { return s == null ? null : translateAlternateColorCodes('&', s); }
+	public static String trans(String s) {
+		if (s == null) return null;
+		s = translateAlternateColorCodes('&', s);
+		s = translateHexColorCodes("&#", "", s);
+		return s;
+	}
 
 	/**
 	 * Calculates the night speed multiplier based on the curve amount and percent (0-1) of players sleeping.
@@ -177,6 +183,40 @@ public class MiscUtils {
 			}
 		}
 		SmoothSleep.logDebug("======================================================");
+	}
+
+	/*
+	 * Modified from Elementeral's method on SpigotMC forums
+	 * https://www.spigotmc.org/threads/hex-color-code-translate.449748/#post-3867804
+	 */
+	public static String translateHexColorCodes(String startTag, String endTag, String message) {
+
+		StringBuffer buffer = new StringBuffer(message.length() + 4 * 8);
+
+		final Pattern fullHex = Pattern.compile(startTag + "([A-Fa-f0-9]{6})" + endTag);
+		Matcher fullMatcher = fullHex.matcher(message);
+		while (fullMatcher.find()) {
+			char[] group = fullMatcher.group(1).toCharArray();
+			fullMatcher.appendReplacement(buffer,
+					String.format("%1$sx%1$s%2$s%1$s%3$s%1$s%4$s%1$s%5$s%1$s%6$s%1$s%7$s",
+						COLOR_CHAR, group[0], group[1], group[2], group[3], group[4], group[5])
+			);
+		}
+		message = fullMatcher.appendTail(buffer).toString();
+
+		buffer = new StringBuffer(message.length() + 4 * 8);
+		final Pattern halfHex = Pattern.compile(startTag + "([A-Fa-f0-9]{3})" + endTag);
+		Matcher halfMatcher = halfHex.matcher(message);
+		while(halfMatcher.find()) {
+			char[] group = halfMatcher.group(1).toCharArray();
+			halfMatcher.appendReplacement(buffer,
+					String.format("%1$sx%1$s%2$s%1$s%2$s%1$s%3$s%1$s%3$s%1$s%4$s%1$s%4$s",
+						COLOR_CHAR, group[0], group[1], group[2])
+			);
+		}
+		halfMatcher.appendTail(buffer);
+
+		return buffer.toString();
 	}
 
 }

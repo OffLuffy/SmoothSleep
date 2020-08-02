@@ -107,14 +107,21 @@ public class ConfigureWorld implements TabExecutor {
 					case BOSSBAR_COLOR:
 						if (!ConfigHelper.isValidBarColor(value)) {
 							sender.sendMessage(RED + "'" + value + "' does not appear to be a valid boss bar color!");
-							sender.sendMessage(GRAY + "Valid colors: BLUE, GREEN, PINK, PURPLE, RED, WHITE, YELLOW");
+							sender.sendMessage(GRAY + "Valid colors: " + ConfigHelper.validBarColors());
+							return true;
+						}
+						break;
+					case BOSSBAR_STYLE:
+						if (!ConfigHelper.isValidBarStyle(value)) {
+							sender.sendMessage(RED + "'" + value + "' does not appear to be a valid boss bar style!");
+							sender.sendMessage(GRAY + "Valid styles: " + ConfigHelper.validBarStyles());
 							return true;
 						}
 						break;
 					case PARTICLE_PATTERN:
 						if (!ConfigHelper.isValidPattern(value)) {
 							sender.sendMessage(RED + "'" + value + "' does not appear to be a valid particle pattern type!");
-							sender.sendMessage(GRAY + "Valid patterns: RANDOM, CIRCLE, SPIRAL");
+							sender.sendMessage(GRAY + "Valid patterns: " + ConfigHelper.validParticlePatternTypes());
 							return true;
 						}
 				}

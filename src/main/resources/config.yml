@@ -9,6 +9,7 @@ worlds:
   world:
     min-night-speed-mult: 10
     max-night-speed-mult: 20
+    all-sleeping-speed-mult: 30
     night-speed-curve: 0.5
     accelerate-random-tick: true
     max-random-tick: 1000
@@ -66,4 +67,5 @@ worlds:
       enabled: true
       show-if-awake: true
       color: 'BLUE'
+      style: 'SOLID'
       title: '&a{SLEEPERS}/{TOTAL} Sleeping &3- &b{12H}:{MIN} {MER_UPPER}'
