@@ -114,14 +114,18 @@ public class WorldData implements Purgeable {
 	public double getTimescale() { return timescale; }
 
 	private void updateTimescale() {
-		if (ws.getBoolean(ConfigHelper.WorldSettingKey.INSTANT_DAY) && getWakers().size() <= 0) {
-			timescale = SmoothSleep.SLEEP_TICKS_END - getTime();
-		} else {
-			double crv = getSettings().getDouble(ConfigHelper.WorldSettingKey.SPEED_CURVE);
-			double mns = ws.getDouble(ConfigHelper.WorldSettingKey.MIN_NIGHT_MULT);
-			double xns = ws.getDouble(ConfigHelper.WorldSettingKey.MAX_NIGHT_MULT);
-			timescale = MiscUtils.remapValue(true, 0.0, 1.0, mns, xns, MiscUtils.calcSpeed(crv, getSleepRatio()));
+		if (getWakers().size() <= 0) {
+			if (ws.getBoolean(ConfigHelper.WorldSettingKey.INSTANT_DAY)) {
+				timescale = SmoothSleep.SLEEP_TICKS_END - getTime();
+			} else {
+				timescale = ws.getDouble(ConfigHelper.WorldSettingKey.ALL_ASLEEP_NIGHT_MULT);
+			}
+			return;
 		}
+		double crv = getSettings().getDouble(ConfigHelper.WorldSettingKey.SPEED_CURVE);
+		double mns = ws.getDouble(ConfigHelper.WorldSettingKey.MIN_NIGHT_MULT);
+		double xns = ws.getDouble(ConfigHelper.WorldSettingKey.MAX_NIGHT_MULT);
+		timescale = MiscUtils.remapValue(true, 0.0, 1.0, mns, xns, MiscUtils.calcSpeed(crv, getSleepRatio()));
 	}
 
 	public void timestep() {
