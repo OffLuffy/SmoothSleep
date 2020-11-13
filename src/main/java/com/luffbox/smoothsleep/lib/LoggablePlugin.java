@@ -42,6 +42,15 @@ public class LoggablePlugin extends JavaPlugin {
 		return false;
 	}
 
+	public static boolean classExists(String className) {
+		try {
+			Class.forName(className);
+			return true;
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
+	}
+
 	/**
 	 * Checks if a given level of logging is enabled in the config
 	 * @param level The {@link LogLevel} to check

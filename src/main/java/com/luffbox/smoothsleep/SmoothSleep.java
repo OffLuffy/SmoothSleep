@@ -26,6 +26,8 @@ public final class SmoothSleep extends LoggablePlugin {
 			TICKS_PER_MIN = 1200L;
 
 	public static String nmsver;
+	public static boolean isPaperServer;
+	public static boolean isPurpurServer;
 	public static boolean hasUpdate = false;
 
 	public DataStore data;
@@ -38,6 +40,8 @@ public final class SmoothSleep extends LoggablePlugin {
 		resourceId = "32043";
 		nmsver = Bukkit.getServer().getClass().getPackage().getName();
 		nmsver = nmsver.substring(nmsver.lastIndexOf(".") + 1);
+		isPaperServer = classExists("com.destroystokyo.paper.PaperConfig");
+		isPurpurServer = classExists("net.pl3x.purpur.PurpurConfig");
 		hasUpdate = checkUpdate();
 
 		metrics = new Metrics(this, STAT_ID);
