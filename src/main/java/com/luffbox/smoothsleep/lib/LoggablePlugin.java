@@ -9,11 +9,6 @@ import java.util.Scanner;
 
 public class LoggablePlugin extends JavaPlugin {
 
-	private static LoggablePlugin inst;
-	protected String resourceId = null;
-
-	public LoggablePlugin() { inst = this; }
-
 	public enum LogLevel {
 		INFO("info"),
 		DEBUG("debug"),
@@ -23,6 +18,43 @@ public class LoggablePlugin extends JavaPlugin {
 		private final String levelName;
 		LogLevel(String name) { levelName = name; }
 		public String getLevelName() { return levelName; }
+	}
+
+	public enum ServerType { // More 'specific' server at the bottom
+		BUKKIT(null),
+		SPIGOT("org.bukkit.entity.Player$Spigot"),
+		PAPER("com.destroystokyo.paper.PaperConfig"),
+		PURPUR("net.pl3x.purpur.PurpurConfig");
+
+		private final String classPath;
+		ServerType(String cp) { classPath = cp; }
+		public String getClassPath() { return classPath; }
+	}
+
+	private static LoggablePlugin inst;
+	private String resourceId = null;
+
+	public static String nmsver;
+	public static ServerType serverType = ServerType.BUKKIT;
+	public static boolean hasUpdate = false;
+
+	public LoggablePlugin() {
+		inst = this;
+		nmsver = Bukkit.getServer().getClass().getPackage().getName();
+		nmsver = nmsver.substring(nmsver.lastIndexOf(".") + 1);
+		for (ServerType st : ServerType.values()) {
+			logDebug("Checking if server is type: " + st.name());
+			if (st.getClassPath() != null && classExists(st.getClassPath())) {
+				logDebug("Server contains " + st.name() + " specific class: " + st.getClassPath());
+				serverType = st;
+			}
+		}
+		logDebug("Server type likely to be: " + serverType.name());
+	}
+
+	protected void setResourceId(String resId) {
+		this.resourceId = resId;
+		hasUpdate = checkUpdate();
 	}
 
 	protected boolean checkUpdate() {
@@ -42,7 +74,7 @@ public class LoggablePlugin extends JavaPlugin {
 		return false;
 	}
 
-	public static boolean classExists(String className) {
+	protected boolean classExists(String className) {
 		try {
 			Class.forName(className);
 			return true;

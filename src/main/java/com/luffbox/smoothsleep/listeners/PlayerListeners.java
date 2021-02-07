@@ -6,9 +6,13 @@ import com.luffbox.smoothsleep.WorldData;
 import com.luffbox.smoothsleep.lib.ConfigHelper;
 import com.luffbox.smoothsleep.tasks.UpdateNotifyTask;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.Set;
 
 public class PlayerListeners implements Listener {
 
@@ -64,14 +68,26 @@ public class PlayerListeners implements Listener {
 	@EventHandler(ignoreCancelled = true)
 	public void leaveBed(PlayerBedLeaveEvent e) {
 		if (!pl.isEnabled()) { return; }
-		World w = e.getPlayer().getWorld();
+		final World w = e.getPlayer().getWorld();
 		if (!pl.data.worldEnabled(w)) { return; }
-		WorldData wd = pl.data.getWorldData(w);
+		final WorldData wd = pl.data.getWorldData(w);
 		if (wd == null) { SmoothSleep.logWarning("An error occurred while handing PlayerBedLeaveEvent. Missing WorldData."); return; }
-		PlayerData pd = pl.data.getPlayerData(e.getPlayer());
+		final PlayerData pd = pl.data.getPlayerData(e.getPlayer());
 		if (pd == null) { SmoothSleep.logWarning("An error occurred while handling PlayerBedLeaveEvent. Missing PlayerData."); return; }
-		pd.wake();
-		if (wd.getSleepers().isEmpty()) { wd.stopSleepTick(); }
+
+		(new BukkitRunnable() {
+			@Override
+			public void run() {
+				pd.wake();
+				Set<Player> sleepers = wd.getSleepers();
+				sleepers.remove(pd.getPlayer());
+				if (sleepers.isEmpty()) {
+					wd.stopSleepTick();
+				} else {
+					SmoothSleep.logDebug("Bed leave: Other players still sleeping");
+				}
+			}
+		}).runTaskLater(pl, 0L);
 	}
 
 }
