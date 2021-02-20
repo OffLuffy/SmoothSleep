@@ -1,6 +1,7 @@
 package com.luffbox.smoothsleep;
 
 import com.luffbox.smoothsleep.lib.ConfigHelper;
+import com.luffbox.smoothsleep.lib.LoggablePlugin;
 import com.luffbox.smoothsleep.lib.Purgeable;
 import com.luffbox.smoothsleep.lib.actionbar.ActionBarHelper;
 import com.luffbox.smoothsleep.lib.actionbar.NmsActionBarHelper;
@@ -36,6 +37,7 @@ public class DataStore implements Purgeable {
 		Plugin cmi = pl.getServer().getPluginManager().getPlugin("CMI");
 		if (ess != null && ess.isEnabled()) { userHelper = new EssUserHelper(pl); }
 		else if (cmi != null && cmi.isEnabled()) { userHelper = new CmiUserHelper(pl); }
+		else if (SmoothSleep.serverType == LoggablePlugin.ServerType.PURPUR) { userHelper = new PurpurUserHelper(); }
 		else { userHelper = new DefUserHelper(); }
 
 		Plugin papi = pl.getServer().getPluginManager().getPlugin("PlaceholderAPI");
@@ -43,20 +45,22 @@ public class DataStore implements Purgeable {
 			placeholders = new PlaceholderAPIHelper(pl);
 		} else { placeholders = new DefPlaceholderHelper(pl); }
 
-		try { // See if the Paper method exists
-			Player.class.getMethod("sendActionBar", String.class);
-			SmoothSleep.logDebug("Detected Paper, using Player#sendActionBar() to send action bar");
-			actionBarHelper = new PaperActionHelper();
-		} catch (Exception e1) {
-			try { // See if the Spigot method exists
-				Player.class.getMethod("spigot");
-				SmoothSleep.logDebug("Detected Spigot, using Player#spigot()#sendMessage() to send action bar");
-				actionBarHelper = new SpigotActionBarHelper();
-			} catch (Exception e2) { // Resort to NMS
+		switch (SmoothSleep.serverType) {
+			case BUKKIT:
 				SmoothSleep.logDebug("Not using Paper or Spigot, resorting to NMS method to send action bar");
 				actionBarHelper = new NmsActionBarHelper();
-			}
+				break;
+			case SPIGOT:
+				SmoothSleep.logDebug("Detected Spigot, using Player#spigot()#sendMessage() to send action bar");
+				actionBarHelper = new SpigotActionBarHelper();
+				break;
+			case PAPER:
+			case PURPUR:
+				SmoothSleep.logDebug("Detected Paper, using Player#sendActionBar() to send action bar");
+				actionBarHelper = new PaperActionHelper();
+				break;
 		}
+
 		SmoothSleep.logDebug("DataStore initialized");
 	}
 

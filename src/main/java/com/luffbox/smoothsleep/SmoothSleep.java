@@ -7,7 +7,6 @@ import com.luffbox.smoothsleep.listeners.NightListeners;
 import com.luffbox.smoothsleep.listeners.PlayerListeners;
 import com.luffbox.smoothsleep.tasks.EveryTickTask;
 import org.bstats.bukkit.Metrics;
-import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -25,9 +24,6 @@ public final class SmoothSleep extends LoggablePlugin {
 			TICKS_PER_HOUR = 72000L,
 			TICKS_PER_MIN = 1200L;
 
-	public static String nmsver;
-	public static boolean hasUpdate = false;
-
 	public DataStore data;
 	public static Metrics metrics;
 
@@ -35,10 +31,7 @@ public final class SmoothSleep extends LoggablePlugin {
 
 	@Override
 	public void onEnable() {
-		resourceId = "32043";
-		nmsver = Bukkit.getServer().getClass().getPackage().getName();
-		nmsver = nmsver.substring(nmsver.lastIndexOf(".") + 1);
-		hasUpdate = checkUpdate();
+		setResourceId("32043");
 
 		metrics = new Metrics(this, STAT_ID);
 		data = new DataStore(this); // init() after assign so data variable isn't null
