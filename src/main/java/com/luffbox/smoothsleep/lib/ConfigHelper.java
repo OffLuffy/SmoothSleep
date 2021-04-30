@@ -52,7 +52,7 @@ public class ConfigHelper {
 	// copy the value from the old key into it's new position and remove the old key.
 	// If it's moved more than once, include both, earlier first.
 	// LinkedHashMap in order to iterate over map in order
-	private final Map<String, WorldSettingKey> worldMoved = new LinkedHashMap<String, WorldSettingKey>() {{
+	private final Map<String, WorldSettingKey> worldMoved = new LinkedHashMap<>() {{
 		//  FROM									TO
 		put("action-bar",							ACTIONBAR_TITLE);
 		put("use-action-bar",						ACTIONBAR_ENABLED);
@@ -72,7 +72,7 @@ public class ConfigHelper {
 	}};
 
 	// A list of keys supporting placeholder text
-	private final Set<WorldSettingKey> placeholderKeys = new HashSet<WorldSettingKey>() {{
+	private final Set<WorldSettingKey> placeholderKeys = new HashSet<>() {{
 		add(SLEEP_TITLE);
 		add(SLEEP_SUBTITLE);
 		add(MORNING_TITLE);
@@ -104,6 +104,7 @@ public class ConfigHelper {
 	@SuppressWarnings("rawtypes")
 	public enum GlobalSettingKey {
 		ENABLE_STATS("enable-stats", boolean.class),
+		ENABLE_UPDATE("enable-update-check", boolean.class),
 		UPDATE_NOTIFY("update-notify-login", boolean.class),
 		LOG_DEBUG("logging-settings.log-debug", boolean.class),
 		LOG_INFO("logging-settings.log-info", boolean.class),

@@ -1,6 +1,7 @@
 package com.luffbox.smoothsleep;
 
 import com.luffbox.smoothsleep.commands.*;
+import com.luffbox.smoothsleep.lib.ConfigHelper;
 import com.luffbox.smoothsleep.lib.LoggablePlugin;
 import com.luffbox.smoothsleep.lib.TabExecutor;
 import com.luffbox.smoothsleep.listeners.NightListeners;
@@ -31,11 +32,13 @@ public final class SmoothSleep extends LoggablePlugin {
 
 	@Override
 	public void onEnable() {
-		setResourceId("32043");
-
 		metrics = new Metrics(this, STAT_ID);
 		data = new DataStore(this); // init() after assign so data variable isn't null
 		data.init();
+
+		if (data.config.getBoolean(ConfigHelper.GlobalSettingKey.ENABLE_UPDATE)) {
+			setResourceId("32043");
+		}
 
 		getServer().getPluginManager().registerEvents(new PlayerListeners(this), this);
 		getServer().getPluginManager().registerEvents(new NightListeners(this), this);
