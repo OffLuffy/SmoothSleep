@@ -54,6 +54,7 @@ public class LoggablePlugin extends JavaPlugin {
 
 	protected void setResourceId(String resId) {
 		this.resourceId = resId;
+		logDebug("Checking for update...");
 		hasUpdate = checkUpdate();
 	}
 
